@@ -1,0 +1,41 @@
+{
+  "task": "retry",
+  "mode": "greenfield",
+  "arm": "strata",
+  "run": 3,
+  "model": "haiku",
+  "strataBuild": "29762d587e34",
+  "ok": true,
+  "turns": 12,
+  "inputTokens": 52,
+  "outputTokens": 2749,
+  "cacheReadTokens": 376165,
+  "costUsd": 0.18068225,
+  "wallMs": 75057,
+  "dir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-psdSEj",
+  "strataCalls": 1,
+  "armValid": true,
+  "synthetic": false,
+  "deliveredRecalls": [
+    "http.resilient-client.v1",
+    "comm.email.v1"
+  ],
+  "verifyResult": "2/2 checks passed",
+  "diagnosis": {
+    "toolSearchFired": true,
+    "strataUseFired": true,
+    "hubComposed": false,
+    "hubUnreachableFellBackLocal": false,
+    "hubDeclined": false,
+    "verifyRan": true,
+    "bodyParserBugLanguage": false
+  },
+  "finalSummary": "Done. You have a production-ready API retry helper with exponential backoff and a circuit breaker. Here's what's in place:\n\n**Core module** (`strata/composed-pkg/index.js:48-246`) — `createHttpClient()`:\n- Retries on transient failures (5xx, 429, 408, timeouts, network errors)\n- Skips retries on permanent failures (4xx except 429)\n- Respects server's `Retry-After` header\n- Exponential backoff with full jitter to avoid thundering herd\n- Per-attempt timeouts (not total timeout, so retries work)\n- Distinguishes idempotent methods (GET/HEAD/PUT/DELETE always retried) from unsafe ones (POST/PATCH only if caller says `idempotent: true`)\n- Circuit breaker: fails fast after repeated failures, probes for recovery\n\n**Circuit breaker** (`strata/lib.js:57-94`):\n- Closed → Open after N consecutive failures\n- Open → rejects immediately, no network call\n- Half-open → lets one probe through to test recovery\n- Non-retryable 4xx (e.g., 404) don't count toward opening — only retryable statuses (5xx, 429, 408) do\n\n**Backoff function** (`strata/lib.js:103-107`): exponential with configurable base and cap, optional jitter.\n\n**Tests** pass. The example shows how to integrate it into your app.\n\n**Design choices made:**\n- No external dependencies — uses Node 18+ native fetch and AbortSignal\n- Timeout per attempt, not total (so slow upstreams don't starve retries)\n- Jitter defaults to ON to prevent retry storms\n- Circuit breaker defaults to ON but can be disabled with `circuitBreaker: false`\n- POST not retried by default to prevent double-charging; caller must opt in with `idempotent: true`\n- Errors carry `status`, `attempts`, `url`, `method`, and body for logging and decisions",
+  "verifyPresent": true,
+  "work": {
+    "filesAdded": 13,
+    "entryBytes": 4192,
+    "attempted": true
+  },
+  "fileCount": 14
+}

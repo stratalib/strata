@@ -1,0 +1,38 @@
+{
+  "task": "retry",
+  "mode": "greenfield",
+  "arm": "baseline",
+  "run": 3,
+  "model": "opus",
+  "strataBuild": null,
+  "ok": true,
+  "turns": 12,
+  "inputTokens": 22,
+  "outputTokens": 10491,
+  "cacheReadTokens": 341790,
+  "costUsd": 0.629718,
+  "wallMs": 164145,
+  "dir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-AQAruG",
+  "strataCalls": 0,
+  "armValid": true,
+  "synthetic": false,
+  "deliveredRecalls": [],
+  "verifyResult": "no verify.js",
+  "diagnosis": {
+    "toolSearchFired": false,
+    "strataUseFired": false,
+    "hubComposed": false,
+    "hubUnreachableFellBackLocal": false,
+    "hubDeclined": false,
+    "verifyRan": false,
+    "bodyParserBugLanguage": false
+  },
+  "finalSummary": "All 15 pass and the whole suite is now ~0.2s. Done.\n\n## You are here\n\nGreenfield Node project → you now have a tested retry helper. Two files:\n- **`src/retry.js`** — the helper (zero dependencies).\n- **`test/retry.test.js`** — 15 tests, run with `npm test`.\n\n## What I built\n\nTwo functions, layered so the useful bit is reusable:\n\n- **`withRetry(fn, options)`** — the generic core. Retries *any* async function with exponential backoff + jitter. Knows nothing about HTTP.\n- **`fetchWithRetry(url, options)`** — a thin HTTP wrapper on top of it, the thing you'll actually call for a flaky API.\n\nThe retry strategy is **exponential backoff with full jitter**: delays grow `~300ms → 600 → 1200…` but each is randomized in `[0, that]`. The jitter isn't decorative — without it, a swarm of clients that all fail at the same instant retry at the same instants and keep knocking the server over (a *thundering herd*). Randomizing spreads them out.\n\n## Judgment calls I made (and would defend)\n\n- **Zero dependencies.** Node 24 is installed, so I used the built-in global `fetch` and the built-in `node:test` runner instead of pulling in `axios`/`jest`. A retry helper that drags in a dependency tree is a bad trade.\n- **Only retry what's actually transient.** Default retries on network errors, `429`, and `5xx` — but *not* other `4xx`. A `400`/`401`/`404` is your fault, not the server's; retrying it just fails four times instead of once. All of this is overridable via `shouldRetryResponse` / `shouldRetryError`.\n- **A non-retryable bad response is returned, not thrown.** A `404` is a real answer — the caller can read its body and check `.ok`. I only throw (`RetryError`, with the original error as `.cause`) when a genuine *transport* failure survives all retries. This is the call I'd most expect pushback on; I chose it because you can't un-throw a `503` body you wanted to inspect, but you can always check `.ok` yourself.\n- **Respect the server's `Retry-After` header** when present (both seconds ",
+  "verifyPresent": false,
+  "work": {
+    "filesAdded": 3,
+    "entryBytes": 0,
+    "attempted": true
+  },
+  "fileCount": 4
+}

@@ -1,0 +1,38 @@
+{
+  "task": "retry",
+  "mode": "greenfield",
+  "arm": "baseline",
+  "run": 2,
+  "model": "haiku",
+  "strataBuild": null,
+  "ok": true,
+  "turns": 10,
+  "inputTokens": 49,
+  "outputTokens": 3796,
+  "cacheReadTokens": 279687,
+  "costUsd": 0.0741757,
+  "wallMs": 73248,
+  "dir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-vzFe8i",
+  "strataCalls": 0,
+  "armValid": true,
+  "synthetic": false,
+  "deliveredRecalls": [],
+  "verifyResult": "no verify.js",
+  "diagnosis": {
+    "toolSearchFired": false,
+    "strataUseFired": false,
+    "hubComposed": false,
+    "hubUnreachableFellBackLocal": false,
+    "hubDeclined": false,
+    "verifyRan": false,
+    "bodyParserBugLanguage": false
+  },
+  "finalSummary": "Perfect. All tests pass. Here's what I built:\n\n## Summary\n\nI created a robust retry helper (`retry.ts`) with two functions:\n\n1. **`retry(fn, options)`** — throws on final failure after all retries\n2. **`retryWithResult(fn, options)`** — returns a result object `{ success, attempts, lastError }` so callers can decide how to handle failure without try-catch\n\n### Key features:\n\n- **Exponential backoff**: Delay doubles each retry (configurable multiplier)\n- **Jitter**: Random 0.5x–1x factor on delays to prevent thundering herd when multiple clients retry simultaneously\n- **Configurable caps**: `maxAttempts`, `initialDelayMs`, `maxDelayMs`\n- **Sensible defaults**: 3 attempts, 100ms initial, 10s max, 2x backoff, jitter enabled\n- **Non-Error safety**: Converts thrown strings/objects to Error\n\n### Testing\n\nComprehensive test suite (14 tests, all passing) verifies:\n- Success/failure paths\n- Attempt counting\n- Backoff timing and exponential growth\n- Jitter randomness\n- Delay ceiling enforcement\n- Non-Error exception handling\n- Configuration overrides\n\nThe code is production-ready — it handles edge cases like non-Error throws, caps delay growth, and includes jitter to prevent synchronized retries across distributed systems.",
+  "verifyPresent": false,
+  "work": {
+    "filesAdded": 6,
+    "entryBytes": 0,
+    "attempted": true
+  },
+  "fileCount": 7
+}

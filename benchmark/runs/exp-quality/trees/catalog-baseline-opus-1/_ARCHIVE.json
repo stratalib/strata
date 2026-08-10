@@ -1,0 +1,14 @@
+{
+  "archivedAt": "2026-08-01T15:03:35.312Z",
+  "originalDir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-2SStXw",
+  "task": "catalog",
+  "arm": "baseline",
+  "model": "opus",
+  "run": 1,
+  "strataBuild": null,
+  "turns": 34,
+  "costUsd": 1.3465795000000003,
+  "deliveredRecalls": [],
+  "verifyResult": "no verify.js",
+  "note": "node_modules excluded — reinstallable, not evidence."
+}

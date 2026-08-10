@@ -1,0 +1,14 @@
+{
+  "archivedAt": "2026-08-02T15:23:19.373Z",
+  "originalDir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-X3kWNT",
+  "task": "stripejune",
+  "arm": "baseline",
+  "model": "sonnet",
+  "run": 2,
+  "strataBuild": null,
+  "turns": 90,
+  "costUsd": 2.6867197999999997,
+  "deliveredRecalls": [],
+  "verifyResult": "no verify.js",
+  "note": "node_modules excluded — reinstallable, not evidence."
+}

@@ -1,0 +1,14 @@
+{
+  "archivedAt": "2026-08-03T08:35:47.242Z",
+  "originalDir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-kHW9Hg",
+  "task": "stripejune",
+  "arm": "baseline",
+  "model": "opus",
+  "run": 3,
+  "strataBuild": null,
+  "turns": 60,
+  "costUsd": 3.142279999999999,
+  "deliveredRecalls": [],
+  "verifyResult": "no verify.js",
+  "note": "node_modules excluded — reinstallable, not evidence."
+}

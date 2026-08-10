@@ -1,0 +1,14 @@
+{
+  "archivedAt": "2026-08-05T08:40:32.441Z",
+  "originalDir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-XezST7",
+  "task": "retry",
+  "arm": "baseline",
+  "model": "sonnet",
+  "run": 1,
+  "strataBuild": null,
+  "turns": 32,
+  "costUsd": 0.8669894,
+  "deliveredRecalls": [],
+  "verifyResult": "no verify.js",
+  "note": "node_modules excluded — reinstallable, not evidence."
+}

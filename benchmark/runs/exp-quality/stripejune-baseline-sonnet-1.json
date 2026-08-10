@@ -1,0 +1,38 @@
+{
+  "task": "stripejune",
+  "mode": "greenfield",
+  "arm": "baseline",
+  "run": 1,
+  "model": "sonnet",
+  "strataBuild": null,
+  "ok": true,
+  "turns": 45,
+  "inputTokens": 90,
+  "outputTokens": 21607,
+  "cacheReadTokens": 2282598,
+  "costUsd": 1.4182143999999999,
+  "wallMs": 369072,
+  "dir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-6RDzr0",
+  "strataCalls": 0,
+  "armValid": true,
+  "synthetic": false,
+  "deliveredRecalls": [],
+  "verifyResult": "no verify.js",
+  "diagnosis": {
+    "toolSearchFired": true,
+    "strataUseFired": false,
+    "hubComposed": false,
+    "hubUnreachableFellBackLocal": false,
+    "hubDeclined": false,
+    "verifyRan": false,
+    "bodyParserBugLanguage": true
+  },
+  "finalSummary": "Done. Built and tested (12/12 passing).\n\n**What's there:**\n- `src/server.js` / `src/app.js` — Express app. Two routers: `/webhooks` (Stripe, mounted with `express.raw()` before the JSON parser — required, since Stripe's signature check needs the exact raw bytes) and `/api` (checkout session creation).\n- `src/routes/webhook.js` — verifies the Stripe signature via `stripe.webhooks.constructEvent`, rejects bad/missing signatures with 400, deduplicates by Stripe event ID (protects against Stripe's at-least-once redelivery), then on `checkout.session.completed` persists the order, sends the confirmation email, and enqueues the receipt job.\n- `src/routes/checkout.js` — creates a Stripe Checkout Session for a single line item.\n- `src/services/orderStore.js` — orders persisted to a JSON file with atomic writes (temp file + rename, so a crash mid-write can't corrupt it).\n- `src/lib/mailer.js` + `src/services/emailService.js` — Nodemailer/SMTP; confirmation email and receipt email (with PDF attached) as separate templates.\n- `src/jobs/receiptQueue.js` + `src/workers/receiptWorker.js` — BullMQ queue/worker on Redis. Jobs are keyed by `receipt-${orderId}` so a re-delivered webhook can't double-enqueue; retries 5x with exponential backoff. Worker renders the PDF (PDFKit), writes it to `receipts/`, and emails it.\n- `test/` — 12 tests on `node:test` (no extra test framework): webhook signature accept/reject/missing-header/replay, order store CRUD + persistence-across-reload, PDF structural validity, and the worker's job-processing logic end to end (real PDF generation, mocked mail transport).\n\n**Choices I made and would defend:**\n- **No database was specified**, so I used a JSON-file store with atomic rename-on-write instead of pulling in Postgres/Mongo. It's durable and good enough for this scope; swapping in a real DB later just means reimplementing `orderStore.js`'s five functions against it.\n- **Idempotency twice over**: once at the webhook layer (skip already-processed Stripe",
+  "verifyPresent": false,
+  "work": {
+    "filesAdded": 21,
+    "entryBytes": 207,
+    "attempted": true
+  },
+  "fileCount": 22
+}

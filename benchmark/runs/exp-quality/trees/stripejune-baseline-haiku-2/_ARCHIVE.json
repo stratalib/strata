@@ -1,0 +1,14 @@
+{
+  "archivedAt": "2026-08-02T15:04:11.963Z",
+  "originalDir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-Jg4L6w",
+  "task": "stripejune",
+  "arm": "baseline",
+  "model": "haiku",
+  "run": 2,
+  "strataBuild": null,
+  "turns": 52,
+  "costUsd": 0.34047320000000014,
+  "deliveredRecalls": [],
+  "verifyResult": "no verify.js",
+  "note": "node_modules excluded — reinstallable, not evidence."
+}

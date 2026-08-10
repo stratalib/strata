@@ -1,0 +1,17 @@
+{
+  "archivedAt": "2026-08-05T09:01:35.423Z",
+  "originalDir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-5NaeDA",
+  "task": "retry",
+  "arm": "strata",
+  "model": "sonnet",
+  "run": 3,
+  "strataBuild": "29762d587e34",
+  "turns": 21,
+  "costUsd": 0.6958025,
+  "deliveredRecalls": [
+    "http.resilient-client.v1",
+    "comm.email.v1"
+  ],
+  "verifyResult": "2/2 checks passed",
+  "note": "node_modules excluded — reinstallable, not evidence."
+}

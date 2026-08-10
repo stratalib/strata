@@ -1,0 +1,6 @@
+{
+  "ERROR_SHAPE": "res.status(500).json({ error: err.message })",
+  "ROUTER_VAR": "router",
+  "ENV_PREFIX": "HUB",
+  "SUCCESS_SHAPE": "res.json({ result })"
+}

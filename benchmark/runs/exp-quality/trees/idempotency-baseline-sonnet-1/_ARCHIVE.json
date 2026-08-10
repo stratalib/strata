@@ -1,0 +1,14 @@
+{
+  "archivedAt": "2026-08-01T13:38:28.747Z",
+  "originalDir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-FrNTjs",
+  "task": "idempotency",
+  "arm": "baseline",
+  "model": "sonnet",
+  "run": 1,
+  "strataBuild": null,
+  "turns": 46,
+  "costUsd": 1.1609495000000003,
+  "deliveredRecalls": [],
+  "verifyResult": "no verify.js",
+  "note": "node_modules excluded — reinstallable, not evidence."
+}

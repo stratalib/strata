@@ -1,0 +1,9 @@
+{
+  "name": "bench-greenfield",
+  "version": "1.0.0",
+  "private": true,
+  "main": "src/retry.js",
+  "scripts": {
+    "test": "node --test src/**/*.test.js"
+  }
+}

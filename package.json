@@ -1,0 +1,76 @@
+{
+  "name": "stratalib",
+  "version": "0.1.2",
+  "description": "StrataLib — MCP server for pre-built code patterns (recalls)",
+  "main": "dist/src/mcp-server.js",
+  "bin": {
+    "strata": "dist/bin/strata.js"
+  },
+  "files": [
+    "dist/src/",
+    "dist/bin/",
+    "dist/package.json",
+    "templates/",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.mcp.json",
+    "start": "node dist/src/mcp-server.js",
+    "hub": "node dist/src/hub-main.js",
+    "poc": "ts-node poc/runner.ts",
+    "poc:watch": "ts-node-dev --respawn poc/runner.ts",
+    "overnight:generate": "ts-node scripts/overnight-generator.ts",
+    "overnight:test-github": "ts-node -e \"import { scrapeGitHub } from './scripts/scrapers/github-scraper'; scrapeGitHub().then(p => console.log('GitHub patterns:', p.length))\"",
+    "overnight:test-npm": "ts-node -e \"import { analyzeNPM } from './scripts/scrapers/npm-analyzer'; analyzeNPM().then(p => console.log('NPM patterns:', p.length))\"",
+    "overnight:test-local": "ts-node -e \"import { analyzeLocal } from './scripts/scrapers/local-analyzer'; analyzeLocal().then(p => console.log('Local patterns:', p.length))\"",
+    "overnight:test-all": "ts-node -e \"import { collectPatterns } from './scripts/overnight-generator'; collectPatterns().then(p => console.log('Total patterns:', p.length))\"",
+    "restructure:analyze": "ts-node scripts/restructure-to-layers.ts",
+    "restructure:migrate": "ts-node scripts/restructure-migrate.ts",
+    "library:index": "ts-node scripts/generate-library-index.ts",
+    "library:stats": "ts-node scripts/generate-library-index.ts",
+    "patterns:master": "ts-node scripts/master-pattern-scraper.ts",
+    "patterns:local": "ts-node scripts/scrapers/local-deep-scraper.ts",
+    "recalls:cheap": "ts-node scripts/cheap-recall-generator.ts",
+    "recalls:embed": "ts-node scripts/generate-recall-embeddings.ts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "strata": "^0.20.1",
+    "zod": "^3.23.0"
+  },
+  "optionalDependencies": {
+    "@ai-sdk/google": "^1.0.0"
+  },
+  "devDependencies": {
+    "@ai-sdk/anthropic": "^1.0.0",
+    "@ai-sdk/openai": "^1.0.0",
+    "@anthropic-ai/sdk": "^0.24.0",
+    "@xenova/transformers": "^2.17.0",
+    "ai": "^4.0.0",
+    "ts-node": "^10.9.0",
+    "typescript": "^5.0.0"
+  },
+  "license": "AGPL-3.0-or-later",
+  "homepage": "https://stratalib.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/stratalib/strata.git"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "backend",
+    "codegen",
+    "claude",
+    "cursor",
+    "express",
+    "prisma"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "bugs": {
+    "url": "https://github.com/stratalib/strata/issues"
+  }
+}

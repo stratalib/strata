@@ -1,0 +1,17 @@
+{
+  "archivedAt": "2026-08-03T09:48:48.116Z",
+  "originalDir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-tEhIYr",
+  "task": "stripejune",
+  "arm": "strata",
+  "model": "haiku",
+  "run": 1,
+  "strataBuild": "29762d587e34",
+  "turns": 46,
+  "costUsd": 0.40823449999999994,
+  "deliveredRecalls": [
+    "payment.stripe-webhook.v1",
+    "comm.email.v1"
+  ],
+  "verifyResult": "7/7 checks passed",
+  "note": "node_modules excluded — reinstallable, not evidence."
+}

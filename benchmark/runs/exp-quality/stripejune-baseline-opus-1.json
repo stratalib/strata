@@ -1,0 +1,38 @@
+{
+  "task": "stripejune",
+  "mode": "greenfield",
+  "arm": "baseline",
+  "run": 1,
+  "model": "opus",
+  "strataBuild": null,
+  "ok": true,
+  "turns": 41,
+  "inputTokens": 82,
+  "outputTokens": 25361,
+  "cacheReadTokens": 1544730,
+  "costUsd": 1.945455,
+  "wallMs": 461934,
+  "dir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-QPci1V",
+  "strataCalls": 0,
+  "armValid": true,
+  "synthetic": false,
+  "deliveredRecalls": [],
+  "verifyResult": "no verify.js",
+  "diagnosis": {
+    "toolSearchFired": true,
+    "strataUseFired": false,
+    "hubComposed": false,
+    "hubUnreachableFellBackLocal": false,
+    "hubDeclined": false,
+    "verifyRan": false,
+    "bodyParserBugLanguage": false
+  },
+  "finalSummary": "Everything's in place. All 15 tests pass, the app boots, the worker loads cleanly, and production config fails fast on missing secrets.\n\n## What I built\n\n**The flow, end to end:**\n```\nStripe → POST /webhooks/stripe  (raw body, signature verified)\n           │\n           ├─ checkout.session.completed + paid + first delivery\n           │     ├─ save order\n           │     ├─ send confirmation email  (inline, fast, no attachment)\n           │     └─ enqueue receipt job  ──────────┐\n           │                                        ▼\n           └─ 200 OK (fast)              Redis queue (BullMQ)\n                                                    │\n                                         worker process pulls job\n                                                    ├─ generate PDF (PDFKit)\n                                                    └─ email receipt w/ PDF attached\n```\n\n**Files** (`src/`): `config.js` (env, fail-fast in prod), `stripeClient.js` (signature verification), `app.js` (Express + webhook route), `orders.js` (Stripe→order mapping + fulfillment logic), `mailer.js` (Nodemailer, both emails), `queue.js` (BullMQ enqueue), `worker.js` (separate process: PDF + receipt email), `receipt.js` (PDFKit), `store.js` (persistence + idempotency ledger), `server.js`/`worker.js` (entry points). Run with `npm start` (web) and `npm run worker` (worker).\n\n**The three things that make this correct and not just plausible:**\n- **Signature verification uses the raw body.** The webhook route is mounted with `express.raw()` *before* any JSON parser (`app.js:15`). If Express parsed the JSON first, the bytes would change and every verification would fail. Tests prove it accepts real signatures and rejects bad/missing/tampered ones.\n- **Idempotency.** Stripe retries webhooks, so the same event can arrive twice. `store.markEventProcessed` (`store.js:23`) makes the second delivery a no-op — one email, one job. There's a test for exactly this double-delivery.\n- **The webhook responds ",
+  "verifyPresent": false,
+  "work": {
+    "filesAdded": 19,
+    "entryBytes": 616,
+    "attempted": true
+  },
+  "fileCount": 20
+}

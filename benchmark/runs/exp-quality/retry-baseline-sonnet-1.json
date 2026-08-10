@@ -1,0 +1,38 @@
+{
+  "task": "retry",
+  "mode": "greenfield",
+  "arm": "baseline",
+  "run": 1,
+  "model": "sonnet",
+  "strataBuild": null,
+  "ok": true,
+  "turns": 32,
+  "inputTokens": 64,
+  "outputTokens": 12039,
+  "cacheReadTokens": 1549298,
+  "costUsd": 0.8669894,
+  "wallMs": 281531,
+  "dir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-XezST7",
+  "strataCalls": 0,
+  "armValid": true,
+  "synthetic": false,
+  "deliveredRecalls": [],
+  "verifyResult": "no verify.js",
+  "diagnosis": {
+    "toolSearchFired": false,
+    "strataUseFired": false,
+    "hubComposed": false,
+    "hubUnreachableFellBackLocal": false,
+    "hubDeclined": false,
+    "verifyRan": false,
+    "bodyParserBugLanguage": false
+  },
+  "finalSummary": "Done. Built `src/retry.ts` — a `retryWithBackoff(fn, options)` helper plus `src/retry.test.ts` (19 tests, all passing via `npm test`, and `tsc --noEmit` clean).\n\n**What it does:** calls an async function, and on failure retries with exponential backoff + full jitter (delay is randomized within `[0, cap]`, cap doubling each attempt up to `maxDelayMs`), up to `maxAttempts`. Exhausting retries throws `RetryExhaustedError` (wraps the last error); an aborted `AbortSignal` throws `RetryAbortedError` instead.\n\n**Ambiguous calls I made and would defend:**\n- **Language/tooling**: no existing code to match, so I chose TypeScript + Jest (ESM) as the most defensible default for a general-purpose Node helper.\n- **Which errors are retryable by default** (`retryDefault`): retries 429/5xx and known transient network error codes (`ECONNRESET`, `ETIMEDOUT`, etc.), but *not* other 4xx — a 400/401/404 won't succeed on retry, so retrying wastes time and can trip rate limiters harder. Errors with no recognizable shape (plain `Error`, string, etc.) are retried by default, since flaky APIs often throw opaque errors on transient failures and I'd rather over-retry than silently give up on something recoverable. Callers can override via `shouldRetry`.\n- **Jitter strategy**: full jitter (`random() * cap`) rather than \"equal jitter\" or no jitter — it's the AWS-recommended approach for avoiding thundering-herd retries from many concurrent callers.\n- **Defaults**: `maxAttempts: 5`, `baseDelayMs: 200`, `maxDelayMs: 10_000` — reasonable for a typical HTTP call; easily overridden per-call.\n- **Windows quirk**: `node_modules/.bin/jest` is a shell shim that node can't execute directly on this platform, so `npm test` points at `node_modules/jest/bin/jest.js` instead.",
+  "verifyPresent": false,
+  "work": {
+    "filesAdded": 6,
+    "entryBytes": 0,
+    "attempted": true
+  },
+  "fileCount": 7
+}

@@ -1,0 +1,42 @@
+{
+  "task": "idempotency",
+  "mode": "brownfield",
+  "arm": "strata",
+  "run": 1,
+  "model": "sonnet",
+  "strataBuild": "40c84878e2f0",
+  "ok": true,
+  "turns": 50,
+  "inputTokens": 80,
+  "outputTokens": 15222,
+  "cacheReadTokens": 2629877,
+  "costUsd": 1.5468181000000005,
+  "wallMs": 268772,
+  "dir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-jG0Nz6",
+  "strataCalls": 1,
+  "armValid": true,
+  "synthetic": false,
+  "deliveredRecalls": [
+    "observability.logging.v1",
+    "api.idempotency.v1",
+    "validation.request.v1"
+  ],
+  "verifyResult": "9/9 checks passed",
+  "diagnosis": {
+    "toolSearchFired": true,
+    "strataUseFired": true,
+    "hubComposed": false,
+    "hubUnreachableFellBackLocal": false,
+    "hubDeclined": false,
+    "verifyRan": true,
+    "bodyParserBugLanguage": false
+  },
+  "finalSummary": "Done. Built a `POST /orders` endpoint with retry-safe idempotency, full body validation, and per-attempt logging, plus `GET /orders/:id`.\n\n**What's running:**\n- `src/data/orderRepository.js` — in-memory order store (matches the existing `productRepository.js` convention; the project explicitly forbids Prisma per `strata.guide.json`).\n- `src/routes/orders.js` — validates `customerEmail` and `items[]` (each item's `sku` must resolve to a real, active product; `quantity` a positive integer, ≤100 line items), resolves prices from the catalog, then creates the order.\n- `src/server.js` — wired up Strata's delivered `pino`-based structured logger (with credential/token redaction, per-request correlation IDs), a JSON-parse-error handler, and an idempotency middleware scoped to `POST` routes with `Idempotency-Key` **required**.\n\n**How the retry protection works:** a client resends the same `POST /orders` with the same `Idempotency-Key` header → the second request never re-runs the handler; it replays the exact first response (`Idempotent-Replayed: true` header, same order `id`, no second order created). Reusing a key with a *different* body is rejected with 422 rather than silently doing the wrong thing. A 5xx is never cached, so a real failure can still be retried.\n\n**Logging:** every request gets a `request received`/`request completed` pair (method, URL, status, duration, correlation id) regardless of whether it hit the handler or was replayed from cache; the orders handler additionally logs an `order creation attempted` line (idempotency key, item count) and `order created` (order id) for traceability of duplicate-submission patterns specifically.\n\nVerified with `node strata/verify.js` (9/9 passing) plus manual curl runs: happy path, exact-retry dedup, key-reuse-with-different-body (422), missing key (400), unknown SKU (400), empty items (400).\n\n**Judgment calls I'd defend:**\n- Scoped idempotency to `/orders` POSTs only (not global) — GET/health don't need it, and global",
+  "verifyPresent": true,
+  "work": {
+    "filesAdded": 12,
+    "entryBytes": 1456,
+    "attempted": true
+  },
+  "fileCount": 19
+}

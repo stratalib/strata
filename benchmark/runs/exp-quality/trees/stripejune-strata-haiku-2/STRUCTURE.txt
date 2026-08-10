@@ -1,0 +1,131 @@
+PAYMENT PROCESSING SYSTEM - Project Structure
+==============================================
+
+Core Files:
+  server.js              - Express app with Stripe webhook handler, Redis/BullMQ setup, graceful shutdown
+  package.json           - Dependencies: Express, Stripe, BullMQ, Redis, Nodemailer, PDFKit
+  .env                   - Configuration (Stripe webhook secret, SMTP, Redis URL)
+  .env.example           - Template for environment variables
+
+Library Modules (lib/):
+  receipt.js             - PDF receipt generation using PDFKit
+  receipt-worker.js      - BullMQ worker that generates PDFs and emails them
+  mailer.js              - Nodemailer wrapper with SMTP configuration
+  email-templates.js     - Email templates (purchase_confirmation, receipt)
+  test-helpers.js        - Webhook signature generation for testing
+
+Testing:
+  tests.js               - Unit tests (6 tests): PDF generation, templates, webhook signing
+  integration-test.js    - HTTP integration tests (5 tests): webhook validation, security
+  strata/verify.js       - Strata security tests (8 tests): signature verification, replay protection
+
+Composed Dependencies:
+  strata/                - Pre-built modules from Strata
+    - Stripe webhook signature verification (HMAC-SHA256)
+    - Email handling with retry logic
+    - Request validation and error handling
+
+KEY FEATURES
+============
+
+✓ Stripe Webhook Signature Verification
+  - HMAC-SHA256 with raw request bytes
+  - Timestamp tolerance (300s default, configurable)
+  - Idempotent processing (event ID deduplication)
+
+✓ Payment Flow
+  1. Stripe sends signed webhook → /webhooks/stripe
+  2. Signature verified, event ID checked for replay
+  3. 200 OK returned immediately to Stripe
+  4. Purchase confirmation email sent
+  5. Receipt generation job queued to BullMQ
+  6. Background worker generates PDF and emails it
+
+✓ Email Delivery
+  - Nodemailer SMTP transport (Gmail, AWS SES, etc.)
+  - Template-driven (HTML + text)
+  - PDF attachments for receipts
+  - Configurable retry logic
+
+✓ Background Jobs (BullMQ + Redis)
+  - Receipt generation runs asynchronously
+  - Job persistence across server restarts
+  - Automatic retry on failure
+  - Worker health monitoring
+
+✓ Security
+  - Webhook signature verification (HMAC-SHA256)
+  - Replay protection (event deduplication)
+  - Timestamp tolerance prevents clock-skew attacks
+  - No plaintext secrets in code (environment variables only)
+
+✓ Production-Ready
+  - Graceful shutdown (closes queues, connections)
+  - Error logging (webhook failures captured)
+  - JSON error responses (no HTML stack traces)
+  - Health endpoint for monitoring
+
+TEST RESULTS
+============
+
+Unit Tests (6/6 passed):
+  ✓ PDF receipt generation works
+  ✓ Purchase confirmation template works
+  ✓ Receipt email template works
+  ✓ Webhook signature generation works
+  ✓ Invalid templates rejected
+  ✓ Receipt data validation works
+
+Strata Verification (8/8 passed):
+  ✓ Unit selftests (3 passed)
+  ✓ Server boots and answers /health
+  ✓ Malformed JSON returns JSON error envelope
+  ✓ Unsigned webhooks rejected
+  ✓ Forged signatures rejected
+  ✓ Replayed timestamps rejected
+  ✓ Valid signed webhooks accepted
+  ✓ Redelivered events handled idempotently
+
+Integration Tests (5/5 passed):
+  ✓ Health endpoint responds
+  ✓ Unsigned webhooks rejected
+  ✓ Forged signatures rejected
+  ✓ Valid webhooks accepted
+  ✓ Malformed JSON handled gracefully
+
+DEPLOYMENT CHOICES
+==================
+
+1. Webhook Deduplication
+   - Current: In-process Map (single instance)
+   - Production: Use database unique index on event ID
+
+2. Email Transport
+   - Current: Nodemailer with SMTP
+   - Alternative: Resend, AWS SES, SendGrid (all compatible)
+
+3. Dead Letter Handling
+   - Current: Logged to console
+   - Production: Persist to database for monitoring
+
+4. Secret Management
+   - All secrets via environment variables (no hardcoding)
+   - STRIPE_WEBHOOK_SECRET rotated in Stripe Dashboard
+   - SMTP passwords use app-specific tokens (Gmail) or service credentials
+
+5. Scaling
+   - Single instance: works for development/small scale
+   - Multiple instances: requires Redis for dedup + database for dead letters
+
+To Run:
+  npm install
+  export STRIPE_WEBHOOK_SECRET=whsec_test_secret
+  export REDIS_URL=redis://localhost:6379
+  node server.js
+
+To Test:
+  node tests.js              # Unit tests
+  node strata/verify.js      # Webhook security tests
+  # In another terminal:
+  node server.js &
+  node integration-test.js   # HTTP tests

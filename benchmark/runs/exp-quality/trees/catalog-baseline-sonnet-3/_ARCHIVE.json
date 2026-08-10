@@ -1,0 +1,14 @@
+{
+  "archivedAt": "2026-08-01T13:38:28.550Z",
+  "originalDir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-UxQ3BL",
+  "task": "catalog",
+  "arm": "baseline",
+  "model": "sonnet",
+  "run": 3,
+  "strataBuild": null,
+  "turns": 33,
+  "costUsd": 0.6713466999999997,
+  "deliveredRecalls": [],
+  "verifyResult": "no verify.js",
+  "note": "node_modules excluded — reinstallable, not evidence."
+}

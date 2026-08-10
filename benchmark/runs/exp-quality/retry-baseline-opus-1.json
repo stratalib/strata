@@ -1,0 +1,38 @@
+{
+  "task": "retry",
+  "mode": "greenfield",
+  "arm": "baseline",
+  "run": 1,
+  "model": "opus",
+  "strataBuild": null,
+  "ok": true,
+  "turns": 12,
+  "inputTokens": 22,
+  "outputTokens": 11683,
+  "cacheReadTokens": 321561,
+  "costUsd": 0.8262284999999999,
+  "wallMs": 182324,
+  "dir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-GpH7Bn",
+  "strataCalls": 0,
+  "armValid": true,
+  "synthetic": false,
+  "deliveredRecalls": [],
+  "verifyResult": "no verify.js",
+  "diagnosis": {
+    "toolSearchFired": false,
+    "strataUseFired": false,
+    "hubComposed": false,
+    "hubUnreachableFellBackLocal": false,
+    "hubDeclined": false,
+    "verifyRan": false,
+    "bodyParserBugLanguage": false
+  },
+  "finalSummary": "Exactly right: aborting during the backoff wait stops after just 1 call and throws the raw abort reason — no wasted retry, no `RetryError` wrapper. That was the one path my test suite didn't cover directly, and it behaves correctly. (I ran that as a throwaway check and cleaned it up; I didn't leave a demo script behind.)\n\nEverything's verified. Here's the summary.\n\n## Done — `retry.js` + `retry.test.js`, 18 tests passing\n\n**You are here:** Started from an empty Node project; built a zero-dependency retry helper and a full test suite. Nothing else in the repo to integrate with, so this is standalone and importable.\n\n**What I built** (`retry.js`):\n- `retry(fn, options)` — the core. Runs an async `fn`, retries on transient failures with **exponential backoff + full jitter**, gives up on permanent ones.\n- `fetchWithRetry(url, init, retryOptions)` — a `fetch` wrapper that turns non-`ok` responses into status-carrying errors so the retry policy just works.\n- `backoffDelay`, `defaultShouldRetry` — exported separately so they're independently testable/overridable.\n- `RetryError` (wraps the last cause via `.cause`) and `TimeoutError`.\n\n**The judgment calls I made** (no one to ask, so these are the ones I'd defend):\n\n1. **Full jitter, not plain exponential backoff.** Plain backoff makes every client retry at the same instant — a \"thundering herd\" that re-hammers a recovering server. Full jitter (`random × cap`) spreads them out. It's the AWS-recommended default. The cost: two clients *can* occasionally pick similar delays, but that's strictly better than all of them synchronizing.\n\n2. **Retry only what's transient: network errors, timeouts, `429`, `5xx`.** A `404`/`400`/`401` won't fix itself — retrying wastes time and abuses the API, so those throw **raw and immediately** (you see the real status, not a wrapper). Overridable via `shouldRetry`.\n\n3. **Per-attempt timeout via `AbortController`.** `fetch` has no built-in timeout, so a hung connection would otherwise block foreve",
+  "verifyPresent": false,
+  "work": {
+    "filesAdded": 3,
+    "entryBytes": 0,
+    "attempted": true
+  },
+  "fileCount": 4
+}

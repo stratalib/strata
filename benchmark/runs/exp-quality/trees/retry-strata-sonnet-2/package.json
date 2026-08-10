@@ -1,0 +1,11 @@
+{
+  "name": "bench-greenfield",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "test": "node --test"
+  },
+  "dependencies": {
+    "strata-composed": "file:./strata/composed-pkg"
+  }
+}

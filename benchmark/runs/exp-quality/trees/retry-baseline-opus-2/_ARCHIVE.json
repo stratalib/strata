@@ -1,0 +1,14 @@
+{
+  "archivedAt": "2026-08-05T08:59:13.438Z",
+  "originalDir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-6YXO6s",
+  "task": "retry",
+  "arm": "baseline",
+  "model": "opus",
+  "run": 2,
+  "strataBuild": null,
+  "turns": 13,
+  "costUsd": 0.6350859999999999,
+  "deliveredRecalls": [],
+  "verifyResult": "no verify.js",
+  "note": "node_modules excluded — reinstallable, not evidence."
+}

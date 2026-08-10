@@ -1,0 +1,235 @@
+# Dependencies
+node_modules/
+npm-debug.log
+yarn-error.log
+package-lock.json
+yarn.lock
+
+# Python
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+
+# Build outputs
+dist/
+build/
+.next/
+out/
+.nuxt/
+.vuepress/dist/
+.serverless/
+.fusebox/
+.dynamodb/
+.tern-port
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+lerna-debug.log*
+
+# ...EXCEPT benchmark transcripts, which are primary evidence, not logs.
+#
+# `*.log` above silently excluded every session transcript in benchmark/runs/. Those files are the
+# only record of HOW a number was produced — which tools the model called, what it read, where the
+# turns went. Every claim in STRATA-QUALITY-BENCH.md is re-derivable from them and from nothing else,
+# so a repo without them holds conclusions that cannot be checked. They are ~150 KB each.
+!benchmark/runs/**/*.log
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Testing
+coverage/
+.nyc_output/
+.jest_cache/
+
+# Temporary
+tmp/
+temp/
+*.tmp
+
+# Media/Data (large files)
+*.mp4
+*.mov
+*.avi
+*.mkv
+*.mp3
+*.wav
+*.flac
+*.iso
+*.zip
+*.tar.gz
+*.rar
+*.7z
+
+# ─────────────────────────────────────────────────────────────
+# Recall V2 — project-specific. Strata is open source, but the RECALL
+# LIBRARY is not: it is served from the hub and never committed or
+# published. This repo carries the engine, not the library.
+# ─────────────────────────────────────────────────────────────
+
+# Backup copy of duplicate recalls — never commit
+/recalls-duplicates-backup/
+
+# Generated cache — none of it belongs in the repo.
+#
+# verified-recalls.json used to be re-included here as "the served-recall allowlist". It cannot be
+# anymore: it is an id list plus a map of ids to paths under recalls/, and recalls/ is now excluded
+# whole. In a fresh clone those 21 paths resolve to nothing, so loadVerifiedRecallsDirect() reads the
+# file, fails on every entry with a "could not be read" line each, and only then falls back. A MISSING
+# allowlist is the quiet path (it returns false immediately); a PRESENT-but-dangling one is the loud,
+# confusing one. The hub's GET /v1/index is the public answer to "what does the library contain".
+/cache/
+
+# Build artefacts from `npm pack` — the published tarball is a release output, not source.
+*.tgz
+
+# >>> BEGIN generated recall exclusion — edit scripts/sync-gitignore.js, not this block
+# The recall library is served from the hub and is NOT part of this repository. Everything under
+# recalls/ stays local: the admitted recalls (their implementations are the project's actual IP)
+# and the quarantined npm-scrape junkyard alike. No exceptions, no re-included paths — a single
+# `!` line here would put an implementation on GitHub permanently.
+/recalls/
+# <<< END generated recall exclusion
+
+# ── Local-only working directories (never in the public repo) ────────────────
+# 496 MB of test artefacts from manual session runs.
+/MANUAL TESTS/
+# Scratch experiments and proof-of-concept spikes, superseded by recalls/ and strata/.
+/poc/
+/kickstart/
+# Local task-runner state written into the user's own project during dev runs.
+/strata/
+
+# Scraped-corpus leftovers from the Recall era. Removed from history because
+# data/local-patterns.json and the task-09 scratch file carry a live third-party
+# Google API key that appeared as a hardcoded fallback in scraped source. Not ours
+# to republish, private repo or not.
+/data/local-patterns.json
+/benchmark/task-09-rbac/
+
+# ── NOT PART OF THE PRODUCT REPO ──────────────────────────────────────────────
+# This repository is the MCP server, its benchmark evidence, and user-facing docs.
+# Everything below is deliberately excluded:
+#   - separate products with their own deploy (website, extension)
+#   - the recall factory: scrapers, npm pipeline, autonomous authoring. This is the
+#     methodology behind the library and is not shipped with it.
+#   - internal strategy, roadmap and working notes
+/website/
+/extension/
+/extension-landing/
+/brandings/
+/data/
+/system/
+/packages/
+/server/
+/tests/
+/steps/
+/Ideas/
+/.claude/
+/.claudeignore
+/.github/
+/CLAUDE.md
+/HANDOVER.md
+/STATUS.md
+/fixed_overhead
+/data-spine.md
+/manual-benchmark-analysis.md
+/STRATA.md
+/STRATA-ARCHIVE.md
+/STRATA-FACTORY.md
+/STRATA-FRONTEND.md
+/STRATA-GUIDE.md
+/STRATA-LAUNCH.md
+/STRATA-ONRAMPS.md
+/STRATA-PORTS.md
+/STRATA-ROADMAP.md
+/STRATA-RUNNER.md
+/STRATA-SCALING.md
+/STRATA-TAXONOMY.md
+/STRATA-V2.md
+/STRATA-V3.md
+/STRATA-V4.md
+/scripts/scrapers/
+/scripts/npm-pipeline/
+/scripts/vertex-*.js
+/scripts/swarm.js
+/scripts/master-pattern-scraper.ts
+/scripts/overnight-generator.ts
+/scripts/cheap-recall-generator.ts
+/scripts/recall-factory.js
+/scripts/generate-*.ts
+/scripts/improve-recalls.ts
+/scripts/auto-promote-combos.ts
+/scripts/quick-pattern-saver.ts
+/scripts/find-duplicate-recalls.ts
+/scripts/merge-exact-duplicates.ts
+/scripts/migrate-recalls.ts
+/scripts/restructure-*.ts
+/scripts/coverage-probe.*
+/scripts/verify-recalls.ts
+/scripts/strata-runner.js
+/scripts/compose-banner.js
+/scripts/scale-logo.js
+/scripts/svg-to-braille.js
+
+# ── BENCHMARK: publish the evidence, not the session records ──────────────────
+# Only the current 60-run battery ships. Superseded experiments and raw agent
+# transcripts are excluded: the transcripts carry host paths, session ids and full
+# conversations, and the archived trees beside them are what the scores are
+# actually computed from.
+/benchmark/runs/*
+!/benchmark/runs/exp-quality/
+/benchmark/runs/exp-quality/**/*.log
+/benchmark/task-*/
+
+# Internal working notes — running logs, session findings, stale doctrine.
+# docs/BENCHMARK.md is the published version of this material.
+/STRATA-QUALITY-BENCH.md
+/STRATA-BENCHMARK-FINDINGS.md
+/STRATA-GATES.md
+
+# ── MODULE SOURCE NEVER ENTERS THIS REPO ──────────────────────────────────────
+# The product is the client. Modules live in the hub and are delivered to a user's
+# project at call time; the library itself is never shipped or published. These
+# paths are where delivered module source lands inside a benchmark output tree,
+# and they were tracked once before — /recalls/ being ignored hid it from every
+# check that only looked there.
+/benchmark/task-*/
+benchmark/runs/**/strata/lib.js
+benchmark/runs/**/strata/selftest.js
+benchmark/runs/**/strata/tests/
+benchmark/runs/**/strata/composed-pkg/
+
+# Brand assets exist for upload, not for the repo. The GitHub org avatar and the
+# repo social preview are set once through the web UI — keeping the PNGs tracked
+# afterwards just ships 90KB nobody reads. Regenerate with:
+#   node scripts/render-banner-svg.js
+/docs/assets/avatar-*.png
+/docs/assets/social-preview.png
+/docs/assets/wordmark.svg

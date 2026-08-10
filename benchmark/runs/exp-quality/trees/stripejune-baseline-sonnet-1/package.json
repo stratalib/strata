@@ -1,0 +1,24 @@
+{
+  "name": "bench-greenfield",
+  "version": "1.0.0",
+  "private": true,
+  "type": "commonjs",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "worker": "node src/workers/receiptWorker.js",
+    "test": "node --test test/*.test.js"
+  },
+  "dependencies": {
+    "bullmq": "^5.12.15",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "ioredis": "^5.4.1",
+    "nodemailer": "^9.0.3",
+    "pdfkit": "^0.15.0",
+    "stripe": "^16.8.0"
+  },
+  "devDependencies": {
+    "ioredis-mock": "^8.9.0"
+  }
+}

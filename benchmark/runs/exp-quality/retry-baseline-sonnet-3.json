@@ -1,0 +1,38 @@
+{
+  "task": "retry",
+  "mode": "greenfield",
+  "arm": "baseline",
+  "run": 3,
+  "model": "sonnet",
+  "strataBuild": null,
+  "ok": true,
+  "turns": 12,
+  "inputTokens": 24,
+  "outputTokens": 8102,
+  "cacheReadTokens": 468396,
+  "costUsd": 0.3876938,
+  "wallMs": 100009,
+  "dir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-o5FoDm",
+  "strataCalls": 0,
+  "armValid": true,
+  "synthetic": false,
+  "deliveredRecalls": [],
+  "verifyResult": "no verify.js",
+  "diagnosis": {
+    "toolSearchFired": false,
+    "strataUseFired": false,
+    "hubComposed": false,
+    "hubUnreachableFellBackLocal": false,
+    "hubDeclined": false,
+    "verifyRan": false,
+    "bodyParserBugLanguage": false
+  },
+  "finalSummary": "`npm test` works end to end.\n\n## What's there\n\n- **`src/retry.js`** — `retryWithBackoff(fn, options)`: generic retry wrapper for any async function, with full-jitter exponential backoff. Also exports `fetchJson`, a small wrapper around native `fetch` that adds a per-attempt timeout and throws a typed `HttpError` (carrying `.status`) on non-OK responses, so the retry policy can distinguish \"worth retrying\" from \"not.\"\n- **`test/retry.test.js`** — 16 tests using Node's built-in `node:test`, no dependencies. Runs real local HTTP servers (via `node:http`) rather than mocking `fetch`, so the integration test exercises actual socket-level retries and timeouts, not just logic in isolation.\n- `npm test` runs the suite.\n\n## Judgment calls (would defend these)\n\n- **Full-jitter backoff**, not fixed or plain exponential — under concurrent callers hitting the same flaky API, synchronized retries make the outage worse; jitter spreads them out. This is AWS's own recommendation for backoff against shared services.\n- **Retry policy defaults to 429 and 5xx, not other 4xx.** A 400/401/404 means the request itself was invalid — retrying won't change the outcome, it just wastes calls and delays the real error surfacing. This is overridable via `isRetryable`.\n- **No dependencies** — used Node's native `fetch`, `AbortSignal.timeout`/`.any()`, and `node:test` instead of axios/nock/jest, since this is a greenfield repo with no existing toolchain to match, and the task is small enough that a test runner dependency isn't earning its keep.\n- **CommonJS (`require`/`module.exports`)** rather than ESM — `package.json` has no `\"type\": \"module\"`, so this matches what Node will actually run without extra config.\n- **Separated `retryWithBackoff` (generic) from `fetchJson` (HTTP-specific)** rather than baking HTTP concerns into the retry loop — the retry helper works for any flaky async operation (DB calls, RPC, etc.), not just HTTP.\n- **`AbortSignal` support** for both cancelling an in-flight attempt",
+  "verifyPresent": false,
+  "work": {
+    "filesAdded": 3,
+    "entryBytes": 0,
+    "attempted": true
+  },
+  "fileCount": 4
+}

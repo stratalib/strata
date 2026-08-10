@@ -1,0 +1,29 @@
+{
+  "name": "payment-processor",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Payment processing system with Stripe webhooks, email confirmations, and PDF receipts",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test": "node --test tests/**/*.test.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "stripe": "^14.1.0",
+    "bullmq": "^5.0.0",
+    "redis": "^5.0.0",
+    "pdfkit": "^0.13.0",
+    "nodemailer": "^6.9.7",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {},
+  "directories": {
+    "test": "tests"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

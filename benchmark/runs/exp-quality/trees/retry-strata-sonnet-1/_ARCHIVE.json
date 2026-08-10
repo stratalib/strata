@@ -1,0 +1,14 @@
+{
+  "archivedAt": "2026-08-05T08:50:50.752Z",
+  "originalDir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-ITKf7A",
+  "task": "retry",
+  "arm": "strata",
+  "model": "sonnet",
+  "run": 1,
+  "strataBuild": "29762d587e34",
+  "turns": 14,
+  "costUsd": 0.4398585999999999,
+  "deliveredRecalls": [],
+  "verifyResult": "no verify.js",
+  "note": "node_modules excluded — reinstallable, not evidence."
+}

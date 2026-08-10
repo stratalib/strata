@@ -1,0 +1,14 @@
+{
+  "archivedAt": "2026-08-05T09:04:20.027Z",
+  "originalDir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-AQAruG",
+  "task": "retry",
+  "arm": "baseline",
+  "model": "opus",
+  "run": 3,
+  "strataBuild": null,
+  "turns": 12,
+  "costUsd": 0.629718,
+  "deliveredRecalls": [],
+  "verifyResult": "no verify.js",
+  "note": "node_modules excluded — reinstallable, not evidence."
+}

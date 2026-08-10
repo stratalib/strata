@@ -1,0 +1,17 @@
+{
+  "archivedAt": "2026-08-05T08:47:15.283Z",
+  "originalDir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-psdSEj",
+  "task": "retry",
+  "arm": "strata",
+  "model": "haiku",
+  "run": 3,
+  "strataBuild": "29762d587e34",
+  "turns": 12,
+  "costUsd": 0.18068225,
+  "deliveredRecalls": [
+    "http.resilient-client.v1",
+    "comm.email.v1"
+  ],
+  "verifyResult": "2/2 checks passed",
+  "note": "node_modules excluded — reinstallable, not evidence."
+}

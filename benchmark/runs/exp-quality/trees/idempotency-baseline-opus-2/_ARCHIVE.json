@@ -1,0 +1,14 @@
+{
+  "archivedAt": "2026-08-01T18:26:35.557Z",
+  "originalDir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-afnVe0",
+  "task": "idempotency",
+  "arm": "baseline",
+  "model": "opus",
+  "run": 2,
+  "strataBuild": null,
+  "turns": 28,
+  "costUsd": 1.1683029999999996,
+  "deliveredRecalls": [],
+  "verifyResult": "no verify.js",
+  "note": "node_modules excluded — reinstallable, not evidence."
+}

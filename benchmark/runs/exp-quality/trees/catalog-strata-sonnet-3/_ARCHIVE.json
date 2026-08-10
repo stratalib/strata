@@ -1,0 +1,18 @@
+{
+  "archivedAt": "2026-08-01T15:14:57.603Z",
+  "originalDir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-tClokx",
+  "task": "catalog",
+  "arm": "strata",
+  "model": "sonnet",
+  "run": 3,
+  "strataBuild": "40c84878e2f0",
+  "turns": 45,
+  "costUsd": 1.2205571000000002,
+  "deliveredRecalls": [
+    "observability.logging.v1",
+    "api.pagination.v1",
+    "cache.ratelimit.v1"
+  ],
+  "verifyResult": "12/12 checks passed",
+  "note": "node_modules excluded — reinstallable, not evidence."
+}

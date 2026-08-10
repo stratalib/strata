@@ -1,0 +1,38 @@
+{
+  "task": "idempotency",
+  "mode": "brownfield",
+  "arm": "baseline",
+  "run": 2,
+  "model": "opus",
+  "strataBuild": null,
+  "ok": true,
+  "turns": 28,
+  "inputTokens": 38,
+  "outputTokens": 18485,
+  "cacheReadTokens": 738784,
+  "costUsd": 1.1683029999999996,
+  "wallMs": 299854,
+  "dir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-afnVe0",
+  "strataCalls": 0,
+  "armValid": true,
+  "synthetic": false,
+  "deliveredRecalls": [],
+  "verifyResult": "no verify.js",
+  "diagnosis": {
+    "toolSearchFired": true,
+    "strataUseFired": false,
+    "hubComposed": false,
+    "hubUnreachableFellBackLocal": false,
+    "hubDeclined": false,
+    "verifyRan": false,
+    "bodyParserBugLanguage": false
+  },
+  "finalSummary": "All 13 tests pass and the server runs for real. Done.\n\n## What I built\n\n**You are here:** `catalog-service` had only `/health` and a product store. I added the **orders feature** — the thing your task was actually about — on top of the existing architecture (repository → router → mounted in `server.js`), touching four areas:\n\n- **`src/routes/orders.js`** — `POST /orders` (create) and `GET /orders/:id` (fetch). This is where validation, idempotency, and logging meet.\n- **`src/data/orderRepository.js`** — in-memory order store + the idempotency ledger, mirroring `productRepository`'s style so a route never touches the store directly.\n- **`src/lib/logger.js`** — one-JSON-line-per-event structured logger.\n- **`src/server.js`** — mounted the router, added a clean-400 handler for malformed JSON, made the app exportable so tests drive it without a port.\n- **`test/orders.test.js`** — 13 tests on Node's built-in runner (`npm test`).\n\n**How the three requirements are met:**\n\n1. **Retry doesn't create two orders** — via an `Idempotency-Key` header. The first request with a key claims it and stores its exact response; any retry with the same key *replays* that stored response instead of creating a second order. A retry racing the original (still in-flight) gets a 409 rather than sneaking through. Verified against a live server and by a concurrent-fire test (5 simultaneous requests → exactly 1 order).\n\n2. **Validate the body properly** — malformed JSON, non-object bodies, bad/missing email, empty/oversized `items`, and non-integer/out-of-range quantities are all rejected with a 400 listing *every* problem at once. Business checks (unknown/inactive SKU → 422, insufficient stock → 409) run after shape validation, and stock is only decremented on success.\n\n3. **Log each attempt** — every request emits an `order.attempt` line, followed by its outcome (`order.created`, `order.attempt.replayed`, `order.attempt.invalid`, `order.attempt.rejected`, etc.), all as searchable JSON.\n\n**Judgm",
+  "verifyPresent": false,
+  "work": {
+    "filesAdded": 6,
+    "entryBytes": 1112,
+    "attempted": true
+  },
+  "fileCount": 13
+}

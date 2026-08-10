@@ -1,0 +1,10 @@
+{
+  "name": "bench-greenfield",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "strata-composed": "file:./strata/composed-pkg",
+    "express": "^4.18.0",
+    "dotenv": "^16.0.0"
+  }
+}

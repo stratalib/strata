@@ -1,0 +1,3578 @@
+{
+  "suiteHash": "c06cc9edbd6fbc2b",
+  "grades": [
+    {
+      "suite": "catalog",
+      "suiteHash": "c06cc9edbd6fbc2b",
+      "dir": "C:\\Users\\user\\Desktop\\ALL PROJECTS\\Recall V2\\benchmark\\runs\\exp-quality\\trees\\catalog-baseline-haiku-1",
+      "booted": true,
+      "entry": "src/server.js",
+      "discovered": "/products",
+      "results": [
+        {
+          "id": "C1-list-works",
+          "pass": true,
+          "detail": "GET /products → 200, items=20"
+        },
+        {
+          "id": "C2-limit-respected",
+          "pass": false,
+          "detail": "limit=5 → 200, 20 items"
+        },
+        {
+          "id": "C3-page2-disjoint",
+          "pass": true,
+          "detail": "/products?limit=5&page=2 → 20 items, 0 overlap"
+        },
+        {
+          "id": "C4-hostile-paging-input",
+          "pass": true,
+          "detail": "limit=abc→200 limit=-1→200 limit=999999→200"
+        },
+        {
+          "id": "C5-ratelimit-triggers",
+          "pass": true,
+          "detail": "429 after 93 requests"
+        },
+        {
+          "id": "C6-ratelimit-refills",
+          "pass": false,
+          "detail": "after 6s wait → 429"
+        },
+        {
+          "id": "C7-request-id-traceable",
+          "pass": true,
+          "detail": "no id header; 3 distinct id-like tokens in log"
+        },
+        {
+          "id": "C8-malformed-json",
+          "pass": false,
+          "detail": "malformed→400, server alive, LEAKS STACK TRACE"
+        }
+      ],
+      "passed": 5,
+      "total": 8,
+      "ms": 7331,
+      "stem": "catalog-baseline-haiku-1",
+      "treeSource": "archive",
+      "run": {
+        "task": "catalog",
+        "arm": "baseline",
+        "model": "haiku",
+        "run": 1,
+        "turns": 39,
+        "costUsd": 0.18610249999999995
+      }
+    },
+    {
+      "suite": "catalog",
+      "suiteHash": "c06cc9edbd6fbc2b",
+      "dir": "C:\\Users\\user\\Desktop\\ALL PROJECTS\\Recall V2\\benchmark\\runs\\exp-quality\\trees\\catalog-baseline-haiku-2",
+      "booted": true,
+      "entry": "src/server.js",
+      "discovered": "/products",
+      "results": [
+        {
+          "id": "C1-list-works",
+          "pass": true,
+          "detail": "GET /products → 200, items=10"
+        },
+        {
+          "id": "C2-limit-respected",
+          "pass": true,
+          "detail": "limit=5 → 200, 5 items"
+        },
+        {
+          "id": "C3-page2-disjoint",
+          "pass": true,
+          "detail": "/products?limit=5&page=2 → 5 items, 0 overlap"
+        },
+        {
+          "id": "C4-hostile-paging-input",
+          "pass": true,
+          "detail": "limit=abc→200 limit=-1→200 limit=999999→200"
+        },
+        {
+          "id": "C5-ratelimit-triggers",
+          "pass": true,
+          "detail": "429 after 53 requests"
+        },
+        {
+          "id": "C6-ratelimit-refills",
+          "pass": false,
+          "detail": "after 6s wait → 429"
+        },
+        {
+          "id": "C7-request-id-traceable",
+          "pass": true,
+          "detail": "no id header; 3 distinct id-like tokens in log"
+        },
+        {
+          "id": "C8-malformed-json",
+          "pass": false,
+          "detail": "malformed→400, server alive, LEAKS STACK TRACE"
+        }
+      ],
+      "passed": 6,
+      "total": 8,
+      "ms": 7231,
+      "stem": "catalog-baseline-haiku-2",
+      "treeSource": "archive",
+      "run": {
+        "task": "catalog",
+        "arm": "baseline",
+        "model": "haiku",
+        "run": 2,
+        "turns": 14,
+        "costUsd": 0.0933126
+      }
+    },
+    {
+      "suite": "catalog",
+      "suiteHash": "c06cc9edbd6fbc2b",
+      "dir": "C:\\Users\\user\\Desktop\\ALL PROJECTS\\Recall V2\\benchmark\\runs\\exp-quality\\trees\\catalog-baseline-haiku-3",
+      "booted": true,
+      "entry": "src/server.js",
+      "discovered": "/products",
+      "results": [
+        {
+          "id": "C1-list-works",
+          "pass": true,
+          "detail": "GET /products → 200, items=20"
+        },
+        {
+          "id": "C2-limit-respected",
+          "pass": true,
+          "detail": "limit=5 → 200, 5 items"
+        },
+        {
+          "id": "C3-page2-disjoint",
+          "pass": true,
+          "detail": "/products?limit=5&page=2 → 5 items, 0 overlap"
+        },
+        {
+          "id": "C4-hostile-paging-input",
+          "pass": true,
+          "detail": "limit=abc→200 limit=-1→200 limit=999999→200"
+        },
+        {
+          "id": "C5-ratelimit-triggers",
+          "pass": true,
+          "detail": "429 after 23 requests"
+        },
+        {
+          "id": "C6-ratelimit-refills",
+          "pass": false,
+          "detail": "after 6s wait → 429"
+        },
+        {
+          "id": "C7-request-id-traceable",
+          "pass": true,
+          "detail": "no id header; 2 distinct id-like tokens in log"
+        },
+        {
+          "id": "C8-malformed-json",
+          "pass": false,
+          "detail": "malformed→400, server alive, LEAKS STACK TRACE"
+        }
+      ],
+      "passed": 6,
+      "total": 8,
+      "ms": 7218,
+      "stem": "catalog-baseline-haiku-3",
+      "treeSource": "archive",
+      "run": {
+        "task": "catalog",
+        "arm": "baseline",
+        "model": "haiku",
+        "run": 3,
+        "turns": 18,
+        "costUsd": 0.1031615
+      }
+    },
+    {
+      "suite": "catalog",
+      "suiteHash": "c06cc9edbd6fbc2b",
+      "dir": "C:\\Users\\user\\Desktop\\ALL PROJECTS\\Recall V2\\benchmark\\runs\\exp-quality\\trees\\catalog-baseline-opus-1",
+      "booted": true,
+      "entry": "src/server.js",
+      "discovered": "/products",
+      "results": [
+        {
+          "id": "C1-list-works",
+          "pass": true,
+          "detail": "GET /products → 200, items=20"
+        },
+        {
+          "id": "C2-limit-respected",
+          "pass": true,
+          "detail": "limit=5 → 200, 5 items"
+        },
+        {
+          "id": "C3-page2-disjoint",
+          "pass": true,
+          "detail": "/products?limit=5&page=2 → 5 items, 0 overlap"
+        },
+        {
+          "id": "C4-hostile-paging-input",
+          "pass": true,
+          "detail": "limit=abc→200 limit=-1→200 limit=999999→200"
+        },
+        {
+          "id": "C5-ratelimit-triggers",
+          "pass": true,
+          "detail": "429 after 93 requests"
+        },
+        {
+          "id": "C6-ratelimit-refills",
+          "pass": false,
+          "detail": "after 6s wait → 429"
+        },
+        {
+          "id": "C7-request-id-traceable",
+          "pass": true,
+          "detail": "header ids da8c516a-63de-4aaa-a0db-70ce5bddc581 / 94505c03-d0ba-4cc2-bc52-65c9ea82e329"
+        },
+        {
+          "id": "C8-malformed-json",
+          "pass": false,
+          "detail": "malformed→500, server alive"
+        }
+      ],
+      "passed": 6,
+      "total": 8,
+      "ms": 7283,
+      "stem": "catalog-baseline-opus-1",
+      "treeSource": "archive",
+      "run": {
+        "task": "catalog",
+        "arm": "baseline",
+        "model": "opus",
+        "run": 1,
+        "turns": 34,
+        "costUsd": 1.3465795000000003
+      }
+    },
+    {
+      "suite": "catalog",
+      "suiteHash": "c06cc9edbd6fbc2b",
+      "dir": "C:\\Users\\user\\Desktop\\ALL PROJECTS\\Recall V2\\benchmark\\runs\\exp-quality\\trees\\catalog-baseline-opus-2",
+      "booted": true,
+      "entry": "src/server.js",
+      "discovered": "/products",
+      "results": [
+        {
+          "id": "C1-list-works",
+          "pass": true,
+          "detail": "GET /products → 200, items=20"
+        },
+        {
+          "id": "C2-limit-respected",
+          "pass": true,
+          "detail": "limit=5 → 200, 5 items"
+        },
+        {
+          "id": "C3-page2-disjoint",
+          "pass": true,
+          "detail": "/products?limit=5&page=2 → 5 items, 0 overlap"
+        },
+        {
+          "id": "C4-hostile-paging-input",
+          "pass": true,
+          "detail": "limit=abc→400 limit=-1→400 limit=999999→200"
+        },
+        {
+          "id": "C5-ratelimit-triggers",
+          "pass": true,
+          "detail": "429 after 93 requests"
+        },
+        {
+          "id": "C6-ratelimit-refills",
+          "pass": false,
+          "detail": "after 6s wait → 429"
+        },
+        {
+          "id": "C7-request-id-traceable",
+          "pass": true,
+          "detail": "header ids 1878b14a-f6ac-4d42-be88-879145ede781 / b9a04728-f71e-43b3-87fa-40e7ad6b5f21"
+        },
+        {
+          "id": "C8-malformed-json",
+          "pass": false,
+          "detail": "malformed→400, server alive, LEAKS STACK TRACE"
+        }
+      ],
+      "passed": 6,
+      "total": 8,
+      "ms": 7303,
+      "stem": "catalog-baseline-opus-2",
+      "treeSource": "archive",
+      "run": {
+        "task": "catalog",
+        "arm": "baseline",
+        "model": "opus",
+        "run": 2,
+        "turns": 31,
+        "costUsd": 1.1670075
+      }
+    },
+    {
+      "suite": "catalog",
+      "suiteHash": "c06cc9edbd6fbc2b",
+      "dir": "C:\\Users\\user\\Desktop\\ALL PROJECTS\\Recall V2\\benchmark\\runs\\exp-quality\\trees\\catalog-baseline-opus-3",
+      "booted": true,
+      "entry": "src/server.js",
+      "discovered": "/products",
+      "results": [
+        {
+          "id": "C1-list-works",
+          "pass": true,
+          "detail": "GET /products → 200, items=20"
+        },
+        {
+          "id": "C2-limit-respected",
+          "pass": true,
+          "detail": "limit=5 → 200, 5 items"
+        },
+        {
+          "id": "C3-page2-disjoint",
+          "pass": true,
+          "detail": "/products?limit=5&page=2 → 5 items, 0 overlap"
+        },
+        {
+          "id": "C4-hostile-paging-input",
+          "pass": true,
+          "detail": "limit=abc→200 limit=-1→200 limit=999999→200"
+        },
+        {
+          "id": "C5-ratelimit-triggers",
+          "pass": true,
+          "detail": "429 after 93 requests"
+        },
+        {
+          "id": "C6-ratelimit-refills",
+          "pass": false,
+          "detail": "after 6s wait → 429"
+        },
+        {
+          "id": "C7-request-id-traceable",
+          "pass": true,
+          "detail": "header ids e641e934-6bd8-412a-8522-6e43f571523d / eae9304f-b660-456e-9234-5eb7b1a831d9"
+        },
+        {
+          "id": "C8-malformed-json",
+          "pass": false,
+          "detail": "malformed→500, server alive"
+        }
+      ],
+      "passed": 6,
+      "total": 8,
+      "ms": 7299,
+      "stem": "catalog-baseline-opus-3",
+      "treeSource": "archive",
+      "run": {
+        "task": "catalog",
+        "arm": "baseline",
+        "model": "opus",
+        "run": 3,
+        "turns": 31,
+        "costUsd": 1.029669
+      }
+    },
+    {
+      "suite": "catalog",
+      "suiteHash": "c06cc9edbd6fbc2b",
+      "dir": "C:\\Users\\user\\Desktop\\ALL PROJECTS\\Recall V2\\benchmark\\runs\\exp-quality\\trees\\catalog-baseline-sonnet-1",
+      "booted": true,
+      "entry": "src/server.js",
+      "discovered": "/products",
+      "results": [
+        {
+          "id": "C1-list-works",
+          "pass": true,
+          "detail": "GET /products → 200, items=20"
+        },
+        {
+          "id": "C2-limit-respected",
+          "pass": false,
+          "detail": "limit=5 → 200, 20 items"
+        },
+        {
+          "id": "C3-page2-disjoint",
+          "pass": true,
+          "detail": "/products?limit=5&page=2 → 20 items, 0 overlap"
+        },
+        {
+          "id": "C4-hostile-paging-input",
+          "pass": true,
+          "detail": "limit=abc→200 limit=-1→200 limit=999999→200"
+        },
+        {
+          "id": "C5-ratelimit-triggers",
+          "pass": true,
+          "detail": "429 after 93 requests"
+        },
+        {
+          "id": "C6-ratelimit-refills",
+          "pass": false,
+          "detail": "after 6s wait → 429"
+        },
+        {
+          "id": "C7-request-id-traceable",
+          "pass": true,
+          "detail": "header ids 6c46332d-eb40-4eee-bcbc-0bdc9dee6e9a / c0dc4ca2-31b4-4f26-842a-3241e7bce5c2"
+        },
+        {
+          "id": "C8-malformed-json",
+          "pass": false,
+          "detail": "malformed→400, server alive, LEAKS STACK TRACE"
+        }
+      ],
+      "passed": 5,
+      "total": 8,
+      "ms": 7274,
+      "stem": "catalog-baseline-sonnet-1",
+      "treeSource": "archive",
+      "run": {
+        "task": "catalog",
+        "arm": "baseline",
+        "model": "sonnet",
+        "run": 1,
+        "turns": 41,
+        "costUsd": 1.0260283
+      }
+    },
+    {
+      "suite": "catalog",
+      "suiteHash": "c06cc9edbd6fbc2b",
+      "dir": "C:\\Users\\user\\Desktop\\ALL PROJECTS\\Recall V2\\benchmark\\runs\\exp-quality\\trees\\catalog-baseline-sonnet-2",
+      "booted": true,
+      "entry": "src/server.js",
+      "discovered": "/products",
+      "results": [
+        {
+          "id": "C1-list-works",
+          "pass": true,
+          "detail": "GET /products → 200, items=20"
+        },
+        {
+          "id": "C2-limit-respected",
+          "pass": false,
+          "detail": "limit=5 → 200, 20 items"
+        },
+        {
+          "id": "C3-page2-disjoint",
+          "pass": true,
+          "detail": "/products?limit=5&page=2 → 20 items, 0 overlap"
+        },
+        {
+          "id": "C4-hostile-paging-input",
+          "pass": true,
+          "detail": "limit=abc→200 limit=-1→200 limit=999999→200"
+        },
+        {
+          "id": "C5-ratelimit-triggers",
+          "pass": true,
+          "detail": "429 after 93 requests"
+        },
+        {
+          "id": "C6-ratelimit-refills",
+          "pass": false,
+          "detail": "after 6s wait → 429"
+        },
+        {
+          "id": "C7-request-id-traceable",
+          "pass": true,
+          "detail": "header ids f43f0661-8ac8-4bfc-87eb-59e6a16cce87 / 427c753c-f704-4e37-b143-1f84087bb0c4"
+        },
+        {
+          "id": "C8-malformed-json",
+          "pass": false,
+          "detail": "malformed→400, server alive, LEAKS STACK TRACE"
+        }
+      ],
+      "passed": 5,
+      "total": 8,
+      "ms": 7284,
+      "stem": "catalog-baseline-sonnet-2",
+      "treeSource": "archive",
+      "run": {
+        "task": "catalog",
+        "arm": "baseline",
+        "model": "sonnet",
+        "run": 2,
+        "turns": 39,
+        "costUsd": 0.8163535000000001
+      }
+    },
+    {
+      "suite": "catalog",
+      "suiteHash": "c06cc9edbd6fbc2b",
+      "dir": "C:\\Users\\user\\Desktop\\ALL PROJECTS\\Recall V2\\benchmark\\runs\\exp-quality\\trees\\catalog-baseline-sonnet-3",
+      "booted": true,
+      "entry": "src/server.js",
+      "discovered": "/products",
+      "results": [
+        {
+          "id": "C1-list-works",
+          "pass": true,
+          "detail": "GET /products → 200, items=20"
+        },
+        {
+          "id": "C2-limit-respected",
+          "pass": false,
+          "detail": "limit=5 → 200, 20 items"
+        },
+        {
+          "id": "C3-page2-disjoint",
+          "pass": true,
+          "detail": "/products?limit=5&page=2 → 20 items, 0 overlap"
+        },
+        {
+          "id": "C4-hostile-paging-input",
+          "pass": true,
+          "detail": "limit=abc→200 limit=-1→200 limit=999999→200"
+        },
+        {
+          "id": "C5-ratelimit-triggers",
+          "pass": true,
+          "detail": "429 after 93 requests"
+        },
+        {
+          "id": "C6-ratelimit-refills",
+          "pass": false,
+          "detail": "after 6s wait → 429"
+        },
+        {
+          "id": "C7-request-id-traceable",
+          "pass": true,
+          "detail": "header ids df1119f0-1545-43c3-9b49-888953b3d25d / a799a4dd-c505-4695-a13b-2bbb504aa5e4"
+        },
+        {
+          "id": "C8-malformed-json",
+          "pass": false,
+          "detail": "malformed→500, server alive"
+        }
+      ],
+      "passed": 5,
+      "total": 8,
+      "ms": 7267,
+      "stem": "catalog-baseline-sonnet-3",
+      "treeSource": "archive",
+      "run": {
+        "task": "catalog",
+        "arm": "baseline",
+        "model": "sonnet",
+        "run": 3,
+        "turns": 33,
+        "costUsd": 0.6713466999999997
+      }
+    },
+    {
+      "suite": "catalog",
+      "suiteHash": "c06cc9edbd6fbc2b",
+      "dir": "C:\\Users\\user\\Desktop\\ALL PROJECTS\\Recall V2\\benchmark\\runs\\exp-quality\\trees\\catalog-strata-haiku-1",
+      "booted": true,
+      "entry": "server.js",
+      "discovered": "/products",
+      "results": [
+        {
+          "id": "C1-list-works",
+          "pass": true,
+          "detail": "GET /products → 200, items=20"
+        },
+        {
+          "id": "C2-limit-respected",
+          "pass": true,
+          "detail": "limit=5 → 200, 5 items"
+        },
+        {
+          "id": "C3-page2-disjoint",
+          "pass": true,
+          "detail": "/products?limit=5&offset=5 → 5 items, 0 overlap"
+        },
+        {
+          "id": "C4-hostile-paging-input",
+          "pass": true,
+          "detail": "limit=abc→200 limit=-1→200 limit=999999→200"
+        },
+        {
+          "id": "C5-ratelimit-triggers",
+          "pass": true,
+          "detail": "429 after 54 requests"
+        },
+        {
+          "id": "C6-ratelimit-refills",
+          "pass": true,
+          "detail": "after 6s wait → 200"
+        },
+        {
+          "id": "C7-request-id-traceable",
+          "pass": true,
+          "detail": "header ids 1d89129e-50af-40a8-b9f9-901ebb1b1a36 / b3d21602-668b-4542-9058-969ea937c4d9"
+        },
+        {
+          "id": "C8-malformed-json",
+          "pass": true,
+          "detail": "malformed→400, server alive"
+        }
+      ],
+      "passed": 8,
+      "total": 8,
+      "ms": 7241,
+      "stem": "catalog-strata-haiku-1",
+      "treeSource": "archive",
+      "run": {
+        "task": "catalog",
+        "arm": "strata",
+        "model": "haiku",
+        "run": 1,
+        "turns": 34,
+        "costUsd": 0.2351644
+      }
+    },
+    {
+      "suite": "catalog",
+      "suiteHash": "c06cc9edbd6fbc2b",
+      "dir": "C:\\Users\\user\\Desktop\\ALL PROJECTS\\Recall V2\\benchmark\\runs\\exp-quality\\trees\\catalog-strata-haiku-2",
+      "booted": true,
+      "entry": "server.js",
+      "discovered": "/items",
+      "results": [
+        {
+          "id": "C1-list-works",
+          "pass": true,
+          "detail": "GET /items → 200, items=0"
+        },
+        {
+          "id": "C2-limit-respected",
+          "pass": false,
+          "detail": "limit=5 → 200, 0 items"
+        },
+        {
+          "id": "C3-page2-disjoint",
+          "pass": false,
+          "detail": "no page-2 dialect produced different items"
+        },
+        {
+          "id": "C4-hostile-paging-input",
+          "pass": true,
+          "detail": "limit=abc→200 limit=-1→200 limit=999999→200"
+        },
+        {
+          "id": "C5-ratelimit-triggers",
+          "pass": true,
+          "detail": "429 after 50 requests"
+        },
+        {
+          "id": "C6-ratelimit-refills",
+          "pass": true,
+          "detail": "after 6s wait → 200"
+        },
+        {
+          "id": "C7-request-id-traceable",
+          "pass": true,
+          "detail": "header ids 9bbd2343-afde-4bc8-bcb8-610c25f41f83 / e3d2e222-1f21-4570-83ff-41f87cc171d3"
+        },
+        {
+          "id": "C8-malformed-json",
+          "pass": true,
+          "detail": "malformed→400, server alive"
+        }
+      ],
+      "passed": 6,
+      "total": 8,
+      "ms": 7227,
+      "stem": "catalog-strata-haiku-2",
+      "treeSource": "archive",
+      "run": {
+        "task": "catalog",
+        "arm": "strata",
+        "model": "haiku",
+        "run": 2,
+        "turns": 32,
+        "costUsd": 0.19463289999999997
+      }
+    },
+    {
+      "suite": "catalog",
+      "suiteHash": "c06cc9edbd6fbc2b",
+      "dir": "C:\\Users\\user\\Desktop\\ALL PROJECTS\\Recall V2\\benchmark\\runs\\exp-quality\\trees\\catalog-strata-haiku-3",
+      "booted": true,
+      "entry": "src/server.js",
+      "discovered": "/products",
+      "results": [
+        {
+          "id": "C1-list-works",
+          "pass": true,
+          "detail": "GET /products → 200, items=20"
+        },
+        {
+          "id": "C2-limit-respected",
+          "pass": true,
+          "detail": "limit=5 → 200, 5 items"
+        },
+        {
+          "id": "C3-page2-disjoint",
+          "pass": false,
+          "detail": "/products?limit=5&skip=5 → 5 items, 5 REPEATED from page 1"
+        },
+        {
+          "id": "C4-hostile-paging-input",
+          "pass": true,
+          "detail": "limit=abc→200 limit=-1→200 limit=999999→200"
+        },
+        {
+          "id": "C5-ratelimit-triggers",
+          "pass": true,
+          "detail": "429 after 52 requests"
+        },
+        {
+          "id": "C6-ratelimit-refills",
+          "pass": true,
+          "detail": "after 6s wait → 200"
+        },
+        {
+          "id": "C7-request-id-traceable",
+          "pass": true,
+          "detail": "header ids b33a49f7-90c4-4d12-a985-101620fb19e0 / e43afb8f-a478-438c-98d4-f2f6af833dbb"
+        },
+        {
+          "id": "C8-malformed-json",
+          "pass": true,
+          "detail": "malformed→400, server alive"
+        }
+      ],
+      "passed": 7,
+      "total": 8,
+      "ms": 7237,
+      "stem": "catalog-strata-haiku-3",
+      "treeSource": "archive",
+      "run": {
+        "task": "catalog",
+        "arm": "strata",
+        "model": "haiku",
+        "run": 3,
+        "turns": 31,
+        "costUsd": 0.2329434
+      }
+    },
+    {
+      "suite": "catalog",
+      "suiteHash": "c06cc9edbd6fbc2b",
+      "dir": "C:\\Users\\user\\Desktop\\ALL PROJECTS\\Recall V2\\benchmark\\runs\\exp-quality\\trees\\catalog-strata-sonnet-1",
+      "booted": true,
+      "entry": "src/server.js",
+      "discovered": "/products",
+      "results": [
+        {
+          "id": "C1-list-works",
+          "pass": true,
+          "detail": "GET /products → 200, items=20"
+        },
+        {
+          "id": "C2-limit-respected",
+          "pass": true,
+          "detail": "limit=5 → 200, 5 items"
+        },
+        {
+          "id": "C3-page2-disjoint",
+          "pass": true,
+          "detail": "/products?limit=5&offset=5 → 5 items, 0 overlap"
+        },
+        {
+          "id": "C4-hostile-paging-input",
+          "pass": true,
+          "detail": "limit=abc→200 limit=-1→200 limit=999999→200"
+        },
+        {
+          "id": "C5-ratelimit-triggers",
+          "pass": true,
+          "detail": "429 after 54 requests"
+        },
+        {
+          "id": "C6-ratelimit-refills",
+          "pass": true,
+          "detail": "after 6s wait → 200"
+        },
+        {
+          "id": "C7-request-id-traceable",
+          "pass": true,
+          "detail": "header ids 184c3295-4882-4b86-b317-edc7b486dabc / a2d548a6-add1-4236-9052-0f0bf1fcc41f"
+        },
+        {
+          "id": "C8-malformed-json",
+          "pass": true,
+          "detail": "malformed→400, server alive"
+        }
+      ],
+      "passed": 8,
+      "total": 8,
+      "ms": 7238,
+      "stem": "catalog-strata-sonnet-1",
+      "treeSource": "archive",
+      "run": {
+        "task": "catalog",
+        "arm": "strata",
+        "model": "sonnet",
+        "run": 1,
+        "turns": 48,
+        "costUsd": 1.3068964999999997
+      }
+    },
+    {
+      "suite": "catalog",
+      "suiteHash": "c06cc9edbd6fbc2b",
+      "dir": "C:\\Users\\user\\Desktop\\ALL PROJECTS\\Recall V2\\benchmark\\runs\\exp-quality\\trees\\catalog-strata-sonnet-2",
+      "booted": true,
+      "entry": "src/server.js",
+      "discovered": "/products",
+      "results": [
+        {
+          "id": "C1-list-works",
+          "pass": true,
+          "detail": "GET /products → 200, items=20"
+        },
+        {
+          "id": "C2-limit-respected",
+          "pass": true,
+          "detail": "limit=5 → 200, 5 items"
+        },
+        {
+          "id": "C3-page2-disjoint",
+          "pass": true,
+          "detail": "/products?limit=5&offset=5 → 5 items, 0 overlap"
+        },
+        {
+          "id": "C4-hostile-paging-input",
+          "pass": true,
+          "detail": "limit=abc→200 limit=-1→200 limit=999999→200"
+        },
+        {
+          "id": "C5-ratelimit-triggers",
+          "pass": true,
+          "detail": "429 after 54 requests"
+        },
+        {
+          "id": "C6-ratelimit-refills",
+          "pass": true,
+          "detail": "after 6s wait → 200"
+        },
+        {
+          "id": "C7-request-id-traceable",
+          "pass": true,
+          "detail": "header ids 59addbc4-fbb9-4b86-96af-3571fe30eebc / e7eea5c7-5e6b-4c3c-a1a4-31e48c086cfa"
+        },
+        {
+          "id": "C8-malformed-json",
+          "pass": true,
+          "detail": "malformed→400, server alive"
+        }
+      ],
+      "passed": 8,
+      "total": 8,
+      "ms": 7242,
+      "stem": "catalog-strata-sonnet-2",
+      "treeSource": "archive",
+      "run": {
+        "task": "catalog",
+        "arm": "strata",
+        "model": "sonnet",
+        "run": 2,
+        "turns": 35,
+        "costUsd": 0.9078558999999999
+      }
+    },
+    {
+      "suite": "catalog",
+      "suiteHash": "c06cc9edbd6fbc2b",
+      "dir": "C:\\Users\\user\\Desktop\\ALL PROJECTS\\Recall V2\\benchmark\\runs\\exp-quality\\trees\\catalog-strata-sonnet-3",
+      "booted": true,
+      "entry": "src/server.js",
+      "discovered": "/products",
+      "results": [
+        {
+          "id": "C1-list-works",
+          "pass": true,
+          "detail": "GET /products → 200, items=20"
+        },
+        {
+          "id": "C2-limit-respected",
+          "pass": true,
+          "detail": "limit=5 → 200, 5 items"
+        },
+        {
+          "id": "C3-page2-disjoint",
+          "pass": true,
+          "detail": "/products?limit=5&offset=5 → 5 items, 0 overlap"
+        },
+        {
+          "id": "C4-hostile-paging-input",
+          "pass": true,
+          "detail": "limit=abc→200 limit=-1→200 limit=999999→200"
+        },
+        {
+          "id": "C5-ratelimit-triggers",
+          "pass": true,
+          "detail": "429 after 54 requests"
+        },
+        {
+          "id": "C6-ratelimit-refills",
+          "pass": true,
+          "detail": "after 6s wait → 200"
+        },
+        {
+          "id": "C7-request-id-traceable",
+          "pass": true,
+          "detail": "header ids 40745570-d01b-419c-9e0d-7582de6d9572 / 9b1463d6-d324-4bf6-b2f5-64b07c8d6950"
+        },
+        {
+          "id": "C8-malformed-json",
+          "pass": true,
+          "detail": "malformed→400, server alive"
+        }
+      ],
+      "passed": 8,
+      "total": 8,
+      "ms": 7240,
+      "stem": "catalog-strata-sonnet-3",
+      "treeSource": "archive",
+      "run": {
+        "task": "catalog",
+        "arm": "strata",
+        "model": "sonnet",
+        "run": 3,
+        "turns": 45,
+        "costUsd": 1.2205571000000002
+      }
+    },
+    {
+      "suite": "idempotency",
+      "suiteHash": "c06cc9edbd6fbc2b",
+      "dir": "C:\\Users\\user\\Desktop\\ALL PROJECTS\\Recall V2\\benchmark\\runs\\exp-quality\\trees\\idempotency-baseline-haiku-1",
+      "booted": true,
+      "entry": "src/server.js",
+      "discovered": "/orders",
+      "results": [
+        {
+          "id": "I1-create-works",
+          "pass": true,
+          "detail": "POST /orders → 201 (shape #0)"
+        },
+        {
+          "id": "I2-replay-deduplicates",
+          "pass": true,
+          "detail": "replay → 200; ids 2 vs 2"
+        },
+        {
+          "id": "I3-same-key-different-body",
+          "pass": false,
+          "detail": "same key + different body → 200 (want 4xx)"
+        },
+        {
+          "id": "I4-malformed-json",
+          "pass": false,
+          "detail": "malformed→400, server alive, LEAKS STACK TRACE"
+        },
+        {
+          "id": "I5-validation-rejects-bad-body",
+          "pass": true,
+          "detail": "{}→400 {\"items\":[],\"customerEmail\":\"a→400 {\"items\":[{\"sku\":\"SKU-00002\",\"→400"
+        },
+        {
+          "id": "I6-concurrent-duplicate",
+          "pass": true,
+          "detail": "statuses 201/200, ids [\"4\",\"4\"]"
+        },
+        {
+          "id": "I7-attempt-logged",
+          "pass": true,
+          "detail": "31 log lines"
+        }
+      ],
+      "passed": 5,
+      "total": 7,
+      "ms": 1173,
+      "stem": "idempotency-baseline-haiku-1",
+      "treeSource": "archive",
+      "run": {
+        "task": "idempotency",
+        "arm": "baseline",
+        "model": "haiku",
+        "run": 1,
+        "turns": 29,
+        "costUsd": 0.167537
+      }
+    },
+    {
+      "suite": "idempotency",
+      "suiteHash": "c06cc9edbd6fbc2b",
+      "dir": "C:\\Users\\user\\Desktop\\ALL PROJECTS\\Recall V2\\benchmark\\runs\\exp-quality\\trees\\idempotency-baseline-haiku-2",
+      "booted": true,
+      "entry": "src/server.js",
+      "discovered": "/orders",
+      "results": [
+        {
+          "id": "I1-create-works",
+          "pass": true,
+          "detail": "POST /orders → 201 (shape #0)"
+        },
+        {
+          "id": "I2-replay-deduplicates",
+          "pass": true,
+          "detail": "replay → 200; ids 2 vs 2"
+        },
+        {
+          "id": "I3-same-key-different-body",
+          "pass": false,
+          "detail": "same key + different body → 200 (want 4xx)"
+        },
+        {
+          "id": "I4-malformed-json",
+          "pass": false,
+          "detail": "malformed→400, server alive, LEAKS STACK TRACE"
+        },
+        {
+          "id": "I5-validation-rejects-bad-body",
+          "pass": true,
+          "detail": "{}→400 {\"idempotencyKey\":\"k-ebeff068d→400 {\"idempotencyKey\":\"k-ebeff068d→400"
+        },
+        {
+          "id": "I6-concurrent-duplicate",
+          "pass": true,
+          "detail": "statuses 201/200, ids [\"4\",\"4\"]"
+        },
+        {
+          "id": "I7-attempt-logged",
+          "pass": false,
+          "detail": "1 log lines"
+        }
+      ],
+      "passed": 4,
+      "total": 7,
+      "ms": 1205,
+      "stem": "idempotency-baseline-haiku-2",
+      "treeSource": "archive",
+      "run": {
+        "task": "idempotency",
+        "arm": "baseline",
+        "model": "haiku",
+        "run": 2,
+        "turns": 25,
+        "costUsd": 0.190886
+      }
+    },
+    {
+      "suite": "idempotency",
+      "suiteHash": "c06cc9edbd6fbc2b",
+      "dir": "C:\\Users\\user\\Desktop\\ALL PROJECTS\\Recall V2\\benchmark\\runs\\exp-quality\\trees\\idempotency-baseline-haiku-3",
+      "booted": true,
+      "entry": "src/server.js",
+      "discovered": "/orders",
+      "results": [
+        {
+          "id": "I1-create-works",
+          "pass": true,
+          "detail": "POST /orders → 201 (shape #0)"
+        },
+        {
+          "id": "I2-replay-deduplicates",
+          "pass": true,
+          "detail": "replay → 200; ids 2 vs 2"
+        },
+        {
+          "id": "I3-same-key-different-body",
+          "pass": false,
+          "detail": "same key + different body → 200 (want 4xx)"
+        },
+        {
+          "id": "I4-malformed-json",
+          "pass": false,
+          "detail": "malformed→400, server alive, LEAKS STACK TRACE"
+        },
+        {
+          "id": "I5-validation-rejects-bad-body",
+          "pass": true,
+          "detail": "{}→400 {\"idempotencyKey\":\"k-5e6e0102c→400 {\"idempotencyKey\":\"k-5e6e0102c→400"
+        },
+        {
+          "id": "I6-concurrent-duplicate",
+          "pass": true,
+          "detail": "statuses 201/200, ids [\"4\",\"4\"]"
+        },
+        {
+          "id": "I7-attempt-logged",
+          "pass": true,
+          "detail": "15 log lines"
+        }
+      ],
+      "passed": 5,
+      "total": 7,
+      "ms": 1199,
+      "stem": "idempotency-baseline-haiku-3",
+      "treeSource": "archive",
+      "run": {
+        "task": "idempotency",
+        "arm": "baseline",
+        "model": "haiku",
+        "run": 3,
+        "turns": 46,
+        "costUsd": 0.3024143999999999
+      }
+    },
+    {
+      "suite": "idempotency",
+      "suiteHash": "c06cc9edbd6fbc2b",
+      "dir": "C:\\Users\\user\\Desktop\\ALL PROJECTS\\Recall V2\\benchmark\\runs\\exp-quality\\trees\\idempotency-baseline-opus-1",
+      "booted": true,
+      "entry": "src/server.js",
+      "discovered": "/orders",
+      "results": [
+        {
+          "id": "I1-create-works",
+          "pass": true,
+          "detail": "POST /orders → 201 (shape #0)"
+        },
+        {
+          "id": "I2-replay-deduplicates",
+          "pass": true,
+          "detail": "replay → 200; ids 2 vs 2"
+        },
+        {
+          "id": "I3-same-key-different-body",
+          "pass": false,
+          "detail": "same key + different body → 200 (want 4xx)"
+        },
+        {
+          "id": "I4-malformed-json",
+          "pass": true,
+          "detail": "malformed→400, server alive"
+        },
+        {
+          "id": "I5-validation-rejects-bad-body",
+          "pass": true,
+          "detail": "{}→400 {\"items\":[],\"customerEmail\":\"a→400 {\"items\":[{\"sku\":\"SKU-00002\",\"→400"
+        },
+        {
+          "id": "I6-concurrent-duplicate",
+          "pass": true,
+          "detail": "statuses 201/200, ids [\"4\",\"4\"]"
+        },
+        {
+          "id": "I7-attempt-logged",
+          "pass": true,
+          "detail": "21 log lines"
+        }
+      ],
+      "passed": 6,
+      "total": 7,
+      "ms": 1168,
+      "stem": "idempotency-baseline-opus-1",
+      "treeSource": "archive",
+      "run": {
+        "task": "idempotency",
+        "arm": "baseline",
+        "model": "opus",
+        "run": 1,
+        "turns": 28,
+        "costUsd": 1.2215795000000003
+      }
+    },
+    {
+      "suite": "idempotency",
+      "suiteHash": "c06cc9edbd6fbc2b",
+      "dir": "C:\\Users\\user\\Desktop\\ALL PROJECTS\\Recall V2\\benchmark\\runs\\exp-quality\\trees\\idempotency-baseline-opus-2",
+      "booted": true,
+      "entry": "src/server.js",
+      "discovered": "/orders",
+      "results": [
+        {
+          "id": "I1-create-works",
+          "pass": true,
+          "detail": "POST /orders → 201 (shape #0)"
+        },
+        {
+          "id": "I2-replay-deduplicates",
+          "pass": true,
+          "detail": "replay → 201; ids 2 vs 2"
+        },
+        {
+          "id": "I3-same-key-different-body",
+          "pass": false,
+          "detail": "same key + different body → 201 (want 4xx)"
+        },
+        {
+          "id": "I4-malformed-json",
+          "pass": true,
+          "detail": "malformed→400, server alive"
+        },
+        {
+          "id": "I5-validation-rejects-bad-body",
+          "pass": true,
+          "detail": "{}→400 {\"items\":[],\"customerEmail\":\"a→400 {\"items\":[{\"sku\":\"SKU-00002\",\"→400"
+        },
+        {
+          "id": "I6-concurrent-duplicate",
+          "pass": true,
+          "detail": "statuses 201/201, ids [\"4\",\"4\"]"
+        },
+        {
+          "id": "I7-attempt-logged",
+          "pass": true,
+          "detail": "22 log lines"
+        }
+      ],
+      "passed": 6,
+      "total": 7,
+      "ms": 1174,
+      "stem": "idempotency-baseline-opus-2",
+      "treeSource": "archive",
+      "run": {
+        "task": "idempotency",
+        "arm": "baseline",
+        "model": "opus",
+        "run": 2,
+        "turns": 28,
+        "costUsd": 1.1683029999999996
+      }
+    },
+    {
+      "suite": "idempotency",
+      "suiteHash": "c06cc9edbd6fbc2b",
+      "dir": "C:\\Users\\user\\Desktop\\ALL PROJECTS\\Recall V2\\benchmark\\runs\\exp-quality\\trees\\idempotency-baseline-opus-3",
+      "booted": true,
+      "entry": "src/server.js",
+      "discovered": "/orders",
+      "results": [
+        {
+          "id": "I1-create-works",
+          "pass": true,
+          "detail": "POST /orders → 201 (shape #0)"
+        },
+        {
+          "id": "I2-replay-deduplicates",
+          "pass": true,
+          "detail": "replay → 200; ids 2 vs 2"
+        },
+        {
+          "id": "I3-same-key-different-body",
+          "pass": true,
+          "detail": "same key + different body → 422 (want 4xx)"
+        },
+        {
+          "id": "I4-malformed-json",
+          "pass": true,
+          "detail": "malformed→400, server alive"
+        },
+        {
+          "id": "I5-validation-rejects-bad-body",
+          "pass": true,
+          "detail": "{}→400 {\"customerId\":\"test\",\"items\":[→400 {\"customerId\":\"test\",\"items\":[→400"
+        },
+        {
+          "id": "I6-concurrent-duplicate",
+          "pass": true,
+          "detail": "statuses 201/200, ids [\"4\",\"4\"]"
+        },
+        {
+          "id": "I7-attempt-logged",
+          "pass": true,
+          "detail": "88 log lines"
+        }
+      ],
+      "passed": 7,
+      "total": 7,
+      "ms": 1209,
+      "stem": "idempotency-baseline-opus-3",
+      "treeSource": "archive",
+      "run": {
+        "task": "idempotency",
+        "arm": "baseline",
+        "model": "opus",
+        "run": 3,
+        "turns": 26,
+        "costUsd": 1.0737869999999998
+      }
+    },
+    {
+      "suite": "idempotency",
+      "suiteHash": "c06cc9edbd6fbc2b",
+      "dir": "C:\\Users\\user\\Desktop\\ALL PROJECTS\\Recall V2\\benchmark\\runs\\exp-quality\\trees\\idempotency-baseline-sonnet-1",
+      "booted": true,
+      "entry": "src/server.js",
+      "discovered": "/orders",
+      "results": [
+        {
+          "id": "I1-create-works",
+          "pass": true,
+          "detail": "POST /orders → 201 (shape #0)"
+        },
+        {
+          "id": "I2-replay-deduplicates",
+          "pass": true,
+          "detail": "replay → 200; ids 2 vs 2"
+        },
+        {
+          "id": "I3-same-key-different-body",
+          "pass": false,
+          "detail": "same key + different body → 200 (want 4xx)"
+        },
+        {
+          "id": "I4-malformed-json",
+          "pass": true,
+          "detail": "malformed→400, server alive"
+        },
+        {
+          "id": "I5-validation-rejects-bad-body",
+          "pass": true,
+          "detail": "{}→400 {\"customerId\":\"test\",\"items\":[→400 {\"customerId\":\"test\",\"items\":[→400"
+        },
+        {
+          "id": "I6-concurrent-duplicate",
+          "pass": true,
+          "detail": "statuses 201/200, ids [\"4\",\"4\"]"
+        },
+        {
+          "id": "I7-attempt-logged",
+          "pass": true,
+          "detail": "87 log lines"
+        }
+      ],
+      "passed": 6,
+      "total": 7,
+      "ms": 1207,
+      "stem": "idempotency-baseline-sonnet-1",
+      "treeSource": "archive",
+      "run": {
+        "task": "idempotency",
+        "arm": "baseline",
+        "model": "sonnet",
+        "run": 1,
+        "turns": 46,
+        "costUsd": 1.1609495000000003
+      }
+    },
+    {
+      "suite": "idempotency",
+      "suiteHash": "c06cc9edbd6fbc2b",
+      "dir": "C:\\Users\\user\\Desktop\\ALL PROJECTS\\Recall V2\\benchmark\\runs\\exp-quality\\trees\\idempotency-baseline-sonnet-2",
+      "booted": true,
+      "entry": "src/server.js",
+      "discovered": "/orders",
+      "results": [
+        {
+          "id": "I1-create-works",
+          "pass": true,
+          "detail": "POST /orders → 201 (shape #0)"
+        },
+        {
+          "id": "I2-replay-deduplicates",
+          "pass": true,
+          "detail": "replay → 200; ids 2 vs 2"
+        },
+        {
+          "id": "I3-same-key-different-body",
+          "pass": false,
+          "detail": "same key + different body → 200 (want 4xx)"
+        },
+        {
+          "id": "I4-malformed-json",
+          "pass": true,
+          "detail": "malformed→400, server alive"
+        },
+        {
+          "id": "I5-validation-rejects-bad-body",
+          "pass": true,
+          "detail": "{}→400 {\"items\":[],\"unitPrice\":2,\"sku→400 {\"items\":[{\"unitPrice\":2,\"sku\"→400"
+        },
+        {
+          "id": "I6-concurrent-duplicate",
+          "pass": true,
+          "detail": "statuses 201/200, ids [\"4\",\"4\"]"
+        },
+        {
+          "id": "I7-attempt-logged",
+          "pass": true,
+          "detail": "51 log lines"
+        }
+      ],
+      "passed": 6,
+      "total": 7,
+      "ms": 1203,
+      "stem": "idempotency-baseline-sonnet-2",
+      "treeSource": "archive",
+      "run": {
+        "task": "idempotency",
+        "arm": "baseline",
+        "model": "sonnet",
+        "run": 2,
+        "turns": 34,
+        "costUsd": 0.8796546
+      }
+    },
+    {
+      "suite": "idempotency",
+      "suiteHash": "c06cc9edbd6fbc2b",
+      "dir": "C:\\Users\\user\\Desktop\\ALL PROJECTS\\Recall V2\\benchmark\\runs\\exp-quality\\trees\\idempotency-baseline-sonnet-3",
+      "booted": true,
+      "entry": "src/server.js",
+      "discovered": "/orders",
+      "results": [
+        {
+          "id": "I1-create-works",
+          "pass": true,
+          "detail": "POST /orders → 201 (shape #0)"
+        },
+        {
+          "id": "I2-replay-deduplicates",
+          "pass": true,
+          "detail": "replay → 200; ids 2 vs 2"
+        },
+        {
+          "id": "I3-same-key-different-body",
+          "pass": false,
+          "detail": "same key + different body → 200 (want 4xx)"
+        },
+        {
+          "id": "I4-malformed-json",
+          "pass": true,
+          "detail": "malformed→400, server alive"
+        },
+        {
+          "id": "I5-validation-rejects-bad-body",
+          "pass": true,
+          "detail": "{}→400 {\"items\":[],\"customerEmail\":\"a→400 {\"items\":[{\"sku\":\"SKU-00002\",\"→400"
+        },
+        {
+          "id": "I6-concurrent-duplicate",
+          "pass": true,
+          "detail": "statuses 201/200, ids [\"4\",\"4\"]"
+        },
+        {
+          "id": "I7-attempt-logged",
+          "pass": true,
+          "detail": "21 log lines"
+        }
+      ],
+      "passed": 6,
+      "total": 7,
+      "ms": 1172,
+      "stem": "idempotency-baseline-sonnet-3",
+      "treeSource": "archive",
+      "run": {
+        "task": "idempotency",
+        "arm": "baseline",
+        "model": "sonnet",
+        "run": 3,
+        "turns": 37,
+        "costUsd": 0.8780254999999999
+      }
+    },
+    {
+      "suite": "idempotency",
+      "suiteHash": "c06cc9edbd6fbc2b",
+      "dir": "C:\\Users\\user\\Desktop\\ALL PROJECTS\\Recall V2\\benchmark\\runs\\exp-quality\\trees\\idempotency-strata-haiku-1",
+      "booted": true,
+      "entry": "server.js",
+      "discovered": "/orders",
+      "results": [
+        {
+          "id": "I1-create-works",
+          "pass": true,
+          "detail": "POST /orders → 201 (shape #0)"
+        },
+        {
+          "id": "I2-replay-deduplicates",
+          "pass": true,
+          "detail": "replay → 201; ids 2 vs 2"
+        },
+        {
+          "id": "I3-same-key-different-body",
+          "pass": true,
+          "detail": "same key + different body → 422 (want 4xx)"
+        },
+        {
+          "id": "I4-malformed-json",
+          "pass": true,
+          "detail": "malformed→400, server alive"
+        },
+        {
+          "id": "I5-validation-rejects-bad-body",
+          "pass": false,
+          "detail": "{}→400 {\"customerId\":2,\"items\":[],\"to→201 {\"customerId\":2,\"items\":[{\"sku→201"
+        },
+        {
+          "id": "I6-concurrent-duplicate",
+          "pass": true,
+          "detail": "statuses 201/201, ids [\"6\",\"6\"]"
+        },
+        {
+          "id": "I7-attempt-logged",
+          "pass": true,
+          "detail": "1648 log lines"
+        }
+      ],
+      "passed": 6,
+      "total": 7,
+      "ms": 1219,
+      "stem": "idempotency-strata-haiku-1",
+      "treeSource": "archive",
+      "run": {
+        "task": "idempotency",
+        "arm": "strata",
+        "model": "haiku",
+        "run": 1,
+        "turns": 36,
+        "costUsd": 0.3344665
+      }
+    },
+    {
+      "suite": "idempotency",
+      "suiteHash": "c06cc9edbd6fbc2b",
+      "dir": "C:\\Users\\user\\Desktop\\ALL PROJECTS\\Recall V2\\benchmark\\runs\\exp-quality\\trees\\idempotency-strata-haiku-2",
+      "booted": true,
+      "entry": "src/server.js",
+      "discovered": "/orders",
+      "results": [
+        {
+          "id": "I1-create-works",
+          "pass": true,
+          "detail": "POST /orders → 201 (shape #0)"
+        },
+        {
+          "id": "I2-replay-deduplicates",
+          "pass": true,
+          "detail": "replay → 201; ids 2 vs 2"
+        },
+        {
+          "id": "I3-same-key-different-body",
+          "pass": true,
+          "detail": "same key + different body → 422 (want 4xx)"
+        },
+        {
+          "id": "I4-malformed-json",
+          "pass": true,
+          "detail": "malformed→400, server alive"
+        },
+        {
+          "id": "I5-validation-rejects-bad-body",
+          "pass": false,
+          "detail": "{}→400 {\"customerId\":2,\"items\":[]}→201 {\"customerId\":2,\"items\":[{\"sku→201"
+        },
+        {
+          "id": "I6-concurrent-duplicate",
+          "pass": true,
+          "detail": "statuses 201/201, ids [\"6\",\"6\"]"
+        },
+        {
+          "id": "I7-attempt-logged",
+          "pass": true,
+          "detail": "765 log lines"
+        }
+      ],
+      "passed": 6,
+      "total": 7,
+      "ms": 1214,
+      "stem": "idempotency-strata-haiku-2",
+      "treeSource": "archive",
+      "run": {
+        "task": "idempotency",
+        "arm": "strata",
+        "model": "haiku",
+        "run": 2,
+        "turns": 33,
+        "costUsd": 0.2307443
+      }
+    },
+    {
+      "suite": "idempotency",
+      "suiteHash": "c06cc9edbd6fbc2b",
+      "dir": "C:\\Users\\user\\Desktop\\ALL PROJECTS\\Recall V2\\benchmark\\runs\\exp-quality\\trees\\idempotency-strata-haiku-3",
+      "booted": true,
+      "entry": "src/server.js",
+      "discovered": "/orders",
+      "results": [
+        {
+          "id": "I1-create-works",
+          "pass": true,
+          "detail": "POST /orders → 201 (shape #0)"
+        },
+        {
+          "id": "I2-replay-deduplicates",
+          "pass": true,
+          "detail": "replay → 201; ids 2 vs 2"
+        },
+        {
+          "id": "I3-same-key-different-body",
+          "pass": true,
+          "detail": "same key + different body → 422 (want 4xx)"
+        },
+        {
+          "id": "I4-malformed-json",
+          "pass": true,
+          "detail": "malformed→400, server alive"
+        },
+        {
+          "id": "I5-validation-rejects-bad-body",
+          "pass": false,
+          "detail": "{}→400 {\"customerId\":2,\"productSku\":[→201 {\"customerId\":2,\"productSku\":[→400"
+        },
+        {
+          "id": "I6-concurrent-duplicate",
+          "pass": true,
+          "detail": "statuses 201/201, ids [\"5\",\"5\"]"
+        },
+        {
+          "id": "I7-attempt-logged",
+          "pass": true,
+          "detail": "793 log lines"
+        }
+      ],
+      "passed": 6,
+      "total": 7,
+      "ms": 1215,
+      "stem": "idempotency-strata-haiku-3",
+      "treeSource": "archive",
+      "run": {
+        "task": "idempotency",
+        "arm": "strata",
+        "model": "haiku",
+        "run": 3,
+        "turns": 40,
+        "costUsd": 0.24109690000000003
+      }
+    },
+    {
+      "suite": "idempotency",
+      "suiteHash": "c06cc9edbd6fbc2b",
+      "dir": "C:\\Users\\user\\Desktop\\ALL PROJECTS\\Recall V2\\benchmark\\runs\\exp-quality\\trees\\idempotency-strata-sonnet-1",
+      "booted": true,
+      "entry": "src/server.js",
+      "discovered": "/orders",
+      "results": [
+        {
+          "id": "I1-create-works",
+          "pass": true,
+          "detail": "POST /orders → 201 (shape #0)"
+        },
+        {
+          "id": "I2-replay-deduplicates",
+          "pass": true,
+          "detail": "replay → 201; ids \"77bf9107-9954-4bd8-b5ee-be92f3f99976\" vs \"77bf9107-9954-4bd8-b5ee-be92f3f99976\""
+        },
+        {
+          "id": "I3-same-key-different-body",
+          "pass": true,
+          "detail": "same key + different body → 422 (want 4xx)"
+        },
+        {
+          "id": "I4-malformed-json",
+          "pass": true,
+          "detail": "malformed→400, server alive"
+        },
+        {
+          "id": "I5-validation-rejects-bad-body",
+          "pass": true,
+          "detail": "{}→400 {\"items\":[],\"customerEmail\":\"a→400 {\"items\":[{\"sku\":\"SKU-00002\",\"→400"
+        },
+        {
+          "id": "I6-concurrent-duplicate",
+          "pass": true,
+          "detail": "statuses 201/201, ids [\"72ac4a3a-36e7-4147-966b-0c22cc65ccee\",\"72ac4a3a-36e7-4147-966b-0c22cc65ccee\"]"
+        },
+        {
+          "id": "I7-attempt-logged",
+          "pass": true,
+          "detail": "145 log lines"
+        }
+      ],
+      "passed": 7,
+      "total": 7,
+      "ms": 1173,
+      "stem": "idempotency-strata-sonnet-1",
+      "treeSource": "archive",
+      "run": {
+        "task": "idempotency",
+        "arm": "strata",
+        "model": "sonnet",
+        "run": 1,
+        "turns": 50,
+        "costUsd": 1.5468181000000005
+      }
+    },
+    {
+      "suite": "idempotency",
+      "suiteHash": "c06cc9edbd6fbc2b",
+      "dir": "C:\\Users\\user\\Desktop\\ALL PROJECTS\\Recall V2\\benchmark\\runs\\exp-quality\\trees\\idempotency-strata-sonnet-2",
+      "booted": true,
+      "entry": "src/server.js",
+      "discovered": "/orders",
+      "results": [
+        {
+          "id": "I1-create-works",
+          "pass": true,
+          "detail": "POST /orders → 201 (shape #0)"
+        },
+        {
+          "id": "I2-replay-deduplicates",
+          "pass": true,
+          "detail": "replay → 201; ids 2 vs 2"
+        },
+        {
+          "id": "I3-same-key-different-body",
+          "pass": true,
+          "detail": "same key + different body → 422 (want 4xx)"
+        },
+        {
+          "id": "I4-malformed-json",
+          "pass": true,
+          "detail": "malformed→400, server alive"
+        },
+        {
+          "id": "I5-validation-rejects-bad-body",
+          "pass": true,
+          "detail": "{}→400 {\"items\":[],\"customerEmail\":\"a→400 {\"items\":[{\"sku\":\"SKU-00002\",\"→400"
+        },
+        {
+          "id": "I6-concurrent-duplicate",
+          "pass": true,
+          "detail": "statuses 201/201, ids [\"4\",\"4\"]"
+        },
+        {
+          "id": "I7-attempt-logged",
+          "pass": true,
+          "detail": "137 log lines"
+        }
+      ],
+      "passed": 7,
+      "total": 7,
+      "ms": 1169,
+      "stem": "idempotency-strata-sonnet-2",
+      "treeSource": "archive",
+      "run": {
+        "task": "idempotency",
+        "arm": "strata",
+        "model": "sonnet",
+        "run": 2,
+        "turns": 47,
+        "costUsd": 1.4023309000000004
+      }
+    },
+    {
+      "suite": "idempotency",
+      "suiteHash": "c06cc9edbd6fbc2b",
+      "dir": "C:\\Users\\user\\Desktop\\ALL PROJECTS\\Recall V2\\benchmark\\runs\\exp-quality\\trees\\idempotency-strata-sonnet-3",
+      "booted": true,
+      "entry": "src/server.js",
+      "discovered": "/orders",
+      "results": [
+        {
+          "id": "I1-create-works",
+          "pass": true,
+          "detail": "POST /orders → 201 (shape #0)"
+        },
+        {
+          "id": "I2-replay-deduplicates",
+          "pass": true,
+          "detail": "replay → 201; ids 2 vs 2"
+        },
+        {
+          "id": "I3-same-key-different-body",
+          "pass": true,
+          "detail": "same key + different body → 422 (want 4xx)"
+        },
+        {
+          "id": "I4-malformed-json",
+          "pass": true,
+          "detail": "malformed→400, server alive"
+        },
+        {
+          "id": "I5-validation-rejects-bad-body",
+          "pass": true,
+          "detail": "{}→400 {\"items\":[],\"customerEmail\":\"a→400 {\"items\":[{\"sku\":\"SKU-00003\",\"→400"
+        },
+        {
+          "id": "I6-concurrent-duplicate",
+          "pass": true,
+          "detail": "statuses 201/201, ids [\"4\",\"4\"]"
+        },
+        {
+          "id": "I7-attempt-logged",
+          "pass": true,
+          "detail": "235 log lines"
+        }
+      ],
+      "passed": 7,
+      "total": 7,
+      "ms": 1179,
+      "stem": "idempotency-strata-sonnet-3",
+      "treeSource": "archive",
+      "run": {
+        "task": "idempotency",
+        "arm": "strata",
+        "model": "sonnet",
+        "run": 3,
+        "turns": 43,
+        "costUsd": 1.1176020000000002
+      }
+    },
+    {
+      "suite": "stripejune",
+      "suiteHash": "c06cc9edbd6fbc2b",
+      "dir": "C:\\Users\\user\\Desktop\\ALL PROJECTS\\Recall V2\\benchmark\\runs\\exp-quality\\trees\\stripejune-baseline-haiku-1",
+      "booted": true,
+      "entry": "index.js",
+      "discovered": "/webhooks/stripe",
+      "mailAccepted": 0,
+      "results": [
+        {
+          "id": "P1-webhook-accepts-valid-signature",
+          "pass": true,
+          "detail": "POST /webhooks/stripe (checkout.session.completed) → 200 in 6ms"
+        },
+        {
+          "id": "P2-unsigned-rejected",
+          "pass": true,
+          "detail": "unsigned → 400"
+        },
+        {
+          "id": "P3-forged-signature-rejected",
+          "pass": true,
+          "detail": "forged v1 → 400"
+        },
+        {
+          "id": "P4-raw-body-verification",
+          "pass": true,
+          "detail": "whitespace-bearing raw payload → 200"
+        },
+        {
+          "id": "P5-replay-window-enforced",
+          "pass": true,
+          "detail": "1-hour-old timestamp, valid HMAC → 400"
+        },
+        {
+          "id": "P6-duplicate-event-once",
+          "pass": false,
+          "detail": "work lines: 1st delivery +1, 2nd delivery +1"
+        },
+        {
+          "id": "P7-webhook-answers-promptly",
+          "pass": true,
+          "detail": "valid webhook answered in 6ms (limit 3000)"
+        },
+        {
+          "id": "P8-no-secret-or-stack-leak",
+          "pass": true,
+          "detail": "no stack trace, no whsec_ in any rejection body"
+        }
+      ],
+      "passed": 7,
+      "total": 8,
+      "ms": 4495,
+      "stem": "stripejune-baseline-haiku-1",
+      "treeSource": "archive",
+      "run": {
+        "task": "stripejune",
+        "arm": "baseline",
+        "model": "haiku",
+        "run": 1,
+        "turns": 46,
+        "costUsd": 0.3073810999999999
+      }
+    },
+    {
+      "suite": "stripejune",
+      "suiteHash": "c06cc9edbd6fbc2b",
+      "dir": "C:\\Users\\user\\Desktop\\ALL PROJECTS\\Recall V2\\benchmark\\runs\\exp-quality\\trees\\stripejune-baseline-haiku-2",
+      "booted": true,
+      "entry": "src/index.js",
+      "discovered": null,
+      "mailAccepted": 0,
+      "results": [
+        {
+          "id": "P1-webhook-accepts-valid-signature",
+          "pass": false,
+          "detail": "no webhook endpoint found"
+        },
+        {
+          "id": "P2-unsigned-rejected",
+          "pass": false,
+          "detail": "no webhook endpoint exists, so this property is undemonstrable"
+        },
+        {
+          "id": "P3-forged-signature-rejected",
+          "pass": false,
+          "detail": "no webhook endpoint exists, so this property is undemonstrable"
+        },
+        {
+          "id": "P4-raw-body-verification",
+          "pass": false,
+          "detail": "no webhook endpoint exists, so this property is undemonstrable"
+        },
+        {
+          "id": "P5-replay-window-enforced",
+          "pass": false,
+          "detail": "no webhook endpoint exists, so this property is undemonstrable"
+        },
+        {
+          "id": "P6-duplicate-event-once",
+          "pass": false,
+          "detail": "no webhook endpoint exists, so this property is undemonstrable"
+        },
+        {
+          "id": "P7-webhook-answers-promptly",
+          "pass": false,
+          "detail": "no webhook endpoint exists, so this property is undemonstrable"
+        },
+        {
+          "id": "P8-no-secret-or-stack-leak",
+          "pass": false,
+          "detail": "no webhook endpoint exists, so this property is undemonstrable"
+        }
+      ],
+      "passed": 0,
+      "total": 8,
+      "ms": 4473,
+      "stem": "stripejune-baseline-haiku-2",
+      "treeSource": "archive",
+      "run": {
+        "task": "stripejune",
+        "arm": "baseline",
+        "model": "haiku",
+        "run": 2,
+        "turns": 52,
+        "costUsd": 0.34047320000000014
+      }
+    },
+    {
+      "suite": "stripejune",
+      "suiteHash": "c06cc9edbd6fbc2b",
+      "dir": "C:\\Users\\user\\Desktop\\ALL PROJECTS\\Recall V2\\benchmark\\runs\\exp-quality\\trees\\stripejune-baseline-haiku-3",
+      "booted": false,
+      "bootReason": "process exited (code 1)",
+      "results": [
+        {
+          "id": "P1-webhook-accepts-valid-signature",
+          "pass": false,
+          "detail": "server never booted"
+        },
+        {
+          "id": "P2-unsigned-rejected",
+          "pass": false,
+          "detail": "server never booted"
+        },
+        {
+          "id": "P3-forged-signature-rejected",
+          "pass": false,
+          "detail": "server never booted"
+        },
+        {
+          "id": "P4-raw-body-verification",
+          "pass": false,
+          "detail": "server never booted"
+        },
+        {
+          "id": "P5-replay-window-enforced",
+          "pass": false,
+          "detail": "server never booted"
+        },
+        {
+          "id": "P6-duplicate-event-once",
+          "pass": false,
+          "detail": "server never booted"
+        },
+        {
+          "id": "P7-webhook-answers-promptly",
+          "pass": false,
+          "detail": "server never booted"
+        },
+        {
+          "id": "P8-no-secret-or-stack-leak",
+          "pass": false,
+          "detail": "server never booted"
+        }
+      ],
+      "passed": 0,
+      "total": 8,
+      "ms": 6698,
+      "stem": "stripejune-baseline-haiku-3",
+      "treeSource": "archive",
+      "run": {
+        "task": "stripejune",
+        "arm": "baseline",
+        "model": "haiku",
+        "run": 3,
+        "turns": 47,
+        "costUsd": 0.42819260000000003
+      }
+    },
+    {
+      "suite": "stripejune",
+      "suiteHash": "c06cc9edbd6fbc2b",
+      "dir": "C:\\Users\\user\\Desktop\\ALL PROJECTS\\Recall V2\\benchmark\\runs\\exp-quality\\trees\\stripejune-baseline-opus-1",
+      "booted": true,
+      "entry": "src/server.js",
+      "discovered": "/webhooks/stripe",
+      "mailAccepted": 0,
+      "results": [
+        {
+          "id": "P1-webhook-accepts-valid-signature",
+          "pass": true,
+          "detail": "POST /webhooks/stripe (payment_intent.succeeded) → 200 in 3ms"
+        },
+        {
+          "id": "P2-unsigned-rejected",
+          "pass": true,
+          "detail": "unsigned → 400"
+        },
+        {
+          "id": "P3-forged-signature-rejected",
+          "pass": true,
+          "detail": "forged v1 → 400"
+        },
+        {
+          "id": "P4-raw-body-verification",
+          "pass": true,
+          "detail": "whitespace-bearing raw payload → 200"
+        },
+        {
+          "id": "P5-replay-window-enforced",
+          "pass": true,
+          "detail": "1-hour-old timestamp, valid HMAC → 400"
+        },
+        {
+          "id": "P6-duplicate-event-once",
+          "pass": false,
+          "detail": "no work logged either time; 2nd response gives no dedupe signal (200)"
+        },
+        {
+          "id": "P7-webhook-answers-promptly",
+          "pass": true,
+          "detail": "valid webhook answered in 3ms (limit 3000)"
+        },
+        {
+          "id": "P8-no-secret-or-stack-leak",
+          "pass": true,
+          "detail": "no stack trace, no whsec_ in any rejection body"
+        }
+      ],
+      "passed": 7,
+      "total": 8,
+      "ms": 2925,
+      "stem": "stripejune-baseline-opus-1",
+      "treeSource": "archive",
+      "run": {
+        "task": "stripejune",
+        "arm": "baseline",
+        "model": "opus",
+        "run": 1,
+        "turns": 41,
+        "costUsd": 1.945455
+      }
+    },
+    {
+      "suite": "stripejune",
+      "suiteHash": "c06cc9edbd6fbc2b",
+      "dir": "C:\\Users\\user\\Desktop\\ALL PROJECTS\\Recall V2\\benchmark\\runs\\exp-quality\\trees\\stripejune-baseline-opus-2",
+      "booted": true,
+      "entry": "src/server.js",
+      "discovered": "/webhook",
+      "mailAccepted": 0,
+      "results": [
+        {
+          "id": "P1-webhook-accepts-valid-signature",
+          "pass": true,
+          "detail": "POST /webhook (charge.succeeded) → 200 in 1ms"
+        },
+        {
+          "id": "P2-unsigned-rejected",
+          "pass": true,
+          "detail": "unsigned → 400"
+        },
+        {
+          "id": "P3-forged-signature-rejected",
+          "pass": true,
+          "detail": "forged v1 → 400"
+        },
+        {
+          "id": "P4-raw-body-verification",
+          "pass": true,
+          "detail": "whitespace-bearing raw payload → 200"
+        },
+        {
+          "id": "P5-replay-window-enforced",
+          "pass": true,
+          "detail": "1-hour-old timestamp, valid HMAC → 400"
+        },
+        {
+          "id": "P6-duplicate-event-once",
+          "pass": false,
+          "detail": "no work logged either time; 2nd response gives no dedupe signal (200)"
+        },
+        {
+          "id": "P7-webhook-answers-promptly",
+          "pass": true,
+          "detail": "valid webhook answered in 1ms (limit 3000)"
+        },
+        {
+          "id": "P8-no-secret-or-stack-leak",
+          "pass": true,
+          "detail": "no stack trace, no whsec_ in any rejection body"
+        }
+      ],
+      "passed": 7,
+      "total": 8,
+      "ms": 2946,
+      "stem": "stripejune-baseline-opus-2",
+      "treeSource": "archive",
+      "run": {
+        "task": "stripejune",
+        "arm": "baseline",
+        "model": "opus",
+        "run": 2,
+        "turns": 35,
+        "costUsd": 1.8190275
+      }
+    },
+    {
+      "suite": "stripejune",
+      "suiteHash": "c06cc9edbd6fbc2b",
+      "dir": "C:\\Users\\user\\Desktop\\ALL PROJECTS\\Recall V2\\benchmark\\runs\\exp-quality\\trees\\stripejune-baseline-opus-3",
+      "booted": true,
+      "entry": "src/server.js",
+      "discovered": "/webhooks/stripe",
+      "mailAccepted": 0,
+      "results": [
+        {
+          "id": "P1-webhook-accepts-valid-signature",
+          "pass": false,
+          "detail": "POST /webhooks/stripe never answered a correctly signed event within 30s — Stripe gives up at ~10s and retries"
+        },
+        {
+          "id": "P4-raw-body-verification",
+          "pass": false,
+          "detail": "requires an accepted webhook, and none was accepted"
+        },
+        {
+          "id": "P6-duplicate-event-once",
+          "pass": false,
+          "detail": "requires an accepted webhook, and none was accepted"
+        },
+        {
+          "id": "P7-webhook-answers-promptly",
+          "pass": false,
+          "detail": "did not answer within 30s"
+        },
+        {
+          "id": "P2-unsigned-rejected",
+          "pass": true,
+          "detail": "unsigned → 400"
+        },
+        {
+          "id": "P3-forged-signature-rejected",
+          "pass": true,
+          "detail": "forged v1 → 400"
+        },
+        {
+          "id": "P5-replay-window-enforced",
+          "pass": true,
+          "detail": "1-hour-old timestamp, valid HMAC → 400"
+        },
+        {
+          "id": "P8-no-secret-or-stack-leak",
+          "pass": true,
+          "detail": "no stack trace, no whsec_ in any rejection body"
+        }
+      ],
+      "passed": 4,
+      "total": 8,
+      "ms": 31661,
+      "stem": "stripejune-baseline-opus-3",
+      "treeSource": "archive",
+      "run": {
+        "task": "stripejune",
+        "arm": "baseline",
+        "model": "opus",
+        "run": 3,
+        "turns": 60,
+        "costUsd": 3.142279999999999
+      }
+    },
+    {
+      "suite": "stripejune",
+      "suiteHash": "c06cc9edbd6fbc2b",
+      "dir": "C:\\Users\\user\\Desktop\\ALL PROJECTS\\Recall V2\\benchmark\\runs\\exp-quality\\trees\\stripejune-baseline-sonnet-1",
+      "booted": true,
+      "entry": "src/server.js",
+      "discovered": "/webhooks/stripe",
+      "mailAccepted": 0,
+      "results": [
+        {
+          "id": "P1-webhook-accepts-valid-signature",
+          "pass": true,
+          "detail": "POST /webhooks/stripe (checkout.session.completed) → 200 in 8ms"
+        },
+        {
+          "id": "P2-unsigned-rejected",
+          "pass": true,
+          "detail": "unsigned → 400"
+        },
+        {
+          "id": "P3-forged-signature-rejected",
+          "pass": true,
+          "detail": "forged v1 → 400"
+        },
+        {
+          "id": "P4-raw-body-verification",
+          "pass": true,
+          "detail": "whitespace-bearing raw payload → 200"
+        },
+        {
+          "id": "P5-replay-window-enforced",
+          "pass": true,
+          "detail": "1-hour-old timestamp, valid HMAC → 400"
+        },
+        {
+          "id": "P6-duplicate-event-once",
+          "pass": true,
+          "detail": "no work logged either time; 2nd response signals duplicate (200)"
+        },
+        {
+          "id": "P7-webhook-answers-promptly",
+          "pass": true,
+          "detail": "valid webhook answered in 8ms (limit 3000)"
+        },
+        {
+          "id": "P8-no-secret-or-stack-leak",
+          "pass": true,
+          "detail": "no stack trace, no whsec_ in any rejection body"
+        }
+      ],
+      "passed": 8,
+      "total": 8,
+      "ms": 2876,
+      "stem": "stripejune-baseline-sonnet-1",
+      "treeSource": "archive",
+      "run": {
+        "task": "stripejune",
+        "arm": "baseline",
+        "model": "sonnet",
+        "run": 1,
+        "turns": 45,
+        "costUsd": 1.4182143999999999
+      }
+    },
+    {
+      "suite": "stripejune",
+      "suiteHash": "c06cc9edbd6fbc2b",
+      "dir": "C:\\Users\\user\\Desktop\\ALL PROJECTS\\Recall V2\\benchmark\\runs\\exp-quality\\trees\\stripejune-baseline-sonnet-2",
+      "booted": true,
+      "entry": "src/server.js",
+      "discovered": "/webhooks/stripe",
+      "mailAccepted": 0,
+      "results": [
+        {
+          "id": "P1-webhook-accepts-valid-signature",
+          "pass": true,
+          "detail": "POST /webhooks/stripe (checkout.session.completed) → 200 in 16ms"
+        },
+        {
+          "id": "P2-unsigned-rejected",
+          "pass": true,
+          "detail": "unsigned → 400"
+        },
+        {
+          "id": "P3-forged-signature-rejected",
+          "pass": true,
+          "detail": "forged v1 → 400"
+        },
+        {
+          "id": "P4-raw-body-verification",
+          "pass": true,
+          "detail": "whitespace-bearing raw payload → 200"
+        },
+        {
+          "id": "P5-replay-window-enforced",
+          "pass": true,
+          "detail": "1-hour-old timestamp, valid HMAC → 400"
+        },
+        {
+          "id": "P6-duplicate-event-once",
+          "pass": true,
+          "detail": "no work logged either time; 2nd response signals duplicate (200)"
+        },
+        {
+          "id": "P7-webhook-answers-promptly",
+          "pass": true,
+          "detail": "valid webhook answered in 16ms (limit 3000)"
+        },
+        {
+          "id": "P8-no-secret-or-stack-leak",
+          "pass": true,
+          "detail": "no stack trace, no whsec_ in any rejection body"
+        }
+      ],
+      "passed": 8,
+      "total": 8,
+      "ms": 3297,
+      "stem": "stripejune-baseline-sonnet-2",
+      "treeSource": "archive",
+      "run": {
+        "task": "stripejune",
+        "arm": "baseline",
+        "model": "sonnet",
+        "run": 2,
+        "turns": 90,
+        "costUsd": 2.6867197999999997
+      }
+    },
+    {
+      "suite": "stripejune",
+      "suiteHash": "c06cc9edbd6fbc2b",
+      "dir": "C:\\Users\\user\\Desktop\\ALL PROJECTS\\Recall V2\\benchmark\\runs\\exp-quality\\trees\\stripejune-baseline-sonnet-3",
+      "booted": true,
+      "entry": "server.js",
+      "discovered": "/webhooks/stripe",
+      "mailAccepted": 0,
+      "results": [
+        {
+          "id": "P1-webhook-accepts-valid-signature",
+          "pass": true,
+          "detail": "POST /webhooks/stripe (checkout.session.completed) → 200 in 8ms"
+        },
+        {
+          "id": "P2-unsigned-rejected",
+          "pass": true,
+          "detail": "unsigned → 400"
+        },
+        {
+          "id": "P3-forged-signature-rejected",
+          "pass": true,
+          "detail": "forged v1 → 400"
+        },
+        {
+          "id": "P4-raw-body-verification",
+          "pass": true,
+          "detail": "whitespace-bearing raw payload → 200"
+        },
+        {
+          "id": "P5-replay-window-enforced",
+          "pass": true,
+          "detail": "1-hour-old timestamp, valid HMAC → 400"
+        },
+        {
+          "id": "P6-duplicate-event-once",
+          "pass": false,
+          "detail": "no work logged either time; 2nd response gives no dedupe signal (200)"
+        },
+        {
+          "id": "P7-webhook-answers-promptly",
+          "pass": true,
+          "detail": "valid webhook answered in 8ms (limit 3000)"
+        },
+        {
+          "id": "P8-no-secret-or-stack-leak",
+          "pass": true,
+          "detail": "no stack trace, no whsec_ in any rejection body"
+        }
+      ],
+      "passed": 7,
+      "total": 8,
+      "ms": 3697,
+      "stem": "stripejune-baseline-sonnet-3",
+      "treeSource": "archive",
+      "run": {
+        "task": "stripejune",
+        "arm": "baseline",
+        "model": "sonnet",
+        "run": 3,
+        "turns": 56,
+        "costUsd": 1.7067722999999997
+      }
+    },
+    {
+      "suite": "stripejune",
+      "suiteHash": "c06cc9edbd6fbc2b",
+      "dir": "C:\\Users\\user\\Desktop\\ALL PROJECTS\\Recall V2\\benchmark\\runs\\exp-quality\\trees\\stripejune-strata-haiku-1",
+      "booted": true,
+      "entry": "server.js",
+      "discovered": "/webhooks/stripe",
+      "mailAccepted": 0,
+      "results": [
+        {
+          "id": "P1-webhook-accepts-valid-signature",
+          "pass": true,
+          "detail": "POST /webhooks/stripe (checkout.session.completed) → 200 in 6ms"
+        },
+        {
+          "id": "P2-unsigned-rejected",
+          "pass": true,
+          "detail": "unsigned → 400"
+        },
+        {
+          "id": "P3-forged-signature-rejected",
+          "pass": true,
+          "detail": "forged v1 → 400"
+        },
+        {
+          "id": "P4-raw-body-verification",
+          "pass": true,
+          "detail": "whitespace-bearing raw payload → 200"
+        },
+        {
+          "id": "P5-replay-window-enforced",
+          "pass": true,
+          "detail": "1-hour-old timestamp, valid HMAC → 400"
+        },
+        {
+          "id": "P6-duplicate-event-once",
+          "pass": true,
+          "detail": "work lines: 1st delivery +1, 2nd delivery +0"
+        },
+        {
+          "id": "P7-webhook-answers-promptly",
+          "pass": true,
+          "detail": "valid webhook answered in 6ms (limit 3000)"
+        },
+        {
+          "id": "P8-no-secret-or-stack-leak",
+          "pass": true,
+          "detail": "no stack trace, no whsec_ in any rejection body"
+        }
+      ],
+      "passed": 8,
+      "total": 8,
+      "ms": 4478,
+      "stem": "stripejune-strata-haiku-1",
+      "treeSource": "archive",
+      "run": {
+        "task": "stripejune",
+        "arm": "strata",
+        "model": "haiku",
+        "run": 1,
+        "turns": 46,
+        "costUsd": 0.40823449999999994
+      }
+    },
+    {
+      "suite": "stripejune",
+      "suiteHash": "c06cc9edbd6fbc2b",
+      "dir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-rvYzWl",
+      "booted": true,
+      "entry": "server.js",
+      "discovered": "/webhooks/stripe",
+      "mailAccepted": 0,
+      "results": [
+        {
+          "id": "P1-webhook-accepts-valid-signature",
+          "pass": true,
+          "detail": "POST /webhooks/stripe (checkout.session.completed) → 200 in 4ms"
+        },
+        {
+          "id": "P2-unsigned-rejected",
+          "pass": true,
+          "detail": "unsigned → 400"
+        },
+        {
+          "id": "P3-forged-signature-rejected",
+          "pass": true,
+          "detail": "forged v1 → 400"
+        },
+        {
+          "id": "P4-raw-body-verification",
+          "pass": true,
+          "detail": "whitespace-bearing raw payload → 200"
+        },
+        {
+          "id": "P5-replay-window-enforced",
+          "pass": true,
+          "detail": "1-hour-old timestamp, valid HMAC → 400"
+        },
+        {
+          "id": "P6-duplicate-event-once",
+          "pass": true,
+          "detail": "no work logged either time; 2nd response signals duplicate (200)"
+        },
+        {
+          "id": "P7-webhook-answers-promptly",
+          "pass": true,
+          "detail": "valid webhook answered in 4ms (limit 3000)"
+        },
+        {
+          "id": "P8-no-secret-or-stack-leak",
+          "pass": true,
+          "detail": "no stack trace, no whsec_ in any rejection body"
+        }
+      ],
+      "passed": 8,
+      "total": 8,
+      "ms": 4503,
+      "stem": "stripejune-strata-haiku-2",
+      "treeSource": "temp",
+      "run": {
+        "task": "stripejune",
+        "arm": "strata",
+        "model": "haiku",
+        "run": 2,
+        "turns": 54,
+        "costUsd": 0.48757039999999996
+      }
+    },
+    {
+      "suite": "stripejune",
+      "suiteHash": "c06cc9edbd6fbc2b",
+      "dir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-h5lxCa",
+      "booted": true,
+      "entry": "server.js",
+      "discovered": "/webhooks/stripe",
+      "mailAccepted": 0,
+      "results": [
+        {
+          "id": "P1-webhook-accepts-valid-signature",
+          "pass": true,
+          "detail": "POST /webhooks/stripe (checkout.session.completed) → 200 in 6ms"
+        },
+        {
+          "id": "P2-unsigned-rejected",
+          "pass": true,
+          "detail": "unsigned → 400"
+        },
+        {
+          "id": "P3-forged-signature-rejected",
+          "pass": true,
+          "detail": "forged v1 → 400"
+        },
+        {
+          "id": "P4-raw-body-verification",
+          "pass": true,
+          "detail": "whitespace-bearing raw payload → 200"
+        },
+        {
+          "id": "P5-replay-window-enforced",
+          "pass": true,
+          "detail": "1-hour-old timestamp, valid HMAC → 400"
+        },
+        {
+          "id": "P6-duplicate-event-once",
+          "pass": true,
+          "detail": "no work logged either time; 2nd response signals duplicate (200)"
+        },
+        {
+          "id": "P7-webhook-answers-promptly",
+          "pass": true,
+          "detail": "valid webhook answered in 6ms (limit 3000)"
+        },
+        {
+          "id": "P8-no-secret-or-stack-leak",
+          "pass": true,
+          "detail": "no stack trace, no whsec_ in any rejection body"
+        }
+      ],
+      "passed": 8,
+      "total": 8,
+      "ms": 4110,
+      "stem": "stripejune-strata-haiku-3",
+      "treeSource": "temp",
+      "run": {
+        "task": "stripejune",
+        "arm": "strata",
+        "model": "haiku",
+        "run": 3,
+        "turns": 47,
+        "costUsd": 0.3733884999999999
+      }
+    },
+    {
+      "suite": "stripejune",
+      "suiteHash": "c06cc9edbd6fbc2b",
+      "dir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-pEPnFX",
+      "booted": true,
+      "entry": "server.js",
+      "discovered": "/webhooks/stripe",
+      "mailAccepted": 0,
+      "results": [
+        {
+          "id": "P1-webhook-accepts-valid-signature",
+          "pass": true,
+          "detail": "POST /webhooks/stripe (checkout.session.completed) → 200 in 3ms"
+        },
+        {
+          "id": "P2-unsigned-rejected",
+          "pass": true,
+          "detail": "unsigned → 400"
+        },
+        {
+          "id": "P3-forged-signature-rejected",
+          "pass": true,
+          "detail": "forged v1 → 400"
+        },
+        {
+          "id": "P4-raw-body-verification",
+          "pass": true,
+          "detail": "whitespace-bearing raw payload → 200"
+        },
+        {
+          "id": "P5-replay-window-enforced",
+          "pass": true,
+          "detail": "1-hour-old timestamp, valid HMAC → 400"
+        },
+        {
+          "id": "P6-duplicate-event-once",
+          "pass": true,
+          "detail": "work lines: 1st delivery +1, 2nd delivery +0"
+        },
+        {
+          "id": "P7-webhook-answers-promptly",
+          "pass": true,
+          "detail": "valid webhook answered in 3ms (limit 3000)"
+        },
+        {
+          "id": "P8-no-secret-or-stack-leak",
+          "pass": true,
+          "detail": "no stack trace, no whsec_ in any rejection body"
+        }
+      ],
+      "passed": 8,
+      "total": 8,
+      "ms": 2903,
+      "stem": "stripejune-strata-sonnet-1",
+      "treeSource": "temp",
+      "run": {
+        "task": "stripejune",
+        "arm": "strata",
+        "model": "sonnet",
+        "run": 1,
+        "turns": 63,
+        "costUsd": 2.5638757000000005
+      }
+    },
+    {
+      "suite": "stripejune",
+      "suiteHash": "c06cc9edbd6fbc2b",
+      "dir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-iWTuv3",
+      "booted": true,
+      "entry": "server.js",
+      "discovered": "/webhooks/stripe",
+      "mailAccepted": 0,
+      "results": [
+        {
+          "id": "P1-webhook-accepts-valid-signature",
+          "pass": true,
+          "detail": "POST /webhooks/stripe (checkout.session.completed) → 200 in 5ms"
+        },
+        {
+          "id": "P2-unsigned-rejected",
+          "pass": true,
+          "detail": "unsigned → 400"
+        },
+        {
+          "id": "P3-forged-signature-rejected",
+          "pass": true,
+          "detail": "forged v1 → 400"
+        },
+        {
+          "id": "P4-raw-body-verification",
+          "pass": true,
+          "detail": "whitespace-bearing raw payload → 200"
+        },
+        {
+          "id": "P5-replay-window-enforced",
+          "pass": true,
+          "detail": "1-hour-old timestamp, valid HMAC → 400"
+        },
+        {
+          "id": "P6-duplicate-event-once",
+          "pass": false,
+          "detail": "no work logged either time; 2nd response gives no dedupe signal (200)"
+        },
+        {
+          "id": "P7-webhook-answers-promptly",
+          "pass": true,
+          "detail": "valid webhook answered in 5ms (limit 3000)"
+        },
+        {
+          "id": "P8-no-secret-or-stack-leak",
+          "pass": true,
+          "detail": "no stack trace, no whsec_ in any rejection body"
+        }
+      ],
+      "passed": 7,
+      "total": 8,
+      "ms": 3281,
+      "stem": "stripejune-strata-sonnet-2",
+      "treeSource": "temp",
+      "run": {
+        "task": "stripejune",
+        "arm": "strata",
+        "model": "sonnet",
+        "run": 2,
+        "turns": 78,
+        "costUsd": 3.4179005000000005
+      }
+    },
+    {
+      "suite": "stripejune",
+      "suiteHash": "c06cc9edbd6fbc2b",
+      "dir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-pZl6OG",
+      "booted": true,
+      "entry": "server.js",
+      "discovered": "/webhooks/stripe",
+      "mailAccepted": 0,
+      "results": [
+        {
+          "id": "P1-webhook-accepts-valid-signature",
+          "pass": true,
+          "detail": "POST /webhooks/stripe (checkout.session.completed) → 200 in 4ms"
+        },
+        {
+          "id": "P2-unsigned-rejected",
+          "pass": true,
+          "detail": "unsigned → 400"
+        },
+        {
+          "id": "P3-forged-signature-rejected",
+          "pass": true,
+          "detail": "forged v1 → 400"
+        },
+        {
+          "id": "P4-raw-body-verification",
+          "pass": true,
+          "detail": "whitespace-bearing raw payload → 200"
+        },
+        {
+          "id": "P5-replay-window-enforced",
+          "pass": true,
+          "detail": "1-hour-old timestamp, valid HMAC → 400"
+        },
+        {
+          "id": "P6-duplicate-event-once",
+          "pass": true,
+          "detail": "no work logged either time; 2nd response signals duplicate (200)"
+        },
+        {
+          "id": "P7-webhook-answers-promptly",
+          "pass": true,
+          "detail": "valid webhook answered in 4ms (limit 3000)"
+        },
+        {
+          "id": "P8-no-secret-or-stack-leak",
+          "pass": true,
+          "detail": "no stack trace, no whsec_ in any rejection body"
+        }
+      ],
+      "passed": 8,
+      "total": 8,
+      "ms": 3702,
+      "stem": "stripejune-strata-sonnet-3",
+      "treeSource": "temp",
+      "run": {
+        "task": "stripejune",
+        "arm": "strata",
+        "model": "sonnet",
+        "run": 3,
+        "turns": 106,
+        "costUsd": 4.1415305
+      }
+    },
+    {
+      "suite": "retry",
+      "suiteHash": "c06cc9edbd6fbc2b",
+      "dir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-azH4s5",
+      "booted": true,
+      "entry": "(module, not a server)",
+      "discovered": null,
+      "results": [],
+      "unmeasurable": "delivered TypeScript (example.ts, retry.ts, vitest.config.ts) — this probe cannot require it without a compiler",
+      "passed": 0,
+      "total": 0,
+      "ms": 566,
+      "stem": "retry-baseline-haiku-1",
+      "treeSource": "temp",
+      "run": {
+        "task": "retry",
+        "arm": "baseline",
+        "model": "haiku",
+        "run": 1,
+        "turns": 35,
+        "costUsd": 0.3660189000000001
+      }
+    },
+    {
+      "suite": "retry",
+      "suiteHash": "c06cc9edbd6fbc2b",
+      "dir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-vzFe8i",
+      "booted": true,
+      "entry": "(module, not a server)",
+      "discovered": "retry",
+      "results": [
+        {
+          "id": "R1-retries-then-succeeds",
+          "pass": true,
+          "detail": "3 attempt(s), recovered"
+        },
+        {
+          "id": "R7-succeeds-first-time-without-waiting",
+          "pass": true,
+          "detail": "1 attempt(s) in 2ms"
+        },
+        {
+          "id": "R2-gives-up-eventually",
+          "pass": true,
+          "detail": "stopped after 3 attempt(s)"
+        },
+        {
+          "id": "R3-actually-waits",
+          "pass": true,
+          "detail": "gaps: 70ms, 190ms"
+        },
+        {
+          "id": "R4-backoff-grows",
+          "pass": true,
+          "detail": "70ms → 190ms"
+        },
+        {
+          "id": "R6-surfaces-the-failure",
+          "pass": true,
+          "detail": "threw: HTTP 500"
+        },
+        {
+          "id": "R5-no-retry-on-4xx",
+          "pass": false,
+          "detail": "a 400 was requested 3 time(s) — a 4xx can never succeed on retry"
+        }
+      ],
+      "passed": 6,
+      "total": 7,
+      "ms": 1480,
+      "stem": "retry-baseline-haiku-2",
+      "treeSource": "temp",
+      "run": {
+        "task": "retry",
+        "arm": "baseline",
+        "model": "haiku",
+        "run": 2,
+        "turns": 10,
+        "costUsd": 0.0741757
+      }
+    },
+    {
+      "suite": "retry",
+      "suiteHash": "c06cc9edbd6fbc2b",
+      "dir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-j3Wfdt",
+      "booted": true,
+      "entry": "(module, not a server)",
+      "discovered": "retryWithBackoff",
+      "results": [
+        {
+          "id": "R1-retries-then-succeeds",
+          "pass": true,
+          "detail": "3 attempt(s), recovered"
+        },
+        {
+          "id": "R7-succeeds-first-time-without-waiting",
+          "pass": true,
+          "detail": "1 attempt(s) in 2ms"
+        },
+        {
+          "id": "R2-gives-up-eventually",
+          "pass": true,
+          "detail": "stopped after 3 attempt(s)"
+        },
+        {
+          "id": "R3-actually-waits",
+          "pass": true,
+          "detail": "gaps: 105ms, 206ms"
+        },
+        {
+          "id": "R4-backoff-grows",
+          "pass": true,
+          "detail": "105ms → 206ms"
+        },
+        {
+          "id": "R6-surfaces-the-failure",
+          "pass": true,
+          "detail": "threw: Failed after 3 attempt(s)"
+        },
+        {
+          "id": "R5-no-retry-on-4xx",
+          "pass": false,
+          "detail": "a 400 was requested 3 time(s) — a 4xx can never succeed on retry"
+        }
+      ],
+      "passed": 6,
+      "total": 7,
+      "ms": 1379,
+      "stem": "retry-baseline-haiku-3",
+      "treeSource": "temp",
+      "run": {
+        "task": "retry",
+        "arm": "baseline",
+        "model": "haiku",
+        "run": 3,
+        "turns": 9,
+        "costUsd": 0.07364449999999999
+      }
+    },
+    {
+      "suite": "retry",
+      "suiteHash": "c06cc9edbd6fbc2b",
+      "dir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-GpH7Bn",
+      "booted": true,
+      "entry": "(module, not a server)",
+      "discovered": "fetchWithRetry",
+      "results": [
+        {
+          "id": "R1-retries-then-succeeds",
+          "pass": true,
+          "detail": "3 attempt(s), recovered"
+        },
+        {
+          "id": "R7-succeeds-first-time-without-waiting",
+          "pass": true,
+          "detail": "1 attempt(s) in 2ms"
+        },
+        {
+          "id": "R2-gives-up-eventually",
+          "pass": true,
+          "detail": "stopped after 4 attempt(s)"
+        },
+        {
+          "id": "R3-actually-waits",
+          "pass": true,
+          "detail": "gaps: 149ms, 274ms, 284ms"
+        },
+        {
+          "id": "R4-backoff-grows",
+          "pass": true,
+          "detail": "149ms → 274ms"
+        },
+        {
+          "id": "R6-surfaces-the-failure",
+          "pass": true,
+          "detail": "threw: Operation failed after 4 attempt(s): Request to http://127.0.0.1:56415/flaky fai"
+        },
+        {
+          "id": "R5-no-retry-on-4xx",
+          "pass": true,
+          "detail": "a 400 was requested 1 time(s)"
+        }
+      ],
+      "passed": 7,
+      "total": 7,
+      "ms": 1128,
+      "stem": "retry-baseline-opus-1",
+      "treeSource": "temp",
+      "run": {
+        "task": "retry",
+        "arm": "baseline",
+        "model": "opus",
+        "run": 1,
+        "turns": 12,
+        "costUsd": 0.8262284999999999
+      }
+    },
+    {
+      "suite": "retry",
+      "suiteHash": "c06cc9edbd6fbc2b",
+      "dir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-6YXO6s",
+      "booted": true,
+      "entry": "(module, not a server)",
+      "discovered": "default",
+      "results": [
+        {
+          "id": "R1-retries-then-succeeds",
+          "pass": true,
+          "detail": "3 attempt(s), recovered"
+        },
+        {
+          "id": "R7-succeeds-first-time-without-waiting",
+          "pass": true,
+          "detail": "1 attempt(s) in 2ms"
+        },
+        {
+          "id": "R2-gives-up-eventually",
+          "pass": true,
+          "detail": "stopped after 4 attempt(s)"
+        },
+        {
+          "id": "R3-actually-waits",
+          "pass": true,
+          "detail": "gaps: 165ms, 251ms, 600ms"
+        },
+        {
+          "id": "R4-backoff-grows",
+          "pass": true,
+          "detail": "165ms → 251ms"
+        },
+        {
+          "id": "R6-surfaces-the-failure",
+          "pass": true,
+          "detail": "threw: HTTP 500"
+        },
+        {
+          "id": "R5-no-retry-on-4xx",
+          "pass": true,
+          "detail": "a 400 was requested 1 time(s)"
+        }
+      ],
+      "passed": 7,
+      "total": 7,
+      "ms": 1963,
+      "stem": "retry-baseline-opus-2",
+      "treeSource": "temp",
+      "run": {
+        "task": "retry",
+        "arm": "baseline",
+        "model": "opus",
+        "run": 2,
+        "turns": 13,
+        "costUsd": 0.6350859999999999
+      }
+    },
+    {
+      "suite": "retry",
+      "suiteHash": "c06cc9edbd6fbc2b",
+      "dir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-AQAruG",
+      "booted": true,
+      "entry": "(module, not a server)",
+      "discovered": "fetchWithRetry",
+      "results": [
+        {
+          "id": "R1-retries-then-succeeds",
+          "pass": true,
+          "detail": "3 attempt(s), recovered"
+        },
+        {
+          "id": "R7-succeeds-first-time-without-waiting",
+          "pass": true,
+          "detail": "1 attempt(s) in 1ms"
+        },
+        {
+          "id": "R2-gives-up-eventually",
+          "pass": true,
+          "detail": "stopped after 4 attempt(s)"
+        },
+        {
+          "id": "R3-actually-waits",
+          "pass": true,
+          "detail": "gaps: 17ms, 376ms, 73ms"
+        },
+        {
+          "id": "R4-backoff-grows",
+          "pass": true,
+          "detail": "17ms → 376ms"
+        },
+        {
+          "id": "R6-surfaces-the-failure",
+          "pass": false,
+          "detail": "exhausted its attempts and returned normally instead of reporting the failure"
+        },
+        {
+          "id": "R5-no-retry-on-4xx",
+          "pass": true,
+          "detail": "a 400 was requested 1 time(s)"
+        }
+      ],
+      "passed": 6,
+      "total": 7,
+      "ms": 1385,
+      "stem": "retry-baseline-opus-3",
+      "treeSource": "temp",
+      "run": {
+        "task": "retry",
+        "arm": "baseline",
+        "model": "opus",
+        "run": 3,
+        "turns": 12,
+        "costUsd": 0.629718
+      }
+    },
+    {
+      "suite": "retry",
+      "suiteHash": "c06cc9edbd6fbc2b",
+      "dir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-XezST7",
+      "booted": true,
+      "entry": "(module, not a server)",
+      "discovered": null,
+      "results": [],
+      "unmeasurable": "delivered TypeScript (retry.ts) — this probe cannot require it without a compiler",
+      "passed": 0,
+      "total": 0,
+      "ms": 514,
+      "stem": "retry-baseline-sonnet-1",
+      "treeSource": "temp",
+      "run": {
+        "task": "retry",
+        "arm": "baseline",
+        "model": "sonnet",
+        "run": 1,
+        "turns": 32,
+        "costUsd": 0.8669894
+      }
+    },
+    {
+      "suite": "retry",
+      "suiteHash": "c06cc9edbd6fbc2b",
+      "dir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-V1Kf4o",
+      "booted": true,
+      "entry": "(module, not a server)",
+      "discovered": "retryWithBackoff",
+      "results": [
+        {
+          "id": "R1-retries-then-succeeds",
+          "pass": true,
+          "detail": "3 attempt(s), recovered"
+        },
+        {
+          "id": "R7-succeeds-first-time-without-waiting",
+          "pass": true,
+          "detail": "1 attempt(s) in 2ms"
+        },
+        {
+          "id": "R2-gives-up-eventually",
+          "pass": true,
+          "detail": "stopped after 4 attempt(s)"
+        },
+        {
+          "id": "R3-actually-waits",
+          "pass": true,
+          "detail": "gaps: 192ms, 206ms, 621ms"
+        },
+        {
+          "id": "R4-backoff-grows",
+          "pass": false,
+          "detail": "192ms → 206ms — constant delay, not growing"
+        },
+        {
+          "id": "R6-surfaces-the-failure",
+          "pass": true,
+          "detail": "threw: HTTP 500"
+        },
+        {
+          "id": "R5-no-retry-on-4xx",
+          "pass": false,
+          "detail": "a 400 was requested 4 time(s) — a 4xx can never succeed on retry"
+        }
+      ],
+      "passed": 5,
+      "total": 7,
+      "ms": 2636,
+      "stem": "retry-baseline-sonnet-2",
+      "treeSource": "temp",
+      "run": {
+        "task": "retry",
+        "arm": "baseline",
+        "model": "sonnet",
+        "run": 2,
+        "turns": 9,
+        "costUsd": 0.328616
+      }
+    },
+    {
+      "suite": "retry",
+      "suiteHash": "c06cc9edbd6fbc2b",
+      "dir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-o5FoDm",
+      "booted": true,
+      "entry": "(module, not a server)",
+      "discovered": "retryWithBackoff",
+      "results": [
+        {
+          "id": "R1-retries-then-succeeds",
+          "pass": false,
+          "detail": "1 attempt(s), gave up — HTTP 500"
+        },
+        {
+          "id": "R7-succeeds-first-time-without-waiting",
+          "pass": true,
+          "detail": "1 attempt(s) in 1ms"
+        },
+        {
+          "id": "R2-gives-up-eventually",
+          "pass": true,
+          "detail": "stopped after 1 attempt(s)"
+        },
+        {
+          "id": "R3-actually-waits",
+          "pass": false,
+          "detail": "only 1 attempt(s) — nothing was spaced"
+        },
+        {
+          "id": "R4-backoff-grows",
+          "pass": false,
+          "detail": "only 1 attempt(s) — nothing to compare"
+        },
+        {
+          "id": "R6-surfaces-the-failure",
+          "pass": true,
+          "detail": "threw: HTTP 500"
+        },
+        {
+          "id": "R5-no-retry-on-4xx",
+          "pass": true,
+          "detail": "a 400 was requested 1 time(s)"
+        }
+      ],
+      "passed": 4,
+      "total": 7,
+      "ms": 588,
+      "stem": "retry-baseline-sonnet-3",
+      "treeSource": "temp",
+      "run": {
+        "task": "retry",
+        "arm": "baseline",
+        "model": "sonnet",
+        "run": 3,
+        "turns": 12,
+        "costUsd": 0.3876938
+      }
+    },
+    {
+      "suite": "retry",
+      "suiteHash": "c06cc9edbd6fbc2b",
+      "dir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-PWktBI",
+      "booted": true,
+      "entry": "(module, not a server)",
+      "discovered": "createHttpClient().get",
+      "results": [
+        {
+          "id": "R1-retries-then-succeeds",
+          "pass": true,
+          "detail": "3 attempt(s), recovered"
+        },
+        {
+          "id": "R7-succeeds-first-time-without-waiting",
+          "pass": true,
+          "detail": "1 attempt(s) in 3ms"
+        },
+        {
+          "id": "R2-gives-up-eventually",
+          "pass": true,
+          "detail": "stopped after 4 attempt(s)"
+        },
+        {
+          "id": "R3-actually-waits",
+          "pass": true,
+          "detail": "gaps: 237ms, 550ms, 1157ms"
+        },
+        {
+          "id": "R4-backoff-grows",
+          "pass": true,
+          "detail": "237ms → 550ms"
+        },
+        {
+          "id": "R6-surfaces-the-failure",
+          "pass": true,
+          "detail": "threw: GET http://127.0.0.1:56435/flaky -> 500"
+        },
+        {
+          "id": "R5-no-retry-on-4xx",
+          "pass": true,
+          "detail": "a 400 was requested 1 time(s)"
+        }
+      ],
+      "passed": 7,
+      "total": 7,
+      "ms": 2799,
+      "stem": "retry-strata-haiku-1",
+      "treeSource": "temp",
+      "run": {
+        "task": "retry",
+        "arm": "strata",
+        "model": "haiku",
+        "run": 1,
+        "turns": 17,
+        "costUsd": 0.14972259999999998
+      }
+    },
+    {
+      "suite": "retry",
+      "suiteHash": "c06cc9edbd6fbc2b",
+      "dir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-RRWIzp",
+      "booted": true,
+      "entry": "(module, not a server)",
+      "discovered": "createRetryClient().get",
+      "results": [
+        {
+          "id": "R1-retries-then-succeeds",
+          "pass": true,
+          "detail": "3 attempt(s), recovered"
+        },
+        {
+          "id": "R7-succeeds-first-time-without-waiting",
+          "pass": true,
+          "detail": "1 attempt(s) in 4ms"
+        },
+        {
+          "id": "R2-gives-up-eventually",
+          "pass": true,
+          "detail": "stopped after 4 attempt(s)"
+        },
+        {
+          "id": "R3-actually-waits",
+          "pass": true,
+          "detail": "gaps: 262ms, 531ms, 383ms"
+        },
+        {
+          "id": "R4-backoff-grows",
+          "pass": true,
+          "detail": "262ms → 531ms"
+        },
+        {
+          "id": "R6-surfaces-the-failure",
+          "pass": true,
+          "detail": "threw: GET http://127.0.0.1:56441/flaky -> 500"
+        },
+        {
+          "id": "R5-no-retry-on-4xx",
+          "pass": true,
+          "detail": "a 400 was requested 1 time(s)"
+        }
+      ],
+      "passed": 7,
+      "total": 7,
+      "ms": 1667,
+      "stem": "retry-strata-haiku-2",
+      "treeSource": "temp",
+      "run": {
+        "task": "retry",
+        "arm": "strata",
+        "model": "haiku",
+        "run": 2,
+        "turns": 15,
+        "costUsd": 0.1319188
+      }
+    },
+    {
+      "suite": "retry",
+      "suiteHash": "c06cc9edbd6fbc2b",
+      "dir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-psdSEj",
+      "booted": true,
+      "entry": "(module, not a server)",
+      "discovered": "createHttpClient().get",
+      "results": [
+        {
+          "id": "R1-retries-then-succeeds",
+          "pass": true,
+          "detail": "3 attempt(s), recovered"
+        },
+        {
+          "id": "R7-succeeds-first-time-without-waiting",
+          "pass": true,
+          "detail": "1 attempt(s) in 2ms"
+        },
+        {
+          "id": "R2-gives-up-eventually",
+          "pass": true,
+          "detail": "stopped after 4 attempt(s)"
+        },
+        {
+          "id": "R3-actually-waits",
+          "pass": true,
+          "detail": "gaps: 300ms, 316ms, 878ms"
+        },
+        {
+          "id": "R4-backoff-grows",
+          "pass": false,
+          "detail": "300ms → 316ms — constant delay, not growing"
+        },
+        {
+          "id": "R6-surfaces-the-failure",
+          "pass": true,
+          "detail": "threw: GET http://127.0.0.1:56444/flaky -> 500"
+        },
+        {
+          "id": "R5-no-retry-on-4xx",
+          "pass": true,
+          "detail": "a 400 was requested 1 time(s)"
+        }
+      ],
+      "passed": 6,
+      "total": 7,
+      "ms": 1849,
+      "stem": "retry-strata-haiku-3",
+      "treeSource": "temp",
+      "run": {
+        "task": "retry",
+        "arm": "strata",
+        "model": "haiku",
+        "run": 3,
+        "turns": 12,
+        "costUsd": 0.18068225
+      }
+    },
+    {
+      "suite": "retry",
+      "suiteHash": "c06cc9edbd6fbc2b",
+      "dir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-ITKf7A",
+      "booted": true,
+      "entry": "(module, not a server)",
+      "discovered": "retry",
+      "results": [
+        {
+          "id": "R1-retries-then-succeeds",
+          "pass": true,
+          "detail": "3 attempt(s), recovered"
+        },
+        {
+          "id": "R7-succeeds-first-time-without-waiting",
+          "pass": true,
+          "detail": "1 attempt(s) in 2ms"
+        },
+        {
+          "id": "R2-gives-up-eventually",
+          "pass": true,
+          "detail": "stopped after 4 attempt(s)"
+        },
+        {
+          "id": "R3-actually-waits",
+          "pass": true,
+          "detail": "gaps: 97ms, 269ms, 665ms"
+        },
+        {
+          "id": "R4-backoff-grows",
+          "pass": true,
+          "detail": "97ms → 269ms"
+        },
+        {
+          "id": "R6-surfaces-the-failure",
+          "pass": true,
+          "detail": "threw: Retry exhausted after 4 attempt(s): HTTP 500"
+        },
+        {
+          "id": "R5-no-retry-on-4xx",
+          "pass": false,
+          "detail": "a 400 was requested 4 time(s) — a 4xx can never succeed on retry"
+        }
+      ],
+      "passed": 6,
+      "total": 7,
+      "ms": 2335,
+      "stem": "retry-strata-sonnet-1",
+      "treeSource": "temp",
+      "run": {
+        "task": "retry",
+        "arm": "strata",
+        "model": "sonnet",
+        "run": 1,
+        "turns": 14,
+        "costUsd": 0.4398585999999999
+      }
+    },
+    {
+      "suite": "retry",
+      "suiteHash": "c06cc9edbd6fbc2b",
+      "dir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-mP1DUs",
+      "booted": true,
+      "entry": "(module, not a server)",
+      "discovered": "fetchWithRetry",
+      "results": [
+        {
+          "id": "R1-retries-then-succeeds",
+          "pass": true,
+          "detail": "3 attempt(s), recovered"
+        },
+        {
+          "id": "R7-succeeds-first-time-without-waiting",
+          "pass": true,
+          "detail": "1 attempt(s) in 3ms"
+        },
+        {
+          "id": "R2-gives-up-eventually",
+          "pass": true,
+          "detail": "stopped after 4 attempt(s)"
+        },
+        {
+          "id": "R3-actually-waits",
+          "pass": true,
+          "detail": "gaps: 15ms, 73ms, 289ms"
+        },
+        {
+          "id": "R4-backoff-grows",
+          "pass": true,
+          "detail": "15ms → 73ms"
+        },
+        {
+          "id": "R6-surfaces-the-failure",
+          "pass": true,
+          "detail": "threw: GET http://127.0.0.1:56449/flaky -> 500"
+        },
+        {
+          "id": "R5-no-retry-on-4xx",
+          "pass": true,
+          "detail": "a 400 was requested 1 time(s)"
+        }
+      ],
+      "passed": 7,
+      "total": 7,
+      "ms": 756,
+      "stem": "retry-strata-sonnet-2",
+      "treeSource": "temp",
+      "run": {
+        "task": "retry",
+        "arm": "strata",
+        "model": "sonnet",
+        "run": 2,
+        "turns": 25,
+        "costUsd": 0.6506746000000001
+      }
+    },
+    {
+      "suite": "retry",
+      "suiteHash": "c06cc9edbd6fbc2b",
+      "dir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-5NaeDA",
+      "booted": true,
+      "entry": "(module, not a server)",
+      "discovered": "withRetry",
+      "results": [
+        {
+          "id": "R1-retries-then-succeeds",
+          "pass": true,
+          "detail": "3 attempt(s), recovered"
+        },
+        {
+          "id": "R7-succeeds-first-time-without-waiting",
+          "pass": true,
+          "detail": "1 attempt(s) in 1ms"
+        },
+        {
+          "id": "R2-gives-up-eventually",
+          "pass": true,
+          "detail": "stopped after 4 attempt(s)"
+        },
+        {
+          "id": "R3-actually-waits",
+          "pass": true,
+          "detail": "gaps: 54ms, 351ms, 359ms"
+        },
+        {
+          "id": "R4-backoff-grows",
+          "pass": true,
+          "detail": "54ms → 351ms"
+        },
+        {
+          "id": "R6-surfaces-the-failure",
+          "pass": true,
+          "detail": "threw: failed after 4 attempt(s): HTTP 500"
+        },
+        {
+          "id": "R5-no-retry-on-4xx",
+          "pass": true,
+          "detail": "a 400 was requested 1 time(s)"
+        }
+      ],
+      "passed": 7,
+      "total": 7,
+      "ms": 2358,
+      "stem": "retry-strata-sonnet-3",
+      "treeSource": "temp",
+      "run": {
+        "task": "retry",
+        "arm": "strata",
+        "model": "sonnet",
+        "run": 3,
+        "turns": 21,
+        "costUsd": 0.6958025
+      }
+    }
+  ]
+}

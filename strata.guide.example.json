@@ -1,0 +1,147 @@
+{
+  "schema": "strata-guide/v1",
+
+  "meta": {
+    "authoredBy": "claude-sonnet-5",
+    "authoredAt": "2026-07-26T15:00:00Z",
+    "reviewedByHuman": false,
+    "sourceHash": "sha256:9f2c…",
+    "_note": "sourceHash covers every file this guide describes. On mismatch Strata flags the guide stale and asks the LLM to refresh only the drifted section. This is how the guide stays live."
+  },
+
+  "stack": {
+    "language": "typescript",
+    "moduleSystem": "esm",
+    "framework": "express",
+    "runtime": "node",
+    "_note": "Sets the SYNTAX of every generated line (import vs require, res.json vs c.json)."
+  },
+
+  "layout": {
+    "sourceRoot": "src",
+    "entryPoint": "src/server.ts",
+    "routes": "src/routes",
+    "services": "src/services",
+    "dataAccess": "src/data",
+    "envFile": ".env"
+  },
+
+  "conventions": {
+    "naming": "camelCase",
+    "asyncStyle": "async-await",
+    "errorHandling": "express-error-middleware",
+    "routeStyle": "plural-nouns"
+  },
+
+  "datastores": {
+    "_note": "THE X. Every storage harness in the project, keyed by a local alias. `kind`+`via` are open strings, not a closed enum — any store is expressible; Strata has prebuilt adapters for the common grid and falls back to `access` for the rest. This map is the single hub — domains and capabilities below only POINT here by alias.",
+
+    "primaryDb": {
+      "kind": "postgres",
+      "via": "prisma",
+      "package": "@prisma/client",
+      "schemaFile": "prisma/schema.prisma",
+      "access": "import { PrismaClient } from '@prisma/client';\nexport const db = new PrismaClient();",
+      "handle": "db",
+      "liveAtRuntime": true
+    },
+    "cache": {
+      "kind": "redis",
+      "via": "ioredis",
+      "package": "ioredis",
+      "access": "import Redis from 'ioredis';\nexport const redis = new Redis(process.env.REDIS_URL!);",
+      "handle": "redis",
+      "liveAtRuntime": true
+    },
+    "legacyProducts": {
+      "kind": "in-memory",
+      "via": "module-array",
+      "access": "import { products } from './data/productRepository';",
+      "handle": "products",
+      "liveAtRuntime": true,
+      "_note": "Products are STILL served from this array, NOT from primaryDb — the Prisma Product model is aspirational. The nuance a scraper misses; the reviewer confirms it."
+    },
+    "blobs": {
+      "kind": "s3",
+      "via": "aws-sdk-v3",
+      "package": "@aws-sdk/client-s3",
+      "access": "import { S3Client } from '@aws-sdk/client-s3';\nexport const s3 = new S3Client({ region: process.env.AWS_REGION });",
+      "handle": "s3",
+      "bucketEnv": "S3_BUCKET",
+      "liveAtRuntime": true
+    }
+  },
+
+  "domains": [
+    {
+      "name": "user",
+      "entity": "User",
+      "exists": true,
+      "store": "primaryDb",
+      "collection": "User",
+      "idField": "id",
+      "route": "/users",
+      "storeInterface": ["findById(id)", "findByEmail(email)", "create(data)"],
+      "fields": [
+        { "name": "id",           "type": "string", "isId": true, "generated": true },
+        { "name": "email",        "type": "string", "unique": true },
+        { "name": "passwordHash", "type": "string" }
+      ],
+      "relations": [
+        { "field": "orders", "to": "order", "kind": "one-to-many", "foreignKey": "userId" }
+      ]
+    },
+    {
+      "name": "order",
+      "entity": "Order",
+      "exists": true,
+      "store": "primaryDb",
+      "collection": "Order",
+      "idField": "id",
+      "route": "/orders",
+      "fields": [
+        { "name": "id",       "type": "string", "isId": true, "generated": true },
+        { "name": "userId",   "type": "string" },
+        { "name": "totalCents","type": "number", "min": 0 },
+        { "name": "status",   "type": "enum", "enumValues": ["PENDING", "PAID", "SHIPPED"] }
+      ],
+      "relations": [
+        { "field": "user", "to": "user", "kind": "many-to-one", "foreignKey": "userId" }
+      ]
+    },
+    {
+      "name": "product",
+      "entity": "Product",
+      "exists": true,
+      "store": "legacyProducts",
+      "idField": "id",
+      "route": "/products",
+      "storeInterface": ["list()", "getById(id)"],
+      "methodAliases": { "findAll": "list", "findById": "getById" },
+      "fields": [
+        { "name": "id",        "type": "string", "isId": true },
+        { "name": "name",      "type": "string", "required": true, "minLength": 2 },
+        { "name": "priceCents","type": "number", "min": 0 }
+      ],
+      "_note": "Bound to legacyProducts (in-memory), NOT primaryDb. methodAliases maps the EntityStore port's canonical names to THIS project's real method names (port `findById` → project `getById`), so the generated adapter binds to existing code instead of inventing a mismatched call — kills the #1 wiring-guess bug."
+    }
+  ],
+
+  "capabilities": {
+    "_note": "THE X-FOR-Y for CROSS-CUTTING ports. Each port names its backing datastore alias (or provider) — 'Redis for sessions/idempotency, S3 for blobs, SMTP for email'. HYBRID MODEL: SessionStore/IdempotencyStore/RateLimiterStore/Cache stay DISTINCT ports here (self-documenting intent, one clear line each) but share ONE KeyValueStore adapter underneath per backend (so the adapter grid stays ~15-20 cells, not one-per-port). Port names come from STRATA-PORTS.md; recalls declare which they `require`; Strata renders the KV adapter for the backing store named here.",
+
+    "EntityStore":      { "defaultBacking": "primaryDb", "_note": "Fallback for domains that don't name their own store." },
+    "SessionStore":     { "backing": "cache" },
+    "IdempotencyStore": { "backing": "cache" },
+    "RateLimiterStore": { "backing": "cache" },
+    "Cache":            { "backing": "cache" },
+    "Queue":            { "backing": "cache", "via": "bullmq" },
+    "EmailSender":      { "provider": "nodemailer", "transport": "smtp", "envSlots": ["SMTP_HOST", "SMTP_USER", "SMTP_PASS"] },
+    "FileStorage":      { "backing": "blobs", "provider": "s3" }
+  },
+
+  "env": {
+    "declared": ["DATABASE_URL", "REDIS_URL", "AWS_REGION", "S3_BUCKET"],
+    "casing": "SCREAMING_SNAKE"
+  }
+}

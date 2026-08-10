@@ -1,0 +1,38 @@
+{
+  "task": "retry",
+  "mode": "greenfield",
+  "arm": "baseline",
+  "run": 1,
+  "model": "haiku",
+  "strataBuild": null,
+  "ok": true,
+  "turns": 35,
+  "inputTokens": 186,
+  "outputTokens": 19776,
+  "cacheReadTokens": 1688579,
+  "costUsd": 0.3660189000000001,
+  "wallMs": 345350,
+  "dir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-azH4s5",
+  "strataCalls": 0,
+  "armValid": true,
+  "synthetic": false,
+  "deliveredRecalls": [],
+  "verifyResult": "no verify.js",
+  "diagnosis": {
+    "toolSearchFired": false,
+    "strataUseFired": false,
+    "hubComposed": false,
+    "hubUnreachableFellBackLocal": false,
+    "hubDeclined": false,
+    "verifyRan": false,
+    "bodyParserBugLanguage": false
+  },
+  "finalSummary": "Excellent. Done—here's what I built:\n\n## Retry Helper with Exponential Backoff\n\n**retry.ts** (70 lines)\n- `retryWithBackoff<T>()` — wraps an async function and retries on failure\n- Exponential backoff with configurable multiplier (default 2x)\n- Jitter to prevent thundering herd problem\n- Customizable `shouldRetry` predicate to distinguish transient vs permanent failures\n- Configurable max attempts, initial delay, and max delay cap\n\n**retry.test.ts** (218 lines)\n- 12 comprehensive tests covering:\n  - Success on first attempt\n  - Retry on transient failure\n  - Max attempts exhaustion\n  - Exponential backoff math\n  - Delay capping\n  - Jitter application\n  - Custom `shouldRetry` logic\n  - Non-Error rejection handling\n\n**example.ts** (61 lines)\n- Three real-world examples: HTTP requests, selective retry logic, database operations\n\n**Test results**: All 12 tests pass ✓\n\n### Key design decisions:\n\n1. **Generic return type** — `retryWithBackoff<T>()` works with any async function returning any type\n2. **Error coercion** — non-Error values thrown are wrapped so `shouldRetry` always receives an Error\n3. **Jitter by default** — small random variance (10% by default) prevents synchronized retries across many clients\n4. **shouldRetry predicate** — lets callers distinguish transient (retry) vs permanent (fail immediately) errors without re-throwing and catching\n5. **No logging** — the caller owns observability; passing errors through lets them log where they need to\n6. **Delay caps** — maxDelayMs prevents runaway backoff in long-lived services",
+  "verifyPresent": false,
+  "work": {
+    "filesAdded": 7,
+    "entryBytes": 0,
+    "attempted": true
+  },
+  "fileCount": 8
+}

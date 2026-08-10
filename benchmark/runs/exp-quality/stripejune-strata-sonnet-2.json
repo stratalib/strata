@@ -1,0 +1,41 @@
+{
+  "task": "stripejune",
+  "mode": "greenfield",
+  "arm": "strata",
+  "run": 2,
+  "model": "sonnet",
+  "strataBuild": "29762d587e34",
+  "ok": true,
+  "turns": 78,
+  "inputTokens": 144,
+  "outputTokens": 33987,
+  "cacheReadTokens": 7343775,
+  "costUsd": 3.4179005000000005,
+  "wallMs": 696065,
+  "dir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-iWTuv3",
+  "strataCalls": 1,
+  "armValid": true,
+  "synthetic": false,
+  "deliveredRecalls": [
+    "payment.stripe-webhook.v1",
+    "comm.email.v1"
+  ],
+  "verifyResult": "7/7 checks passed",
+  "diagnosis": {
+    "toolSearchFired": true,
+    "strataUseFired": true,
+    "hubComposed": false,
+    "hubUnreachableFellBackLocal": false,
+    "hubDeclined": false,
+    "verifyRan": true,
+    "bodyParserBugLanguage": false
+  },
+  "finalSummary": "Everything's built and tested. Here's the picture of what exists now and how it fits together:\n\n**What Strata composed** (`strata/lib.js`, imported as `strata-composed`): zero-dependency Stripe webhook signature verification (raw-body HMAC check, timestamp-replay protection, event dedup) and a transport-agnostic transactional email layer (retry with backoff, dead-letters, header-injection protection, template rendering). I read all ~900 lines of it — it's solid, well-reasoned code, so I built on it rather than duplicating it.\n\n**What I wrote on top** (`src/`):\n- `mailer.js` — plugs Nodemailer/SMTP into Strata's `createMailer` as the transport function (falls back to a no-network JSON transport when `SMTP_HOST` is unset, so local dev never accidentally emails anyone)\n- `receiptPdf.js` — PDFKit receipt generation with a simple itemized layout, currency-aware formatting (handles zero-decimal currencies like JPY correctly)\n- `queue.js` / `worker.js` — BullMQ queue + worker process that generates the PDF and emails it as an attachment, one job per Stripe event id so retries can't double-send\n- `stripeClient.js` / `purchaseHandler.js` — the actual purchase flow: on `checkout.session.completed`, send an immediate confirmation email, fetch line items from Stripe's API, enqueue the receipt job\n- `redis.js` / `withTimeout.js` — shared Redis connection for BullMQ and the webhook dedup log\n\n**A real bug I found and fixed during testing**: the webhook's Redis-backed dedup check had no timeout. BullMQ requires `maxRetriesPerRequest: null` on the shared connection (needed for its blocking job-wait commands), but that same setting means a plain `redis.set()` call queues forever if Redis is unreachable — so a Redis outage would silently hang every webhook request rather than failing it. I added a 5-second timeout wrapper around the two Redis calls on the purchase path (dedup check, job enqueue) so an outage now fails fast and loud instead of leaking a promise per missed purchase.\n\n*",
+  "verifyPresent": true,
+  "work": {
+    "filesAdded": 20,
+    "entryBytes": 3874,
+    "attempted": true
+  },
+  "fileCount": 21
+}

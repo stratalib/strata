@@ -1,0 +1,4 @@
+# Sourcemaps and declarations are dead weight for a server nobody imports as a library.
+**/*.js.map
+**/*.d.ts
+**/*.d.ts.map

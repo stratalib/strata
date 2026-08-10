@@ -1,0 +1,42 @@
+{
+  "task": "idempotency",
+  "mode": "brownfield",
+  "arm": "strata",
+  "run": 3,
+  "model": "sonnet",
+  "strataBuild": "40c84878e2f0",
+  "ok": true,
+  "turns": 43,
+  "inputTokens": 142,
+  "outputTokens": 12707,
+  "cacheReadTokens": 2045510,
+  "costUsd": 1.1176020000000002,
+  "wallMs": 213186,
+  "dir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-OQ0E6U",
+  "strataCalls": 1,
+  "armValid": true,
+  "synthetic": false,
+  "deliveredRecalls": [
+    "observability.logging.v1",
+    "validation.request.v1",
+    "api.idempotency.v1"
+  ],
+  "verifyResult": "9/9 checks passed",
+  "diagnosis": {
+    "toolSearchFired": true,
+    "strataUseFired": true,
+    "hubComposed": false,
+    "hubUnreachableFellBackLocal": false,
+    "hubDeclined": false,
+    "verifyRan": true,
+    "bodyParserBugLanguage": false
+  },
+  "finalSummary": "No defects found in the Strata-delivered code, so no `strata/FINDINGS.md` entry is needed.\n\n## Summary\n\nBuilt a `POST /orders` endpoint with retry-safe order creation:\n\n- **`src/routes/orders.js`** — validates `customerEmail` (valid email) and `items` (non-empty array of `{sku, quantity}`), checks each SKU exists, is active, and has enough stock via the existing `productRepository`, then creates the order. Also added `GET /orders/:id`.\n- **`src/data/orderRepository.js`** — in-memory store, same pattern as `productRepository.js` (the project's guide is explicit that Prisma isn't actually wired up despite the schema file existing).\n- **`src/server.js`** — wired up structured logging (pino, with credential redaction) and idempotency-key middleware, both delivered via Strata. `Idempotency-Key` is **required** on `POST /orders` specifically (optional elsewhere) — a missing key on an order-creation request is itself the bug we're preventing, so it's rejected outright rather than silently allowed through.\n- **`prisma/schema.prisma`** — added an `Order` model for documentation parity with `Product`/`Supplier`, marked not-live per the project's own convention.\n\n**Retry behavior, verified against a running server:** the same `Idempotency-Key` + body, sent 3 times, returned the identical order (`id: 7`) all three times — only one \"order created\" log line was emitted, while each of the 3 attempts got its own \"request received/completed\" log line, satisfying \"log every attempt, create at most one order.\" Reusing a key with a *different* body correctly returns `422` instead of silently applying to the wrong order.\n\nRan `npm install` and `node strata/verify.js` (9/9 pass), plus manual curl tests for: missing idempotency key, invalid body, unknown/inactive SKU, insufficient stock, retry dedup, key-reuse conflict, and concurrent same-key requests.\n\n**Judgment calls I'd defend:**\n- **Idempotency key is required, not optional**, on order creation — an order with no dedup key defeats t",
+  "verifyPresent": true,
+  "work": {
+    "filesAdded": 12,
+    "entryBytes": 1667,
+    "attempted": true
+  },
+  "fileCount": 19
+}

@@ -1,0 +1,42 @@
+{
+  "task": "idempotency",
+  "mode": "brownfield",
+  "arm": "strata",
+  "run": 1,
+  "model": "haiku",
+  "ok": true,
+  "turns": 36,
+  "inputTokens": 180,
+  "outputTokens": 15879,
+  "cacheReadTokens": 1531825,
+  "costUsd": 0.3344665,
+  "wallMs": 248553,
+  "dir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-JJXH9y",
+  "strataCalls": 1,
+  "armValid": true,
+  "synthetic": false,
+  "deliveredRecalls": [
+    "observability.logging.v1",
+    "http.resilient-client.v1",
+    "validation.request.v1",
+    "api.idempotency.v1"
+  ],
+  "verifyResult": "9/9 checks passed",
+  "diagnosis": {
+    "toolSearchFired": true,
+    "strataUseFired": true,
+    "hubComposed": false,
+    "hubUnreachableFellBackLocal": false,
+    "hubDeclined": false,
+    "verifyRan": true,
+    "bodyParserBugLanguage": false
+  },
+  "finalSummary": "Excellent! Everything is working. Let me create a summary of what was implemented:\n\n## Summary\n\nI've successfully implemented an order creation endpoint with idempotent request handling that prevents duplicate orders on retried requests. Here's what was built:\n\n### Key Features Implemented:\n\n1. **POST /orders - Order Creation Endpoint**\n   - Accepts: `customerId` (required, positive integer), `items` (required, non-empty string array, max 100), `total` (required, positive number)\n   - Validates all fields with detailed error messages\n   - Returns 201 Created with the created order object\n\n2. **Idempotent Request Handling**\n   - Uses `Idempotency-Key` header to prevent duplicate orders\n   - On retry with same key + payload: returns the original response with `Idempotent-Replayed: true` header\n   - On retry with same key but different payload: returns 422 Unprocessable Entity\n   - Idempotency records expire after 24 hours\n\n3. **Request Validation**\n   - Validates request body with coercion (e.g., string \"123\" → number 123)\n   - Returns 400 Bad Request with detailed per-field error messages\n   - Validates all constraints: type, required, min/max, array items\n\n4. **Request Logging**\n   - Every request is logged via structured logging (pino)\n   - Includes correlation IDs for tracing across services\n   - Logs order creation attempts with order ID, customer ID, and total\n   - Validation failures are logged with error details\n\n### Additional Endpoints:\n- GET /orders - List all orders\n- GET /orders/:id - Fetch a specific order\n- GET /health - Health check\n\n### Technical Stack:\n- Express.js for HTTP server\n- Structured logging with pino\n- Request validation and idempotency middleware from Strata library\n- In-process idempotency store (Redis-compatible interface for scalability)\n\nAll tests pass and the feature is production-ready.",
+  "verifyPresent": true,
+  "work": {
+    "filesAdded": 13,
+    "entryBytes": 4800,
+    "attempted": true
+  },
+  "fileCount": 20
+}

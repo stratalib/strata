@@ -1,0 +1,5 @@
+node_modules/
+.env
+src/data/orders.json
+receipts/*.pdf
+test/.tmp-*

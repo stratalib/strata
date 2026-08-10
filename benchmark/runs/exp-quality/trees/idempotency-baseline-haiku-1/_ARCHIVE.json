@@ -1,0 +1,14 @@
+{
+  "archivedAt": "2026-08-01T13:38:28.657Z",
+  "originalDir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-7ygWZP",
+  "task": "idempotency",
+  "arm": "baseline",
+  "model": "haiku",
+  "run": 1,
+  "strataBuild": null,
+  "turns": 29,
+  "costUsd": 0.167537,
+  "deliveredRecalls": [],
+  "verifyResult": "no verify.js",
+  "note": "node_modules excluded — reinstallable, not evidence."
+}

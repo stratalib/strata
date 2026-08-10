@@ -1,0 +1,14 @@
+{
+  "archivedAt": "2026-08-01T13:38:28.803Z",
+  "originalDir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-dFMxBI",
+  "task": "idempotency",
+  "arm": "baseline",
+  "model": "sonnet",
+  "run": 3,
+  "strataBuild": null,
+  "turns": 37,
+  "costUsd": 0.8780254999999999,
+  "deliveredRecalls": [],
+  "verifyResult": "no verify.js",
+  "note": "node_modules excluded — reinstallable, not evidence."
+}

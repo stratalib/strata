@@ -1,0 +1,17 @@
+{
+  "archivedAt": "2026-08-05T07:51:26.432Z",
+  "originalDir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-pEPnFX",
+  "task": "stripejune",
+  "arm": "strata",
+  "model": "sonnet",
+  "run": 1,
+  "strataBuild": "29762d587e34",
+  "turns": 63,
+  "costUsd": 2.5638757000000005,
+  "deliveredRecalls": [
+    "payment.stripe-webhook.v1",
+    "comm.email.v1"
+  ],
+  "verifyResult": "7/7 checks passed",
+  "note": "node_modules excluded — reinstallable, not evidence."
+}

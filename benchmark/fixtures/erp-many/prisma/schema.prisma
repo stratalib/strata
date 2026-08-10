@@ -1,0 +1,43 @@
+// An ERP. Many entities, several load-bearing. This is the shape that breaks naive resolution:
+// Order and Invoice BOTH have repositories, and a terse task mentioning neither by name cannot
+// distinguish them. Strata must refuse to guess.
+
+generator client { provider = "prisma-client-js" }
+datasource db { provider = "sqlite"; url = env("DATABASE_URL") }
+
+enum OrderStatus  { DRAFT SUBMITTED FULFILLED CANCELLED }
+enum InvoiceState { OPEN PAID OVERDUE VOID }
+
+model Order {
+  id        Int         @id @default(autoincrement())
+  reference String      @unique
+  customer  String
+  total     Float
+  quantity  Int
+  status    OrderStatus
+  createdAt DateTime    @default(now())
+}
+
+model Invoice {
+  id        Int          @id @default(autoincrement())
+  number    String       @unique
+  payer     String
+  amount    Float
+  lineCount Int
+  state     InvoiceState
+  createdAt DateTime     @default(now())
+}
+
+model Shipment {
+  id        Int      @id @default(autoincrement())
+  tracking  String   @unique
+  carrier   String
+  weightKg  Float
+  createdAt DateTime @default(now())
+}
+
+model Supplier {
+  id      Int    @id @default(autoincrement())
+  name    String
+  country String
+}

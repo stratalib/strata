@@ -1,0 +1,14 @@
+{
+  "archivedAt": "2026-08-01T19:41:15.570Z",
+  "originalDir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-PfVolA",
+  "task": "stripejune",
+  "arm": "baseline",
+  "model": "sonnet",
+  "run": 1,
+  "strataBuild": null,
+  "turns": 1,
+  "costUsd": 0,
+  "deliveredRecalls": [],
+  "verifyResult": "no verify.js",
+  "note": "node_modules excluded — reinstallable, not evidence."
+}

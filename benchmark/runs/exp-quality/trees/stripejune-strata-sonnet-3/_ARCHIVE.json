@@ -1,0 +1,17 @@
+{
+  "archivedAt": "2026-08-05T08:28:11.206Z",
+  "originalDir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-pZl6OG",
+  "task": "stripejune",
+  "arm": "strata",
+  "model": "sonnet",
+  "run": 3,
+  "strataBuild": "29762d587e34",
+  "turns": 106,
+  "costUsd": 4.1415305,
+  "deliveredRecalls": [
+    "payment.stripe-webhook.v1",
+    "comm.email.v1"
+  ],
+  "verifyResult": "7/7 checks passed",
+  "note": "node_modules excluded — reinstallable, not evidence."
+}

@@ -1,0 +1,14 @@
+{
+  "archivedAt": "2026-08-01T18:34:01.712Z",
+  "originalDir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-eIZ2WP",
+  "task": "idempotency",
+  "arm": "baseline",
+  "model": "opus",
+  "run": 3,
+  "strataBuild": null,
+  "turns": 26,
+  "costUsd": 1.0737869999999998,
+  "deliveredRecalls": [],
+  "verifyResult": "no verify.js",
+  "note": "node_modules excluded — reinstallable, not evidence."
+}

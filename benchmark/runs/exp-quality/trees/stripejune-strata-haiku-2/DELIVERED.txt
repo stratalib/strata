@@ -1,0 +1,224 @@
+PAYMENT PROCESSING SYSTEM - Delivery Summary
+=============================================
+
+WHAT WAS BUILT
+==============
+
+A production-ready Node.js + Express payment processing system that:
+
+1. ✓ Receives Stripe webhooks with cryptographic signature verification (HMAC-SHA256)
+2. ✓ Sends immediate purchase confirmation emails via Nodemailer/SMTP
+3. ✓ Generates PDF receipts using PDFKit
+4. ✓ Queues and processes receipt generation as background jobs using BullMQ + Redis
+5. ✓ Handles idempotent webhook delivery (replay protection)
+6. ✓ Gracefully shuts down connections and queues
+7. ✓ Logs errors without retrying (Stripe gets 200 OK immediately)
+
+DESIGN DECISIONS (All Documented in Code)
+==========================================
+
+1. Why webhooks accepted immediately (200 OK before processing)?
+   - Stripe retries if we don't respond quickly
+   - Sending email/generating PDF shouldn't block the response
+   - If email fails, it doesn't trigger Stripe retry (which is correct)
+
+2. Why raw request body for signature verification?
+   - Stripe's signature covers the exact bytes received
+   - JSON parsing changes those bytes → signature won't match
+   - This is mounted BEFORE express.json() intentionally
+
+3. Why BullMQ + Redis?
+   - PDF generation can take time (shouldn't block webhook response)
+   - Job persistence survives server restarts
+   - Automatic retry on failure without blocking the main request
+   - Scales to multiple workers easily
+
+4. Why template-driven emails?
+   - HTML + text versions (not all email clients support HTML)
+   - Easy to add new email types (purchase, refund, etc.)
+   - Reusable across different events
+
+5. Why dedup event IDs?
+   - Stripe may retry the same webhook multiple times
+   - Processing same order twice = double-charge risk
+   - Timestamp + ID combo prevents replays
+
+ARCHITECTURE
+============
+
+Request Path:
+  1. POST /webhooks/stripe (with Stripe-Signature header)
+  2. Strata extracts raw body and verifies HMAC-SHA256
+  3. Event ID checked against seen-before log (replay protection)
+  4. 200 OK sent back to Stripe (webhook acknowledged)
+  5. onEvent handler runs (doesn't block response)
+     a. Send purchase_confirmation email immediately
+     b. Queue receipt-generation job to BullMQ
+  6. Worker processes job asynchronously
+     a. Generate PDF with PDFKit
+     b. Send email with PDF attachment
+     c. Log completion or failure
+
+Code Organization:
+  server.js               ← Entry point, Express setup, Stripe/Redis wiring
+  lib/receipt.js          ← PDF generation (PDFKit)
+  lib/receipt-worker.js   ← BullMQ worker (processes jobs)
+  lib/mailer.js           ← Email transport (Nodemailer)
+  lib/email-templates.js  ← Email templates
+  tests.js                ← Unit tests (6 tests, all pass)
+  integration-test.js     ← HTTP tests (5 tests, all pass)
+  strata/verify.js        ← Webhook security tests (8 tests, all pass)
+
+TESTING
+=======
+
+All tests passing (19 total):
+
+Unit Tests (6):
+  ✓ PDF generation works
+  ✓ Purchase confirmation template
+  ✓ Receipt email template
+  ✓ Webhook signature generation
+  ✓ Invalid template rejection
+  ✓ Receipt data validation
+
+Strata Verification (8):
+  ✓ Server health check
+  ✓ JSON error handling
+  ✓ Unsigned webhook rejection
+  ✓ Forged signature rejection
+  ✓ Timestamp replay rejection
+  ✓ Valid webhook acceptance
+  ✓ Event deduplication (idempotency)
+  + 1 unit selftest
+
+Integration Tests (5):
+  ✓ Health endpoint
+  ✓ Unsigned webhook rejection
+  ✓ Forged signature rejection
+  ✓ Valid webhook acceptance
+  ✓ Malformed JSON handling
+
+RUN TESTS
+=========
+
+# Unit tests (no dependencies)
+node tests.js
+
+# Webhook security tests (no external dependencies)
+node strata/verify.js
+
+# Integration tests (requires running server)
+# In terminal 1:
+node server.js
+
+# In terminal 2:
+node integration-test.js
+
+START SERVER
+============
+
+# Set up environment
+export STRIPE_WEBHOOK_SECRET=whsec_test_secret
+export REDIS_URL=redis://localhost:6379
+export MAIL_FROM=noreply@test.local
+export SMTP_HOST=localhost
+export SMTP_PORT=1025
+
+# Start (Redis must be running)
+node server.js
+
+# Test
+curl http://localhost:3000/health
+# Returns: {"ok":true}
+
+PRODUCTION DEPLOYMENT
+=====================
+
+Key steps (see .env.example for all variables):
+
+1. Set Stripe webhook secret
+   export STRIPE_WEBHOOK_SECRET=whsec_1_... (from Stripe Dashboard)
+
+2. Configure SMTP
+   export MAIL_FROM=noreply@company.com
+   export SMTP_HOST=smtp.gmail.com  # or your provider
+   export SMTP_PORT=587
+   export SMTP_USER=your-email@gmail.com
+   export SMTP_PASS=app-specific-password  # not account password!
+
+3. Set Redis connection
+   export REDIS_URL=redis://redis-host:6379
+
+4. Optionally set proxy hops (if behind load balancer)
+   export TRUST_PROXY_HOPS=1
+
+5. Register webhook in Stripe Dashboard
+   URL: https://your-domain.com/webhooks/stripe
+   Events: checkout.session.completed
+   Copy signing secret to STRIPE_WEBHOOK_SECRET
+
+SCALING NOTES
+=============
+
+Current setup (single instance):
+  ✓ Works for development and small scale
+  ✗ Webhook dedup in memory (loses on restart)
+  ✗ Dead letters only in logs
+
+For production (multiple instances):
+  1. Add database for webhook dedup
+     - Create webhookEvent table with unique id
+     - Update eventLog config in server.js
+
+  2. Add database for dead letters
+     - Create failedJob table
+     - Update worker.on('failed') in receipt-worker.js
+
+  3. Ensure Redis is shared across instances
+     - All instances point to same REDIS_URL
+     - BullMQ will work automatically
+
+NEXT STEPS (If Extending)
+==========================
+
+1. Handle other Stripe events
+   - Add to onEvent handler: if (event.type === 'charge.failed') ...
+   - Create new email templates as needed
+
+2. Add order database
+   - Store customer, amount, items when webhook received
+   - Link to email records for customer support
+
+3. Add refund handling
+   - Listen for charge.refunded event
+   - Send refund confirmation email
+
+4. Add receipt storage
+   - Store PDF in S3/storage after generation
+   - Include download link in email
+
+5. Monitor webhook delivery
+   - Track acceptance rate, latency
+   - Alert on repeated failures
+   - Dead letter queue to database
+
+SENSIBLE DEFAULTS CHOSEN
+========================
+
+1. Webhook tolerance: 300 seconds (Stripe default)
+   Reason: Balances clock skew risk vs. replay window
+
+2. Email retry attempts: 3 with 500ms backoff
+   Reason: Transient SMTP failures recover quickly
+
+3. Receipt queue name: 'receipt-generation'
+   Reason: Allows multiple queue types in future (refund, invoice, etc.)
+
+4. No persistence on signed webhook verification failure
+   Reason: Incorrect signature = malformed request, not a retryable error
+
+5. All errors logged, none retried indefinitely
+   Reason: Prevents cascade failures and infinite loops
+
+These choices are embedded in code comments where they matter.

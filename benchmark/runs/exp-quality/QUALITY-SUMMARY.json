@@ -1,0 +1,222 @@
+{
+  "generatedAt": "2026-08-01T18:01:08.081Z",
+  "suiteHash": "ca742d544128a30b",
+  "runsGraded": 24,
+  "tasks": {
+    "catalog": {
+      "cells": {
+        "haiku+baseline": {
+          "n": 3,
+          "scores": [
+            "5/8",
+            "6/8",
+            "6/8"
+          ],
+          "meanPassPct": 71,
+          "bootFailures": 0,
+          "meanCostUsd": 0.1275,
+          "meanTurns": 24
+        },
+        "haiku+strata": {
+          "n": 3,
+          "scores": [
+            "8/8",
+            "6/8",
+            "7/8"
+          ],
+          "meanPassPct": 88,
+          "bootFailures": 0,
+          "meanCostUsd": 0.2209,
+          "meanTurns": 32
+        },
+        "opus+baseline": {
+          "n": 3,
+          "scores": [
+            "6/8",
+            "6/8",
+            "6/8"
+          ],
+          "meanPassPct": 75,
+          "bootFailures": 0,
+          "meanCostUsd": 1.1811,
+          "meanTurns": 32
+        },
+        "sonnet+baseline": {
+          "n": 3,
+          "scores": [
+            "5/8",
+            "5/8",
+            "5/8"
+          ],
+          "meanPassPct": 63,
+          "bootFailures": 0,
+          "meanCostUsd": 0.8379,
+          "meanTurns": 38
+        },
+        "sonnet+strata": {
+          "n": 3,
+          "scores": [
+            "8/8",
+            "8/8",
+            "8/8"
+          ],
+          "meanPassPct": 100,
+          "bootFailures": 0,
+          "meanCostUsd": 1.1451,
+          "meanTurns": 43
+        }
+      },
+      "perCheck": {
+        "C1-list-works": {
+          "haiku+baseline": "3/3",
+          "haiku+strata": "3/3",
+          "opus+baseline": "3/3",
+          "sonnet+baseline": "3/3",
+          "sonnet+strata": "3/3"
+        },
+        "C2-limit-respected": {
+          "haiku+baseline": "2/3",
+          "haiku+strata": "2/3",
+          "opus+baseline": "3/3",
+          "sonnet+baseline": "0/3",
+          "sonnet+strata": "3/3"
+        },
+        "C3-page2-disjoint": {
+          "haiku+baseline": "3/3",
+          "haiku+strata": "1/3",
+          "opus+baseline": "3/3",
+          "sonnet+baseline": "3/3",
+          "sonnet+strata": "3/3"
+        },
+        "C4-hostile-paging-input": {
+          "haiku+baseline": "3/3",
+          "haiku+strata": "3/3",
+          "opus+baseline": "3/3",
+          "sonnet+baseline": "3/3",
+          "sonnet+strata": "3/3"
+        },
+        "C5-ratelimit-triggers": {
+          "haiku+baseline": "3/3",
+          "haiku+strata": "3/3",
+          "opus+baseline": "3/3",
+          "sonnet+baseline": "3/3",
+          "sonnet+strata": "3/3"
+        },
+        "C6-ratelimit-refills": {
+          "haiku+baseline": "0/3",
+          "haiku+strata": "3/3",
+          "opus+baseline": "0/3",
+          "sonnet+baseline": "0/3",
+          "sonnet+strata": "3/3"
+        },
+        "C7-request-id-traceable": {
+          "haiku+baseline": "3/3",
+          "haiku+strata": "3/3",
+          "opus+baseline": "3/3",
+          "sonnet+baseline": "3/3",
+          "sonnet+strata": "3/3"
+        },
+        "C8-malformed-json": {
+          "haiku+baseline": "0/3",
+          "haiku+strata": "3/3",
+          "opus+baseline": "0/3",
+          "sonnet+baseline": "0/3",
+          "sonnet+strata": "3/3"
+        }
+      },
+      "headline": {
+        "floorPct": 71,
+        "productPct": 88,
+        "targetPct": 63,
+        "gapClosedPct": null,
+        "targetBelowFloor": true,
+        "verdict": "CLAIM HOLDS — haiku+Strata 88% >= sonnet baseline 63%"
+      }
+    },
+    "idempotency": {
+      "cells": {
+        "haiku+baseline": {
+          "n": 3,
+          "scores": [
+            "5/7",
+            "4/7",
+            "5/7"
+          ],
+          "meanPassPct": 66,
+          "bootFailures": 0,
+          "meanCostUsd": 0.2203,
+          "meanTurns": 33
+        },
+        "haiku+strata": {
+          "n": 3,
+          "scores": [
+            "6/7",
+            "6/7",
+            "6/7"
+          ],
+          "meanPassPct": 86,
+          "bootFailures": 0,
+          "meanCostUsd": 0.2688,
+          "meanTurns": 36
+        },
+        "sonnet+baseline": {
+          "n": 3,
+          "scores": [
+            "6/7",
+            "6/7",
+            "6/7"
+          ],
+          "meanPassPct": 86,
+          "bootFailures": 0,
+          "meanCostUsd": 0.9729,
+          "meanTurns": 39
+        }
+      },
+      "perCheck": {
+        "I1-create-works": {
+          "haiku+baseline": "3/3",
+          "haiku+strata": "3/3",
+          "sonnet+baseline": "3/3"
+        },
+        "I2-replay-deduplicates": {
+          "haiku+baseline": "3/3",
+          "haiku+strata": "3/3",
+          "sonnet+baseline": "3/3"
+        },
+        "I3-same-key-different-body": {
+          "haiku+baseline": "0/3",
+          "haiku+strata": "3/3",
+          "sonnet+baseline": "0/3"
+        },
+        "I4-malformed-json": {
+          "haiku+baseline": "0/3",
+          "haiku+strata": "3/3",
+          "sonnet+baseline": "3/3"
+        },
+        "I5-validation-rejects-bad-body": {
+          "haiku+baseline": "3/3",
+          "haiku+strata": "0/3",
+          "sonnet+baseline": "3/3"
+        },
+        "I6-concurrent-duplicate": {
+          "haiku+baseline": "3/3",
+          "haiku+strata": "3/3",
+          "sonnet+baseline": "3/3"
+        },
+        "I7-attempt-logged": {
+          "haiku+baseline": "2/3",
+          "haiku+strata": "3/3",
+          "sonnet+baseline": "3/3"
+        }
+      },
+      "headline": {
+        "floorPct": 66,
+        "productPct": 86,
+        "targetPct": 86,
+        "gapClosedPct": 100,
+        "targetBelowFloor": false,
+        "verdict": "CLAIM HOLDS — haiku+Strata 86% >= sonnet baseline 86%"
+      }
+    }
+  }
+}

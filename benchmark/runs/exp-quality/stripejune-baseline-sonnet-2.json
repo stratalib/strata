@@ -1,0 +1,38 @@
+{
+  "task": "stripejune",
+  "mode": "greenfield",
+  "arm": "baseline",
+  "run": 2,
+  "model": "sonnet",
+  "strataBuild": null,
+  "ok": true,
+  "turns": 90,
+  "inputTokens": 215,
+  "outputTokens": 33350,
+  "cacheReadTokens": 5890486,
+  "costUsd": 2.6867197999999997,
+  "wallMs": 642883,
+  "dir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-X3kWNT",
+  "strataCalls": 0,
+  "armValid": true,
+  "synthetic": false,
+  "deliveredRecalls": [],
+  "verifyResult": "no verify.js",
+  "diagnosis": {
+    "toolSearchFired": true,
+    "strataUseFired": false,
+    "hubComposed": false,
+    "hubUnreachableFellBackLocal": false,
+    "hubDeclined": false,
+    "verifyRan": false,
+    "bodyParserBugLanguage": true
+  },
+  "finalSummary": "Everything's built and passing. Here's what's running:\n\n**Flow:** Stripe sends a webhook → Express verifies the HMAC signature on the raw body → order is recorded (keyed by Stripe event ID for idempotency) → a confirmation email goes out immediately via Nodemailer → a job is dropped on a BullMQ/Redis queue → a separate worker process pulls the job, renders a PDF receipt with PDFKit in-memory, and emails it as an attachment.\n\n**Files:**\n- `src/app.js`, `src/server.js` — Express app; webhook route is mounted with `express.raw()` *before* `express.json()`, since Stripe signs the exact raw bytes\n- `src/controllers/webhookController.js` — signature verification, idempotency check, order extraction, dispatches email + job\n- `src/services/stripeClient.js` — lazy Stripe client (a `Proxy` defers construction so the module can load without real credentials, e.g. in tests)\n- `src/services/emailService.js` — confirmation email + receipt email w/ PDF attachment\n- `src/services/receiptPdf.js` — PDFKit receipt rendering to a Buffer\n- `src/queues/receiptQueue.js` / `src/jobs/receiptWorker.js` — BullMQ producer/consumer, run as separate processes (`npm start` vs `npm run worker`)\n- `src/db/orderStore.js` — JSON-file order store, keyed by event ID\n- `test/` — 10 tests covering signature verification (valid/invalid/missing), idempotent redelivery, unhandled event types, PDF byte-level validity, and worker job processing\n\n**Decisions I made without checking in (as requested):**\n1. **CommonJS, not ESM** — plain JS project, avoids `\"type\": \"module\"` friction with the tool ecosystem here.\n2. **No real database** — a JSON-file order store, since none was specified. Swappable for Postgres/Mongo later behind the same 3-function interface (`hasProcessedEvent`/`saveOrder`/`getOrder`).\n3. **Webhook never fails on email/queue errors** — a non-2xx response makes Stripe retry the *whole event*; an SMTP hiccup shouldn't trigger that. The order is durably saved either way, so recovery is possible la",
+  "verifyPresent": false,
+  "work": {
+    "filesAdded": 20,
+    "entryBytes": 196,
+    "attempted": true
+  },
+  "fileCount": 21
+}

@@ -1,0 +1,14 @@
+{
+  "archivedAt": "2026-08-05T08:53:53.500Z",
+  "originalDir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-GpH7Bn",
+  "task": "retry",
+  "arm": "baseline",
+  "model": "opus",
+  "run": 1,
+  "strataBuild": null,
+  "turns": 12,
+  "costUsd": 0.8262284999999999,
+  "deliveredRecalls": [],
+  "verifyResult": "no verify.js",
+  "note": "node_modules excluded — reinstallable, not evidence."
+}

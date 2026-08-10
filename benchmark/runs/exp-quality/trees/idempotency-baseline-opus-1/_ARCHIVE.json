@@ -1,0 +1,14 @@
+{
+  "archivedAt": "2026-08-01T18:17:12.847Z",
+  "originalDir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-m8PhvX",
+  "task": "idempotency",
+  "arm": "baseline",
+  "model": "opus",
+  "run": 1,
+  "strataBuild": null,
+  "turns": 28,
+  "costUsd": 1.2215795000000003,
+  "deliveredRecalls": [],
+  "verifyResult": "no verify.js",
+  "note": "node_modules excluded — reinstallable, not evidence."
+}

@@ -1,0 +1,14 @@
+{
+  "archivedAt": "2026-08-01T15:08:27.299Z",
+  "originalDir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-aFCmVl",
+  "task": "catalog",
+  "arm": "baseline",
+  "model": "opus",
+  "run": 2,
+  "strataBuild": null,
+  "turns": 31,
+  "costUsd": 1.1670075,
+  "deliveredRecalls": [],
+  "verifyResult": "no verify.js",
+  "note": "node_modules excluded — reinstallable, not evidence."
+}

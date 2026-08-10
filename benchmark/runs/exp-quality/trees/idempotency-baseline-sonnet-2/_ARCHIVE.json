@@ -1,0 +1,14 @@
+{
+  "archivedAt": "2026-08-01T13:38:28.776Z",
+  "originalDir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-YUZLPJ",
+  "task": "idempotency",
+  "arm": "baseline",
+  "model": "sonnet",
+  "run": 2,
+  "strataBuild": null,
+  "turns": 34,
+  "costUsd": 0.8796546,
+  "deliveredRecalls": [],
+  "verifyResult": "no verify.js",
+  "note": "node_modules excluded — reinstallable, not evidence."
+}

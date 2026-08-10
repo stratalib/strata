@@ -1,0 +1,38 @@
+{
+  "task": "retry",
+  "mode": "greenfield",
+  "arm": "strata",
+  "run": 1,
+  "model": "sonnet",
+  "strataBuild": "29762d587e34",
+  "ok": true,
+  "turns": 14,
+  "inputTokens": 28,
+  "outputTokens": 8234,
+  "cacheReadTokens": 562262,
+  "costUsd": 0.4398585999999999,
+  "wallMs": 114515,
+  "dir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-ITKf7A",
+  "strataCalls": 1,
+  "armValid": true,
+  "synthetic": false,
+  "deliveredRecalls": [],
+  "verifyResult": "no verify.js",
+  "diagnosis": {
+    "toolSearchFired": true,
+    "strataUseFired": true,
+    "hubComposed": false,
+    "hubUnreachableFellBackLocal": false,
+    "hubDeclined": false,
+    "verifyRan": false,
+    "bodyParserBugLanguage": false
+  },
+  "finalSummary": "One correctness note: `callWithTimeout`'s `onAbort` calls `controller.abort(signal.reason)` — if `signal` is `undefined` this would throw, but it's only registered inside `if (signal)`, so that's fine. The `RetryExhaustedError.attempts` count is right: `opts.retries + 1` (initial attempt + N retries).\n\nEverything's built, tested, and passing. Here's a summary.\n\n## What I built\n\n**`src/retry.js`** — a `retry(fn, options)` helper for wrapping calls to a flaky async API:\n- Exponential backoff with **full jitter** (random delay in `[0, min(cap, base·2^attempt)]`) — avoids every retrying caller synchronizing on the same instants and hammering the API together.\n- `retries` (default 3), `baseDelayMs` (200), `maxDelayMs` (10s cap) are all configurable.\n- Optional `isRetryable(error, attempt)` hook to distinguish transient failures (5xx, network errors) from permanent ones (4xx) — defaults to retrying everything, since I have no real API shape to key off.\n- Optional per-attempt `timeoutMs`, so a hung call gets treated as a failure and retried rather than blocking forever.\n- Optional `AbortSignal` support to cancel mid-wait or before an attempt starts.\n- Optional `onRetry(error, attempt, delayMs)` hook for logging/metrics; a throwing hook is swallowed so it can't break the retry loop.\n- Two distinct error types on exhaustion/cancellation: `RetryExhaustedError` (all attempts failed, carries `.attempts` and `.cause`) and `RetryAbortError` (cancelled via signal).\n\n**`src/retry.test.js`** — 14 tests using Node's built-in `node:test` runner (no dependency needed for one module), covering success-on-first-try, eventual recovery, exhaustion, non-retryable short-circuiting, the onRetry hook (including a throwing one), per-attempt timeout, abort-before-start, abort-mid-backoff, the zero-retries edge case, and bad-input validation. All pass (`npm test`).\n\nWired `package.json` with a `test` script.\n\n## Decisions I'd defend\n\n- **Strata declined the task** — it correctly judged this was o",
+  "verifyPresent": false,
+  "work": {
+    "filesAdded": 3,
+    "entryBytes": 0,
+    "attempted": true
+  },
+  "fileCount": 4
+}

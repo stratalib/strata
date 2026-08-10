@@ -1,0 +1,41 @@
+{
+  "task": "retry",
+  "mode": "greenfield",
+  "arm": "strata",
+  "run": 2,
+  "model": "sonnet",
+  "strataBuild": "29762d587e34",
+  "ok": true,
+  "turns": 25,
+  "inputTokens": 50,
+  "outputTokens": 8302,
+  "cacheReadTokens": 1128642,
+  "costUsd": 0.6506746000000001,
+  "wallMs": 152566,
+  "dir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-mP1DUs",
+  "strataCalls": 1,
+  "armValid": true,
+  "synthetic": false,
+  "deliveredRecalls": [
+    "http.resilient-client.v1",
+    "comm.email.v1"
+  ],
+  "verifyResult": "2/2 checks passed",
+  "diagnosis": {
+    "toolSearchFired": true,
+    "strataUseFired": true,
+    "hubComposed": false,
+    "hubUnreachableFellBackLocal": false,
+    "hubDeclined": false,
+    "verifyRan": true,
+    "bodyParserBugLanguage": false
+  },
+  "finalSummary": "Done. Built at `retry.js` in the project root, backed by Strata's `http.resilient-client.v1` module (`strata/lib.js`, imported via the `strata-composed` package):\n\n- **`fetchWithRetry(url, opts)`** — one-off call with retry/backoff, for hitting a single endpoint once.\n- **`createRetryClient(opts)`** — reusable client (`.get/.post/.put/.patch/.delete`) for repeated calls to the same API, so circuit-breaker state persists across calls instead of resetting each time.\n\nBehavior: exponential backoff with full jitter (randomizes the delay across the whole window, not just the exponential value, so retrying clients don't all hit the recovering server in lockstep), a circuit breaker that fails fast after repeated failures instead of continuing to hammer a dead upstream, honors a server's `Retry-After` header over the computed delay when present, and only retries idempotent methods (GET/HEAD/PUT/DELETE) by default — POST/PATCH require an explicit `{ idempotent: true }` since retrying an unsafe write can duplicate it.\n\nTests in `retry.test.js` (Node's built-in test runner, `npm test`) cover: immediate success, recovery after transient 503s, exhausting retries, skipping retry on non-retryable 4xx, refusing to retry POST by default vs. retrying when marked idempotent, `onRetry` callback firing correctly, circuit breaker opening and short-circuiting further calls, and `Retry-After` overriding computed backoff. All 9 pass. I also ran it against a real local HTTP server that fails twice then succeeds, to confirm the retry path works end-to-end and not just against mocked responses.\n\nStrata's initial delivery also included an unrelated transactional-email module and a full Express server scaffold (it over-matched on \"flaky\" + \"retries\"); I removed `server.js`, the email test file, and the `express`/`dotenv` dependencies it added, since none of that was asked for.\n\nOne judgment call worth flagging: I used `createRetryClient` with `circuitBreaker: false` in `fetchWithRetry` (one-off ",
+  "verifyPresent": true,
+  "work": {
+    "filesAdded": 11,
+    "entryBytes": 0,
+    "attempted": true
+  },
+  "fileCount": 12
+}

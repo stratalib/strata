@@ -1,0 +1,14 @@
+{
+  "archivedAt": "2026-08-05T08:44:42.825Z",
+  "originalDir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-V1Kf4o",
+  "task": "retry",
+  "arm": "baseline",
+  "model": "sonnet",
+  "run": 2,
+  "strataBuild": null,
+  "turns": 9,
+  "costUsd": 0.328616,
+  "deliveredRecalls": [],
+  "verifyResult": "no verify.js",
+  "note": "node_modules excluded — reinstallable, not evidence."
+}

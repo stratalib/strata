@@ -1,0 +1,38 @@
+{
+  "task": "idempotency",
+  "mode": "brownfield",
+  "arm": "baseline",
+  "run": 1,
+  "model": "opus",
+  "strataBuild": null,
+  "ok": true,
+  "turns": 28,
+  "inputTokens": 43,
+  "outputTokens": 15980,
+  "cacheReadTokens": 724567,
+  "costUsd": 1.2215795000000003,
+  "wallMs": 256410,
+  "dir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-m8PhvX",
+  "strataCalls": 0,
+  "armValid": true,
+  "synthetic": false,
+  "deliveredRecalls": [],
+  "verifyResult": "no verify.js",
+  "diagnosis": {
+    "toolSearchFired": true,
+    "strataUseFired": false,
+    "hubComposed": false,
+    "hubUnreachableFellBackLocal": false,
+    "hubDeclined": false,
+    "verifyRan": false,
+    "bodyParserBugLanguage": false
+  },
+  "finalSummary": "Done. Here's where we landed.\n\n## What I built\n\nA `POST /orders` endpoint on your `catalog-service` that a client can safely retry — a retry never creates a second order. Four new/changed files:\n\n| File | What it does |\n|---|---|\n| `src/data/orderRepository.js` | In-memory order store (mirrors `productRepository`'s pattern) + the idempotency-key reservation logic |\n| `src/validation/orderValidation.js` | Pure body validator — types, required fields, real-SKU checks, price snapshotting |\n| `src/routes/orders.js` | The route: logs each attempt, dedupes retries, `POST /orders` + `GET /orders/:id` |\n| `src/server.js` | Mounts the route, adds a malformed-JSON→400 handler, exports the app for tests |\n| `test/orders.test.js` | 12 tests via Node's built-in runner |\n\n**How dedupe works:** the client sends an `Idempotency-Key` header that stays constant across retries. The first request creates the order; every retry with that key gets the *same* order back (`200` instead of `201`). The trick that makes it bulletproof against *concurrent* retries is reserving the key **synchronously** — before any `await` — so in Node's single-threaded model there's no gap for two requests to both slip through. That's the in-memory stand-in for a `UNIQUE` database constraint. Verified deterministic across 5 back-to-back runs.\n\n**Validation** rejects: bad/missing email, empty or oversized items, nonexistent or inactive SKUs, non-positive/non-integer quantities, malformed JSON, and a missing idempotency key — each with a clear `400` reason.\n\n**Run it:** `npm test` (12 pass), `npm start` to serve.\n\n## Decisions I made and would defend\n\n1. **Idempotency via a client-supplied `Idempotency-Key` header, not a body hash.** Two genuinely-separate orders can have identical bodies (same items, same address) and *should* be two orders — only a retry carries the same key. This is the Stripe/PayPal model.\n2. **The key is required; a keyless request is rejected `400`.** Auto-generating one would defeat the ",
+  "verifyPresent": false,
+  "work": {
+    "filesAdded": 6,
+    "entryBytes": 874,
+    "attempted": true
+  },
+  "fileCount": 13
+}

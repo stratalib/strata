@@ -1,0 +1,81 @@
+// Catalog service — data model.
+// This is the project's source of truth. Strata re-reads it on every strata_use, so the generated
+// field lists can never drift from the schema.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum Category {
+  ELECTRONICS
+  HOME
+  TOYS
+  BOOKS
+  SPORTS
+}
+
+model Product {
+  id          Int      @id @default(autoincrement())
+  sku         String   @unique
+  name        String
+  description String?
+  price       Float
+  quantity    Int
+  category    Category
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Supplier {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  country   String
+  createdAt DateTime @default(now())
+}
+
+enum OrderStatus {
+  CREATED
+  REJECTED
+}
+
+// idempotencyKey is the client-supplied retry token (Idempotency-Key header). It is unique so a
+// retried request can never produce a second Order — the DB constraint is the actual guarantee,
+// not just the in-app check, since two retries can race each other.
+model Order {
+  id             Int         @id @default(autoincrement())
+  idempotencyKey String      @unique
+  status         OrderStatus
+  customerId     String
+  items          OrderItem[]
+  totalPrice     Float
+  createdAt      DateTime    @default(now())
+}
+
+model OrderItem {
+  id        Int   @id @default(autoincrement())
+  order     Order @relation(fields: [orderId], references: [id])
+  orderId   Int
+  sku       String
+  quantity  Int
+  unitPrice Float
+}
+
+// One row per inbound request, independent of whether an Order was created. This is the audit
+// trail for "log each attempt" — it captures rejected/invalid attempts too, which the Order table
+// alone would never show.
+model OrderAttempt {
+  id             Int      @id @default(autoincrement())
+  idempotencyKey String
+  outcome        String
+  detail         String?
+  createdAt      DateTime @default(now())
+
+  @@index([idempotencyKey])
+}

@@ -1,0 +1,19 @@
+{
+  "archivedAt": "2026-08-01T15:11:01.354Z",
+  "originalDir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-cOI4Zc",
+  "task": "catalog",
+  "arm": "strata",
+  "model": "haiku",
+  "run": 3,
+  "strataBuild": "40c84878e2f0",
+  "turns": 31,
+  "costUsd": 0.2329434,
+  "deliveredRecalls": [
+    "observability.logging.v1",
+    "api.pagination.v1",
+    "cache.ratelimit.v1",
+    "validation.request.v1"
+  ],
+  "verifyResult": "verify.js present, result not captured",
+  "note": "node_modules excluded — reinstallable, not evidence."
+}

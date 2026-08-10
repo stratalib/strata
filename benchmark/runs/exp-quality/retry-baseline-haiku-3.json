@@ -1,0 +1,38 @@
+{
+  "task": "retry",
+  "mode": "greenfield",
+  "arm": "baseline",
+  "run": 3,
+  "model": "haiku",
+  "strataBuild": null,
+  "ok": true,
+  "turns": 9,
+  "inputTokens": 47,
+  "outputTokens": 4290,
+  "cacheReadTokens": 248685,
+  "costUsd": 0.07364449999999999,
+  "wallMs": 75707,
+  "dir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-j3Wfdt",
+  "strataCalls": 0,
+  "armValid": true,
+  "synthetic": false,
+  "deliveredRecalls": [],
+  "verifyResult": "no verify.js",
+  "diagnosis": {
+    "toolSearchFired": false,
+    "strataUseFired": false,
+    "hubComposed": false,
+    "hubUnreachableFellBackLocal": false,
+    "hubDeclined": false,
+    "verifyRan": false,
+    "bodyParserBugLanguage": false
+  },
+  "finalSummary": "Done. Here's what I built:\n\n**`retry.js`** — The core helper with exponential backoff and jitter:\n- `retryWithBackoff(fn, options)` retries an async function when it throws\n- **Exponential backoff** — delays grow by `backoffFactor` (default 2x) each retry: 100ms → 200ms → 400ms\n- **Jitter** — adds randomness to prevent thundering herd (all clients retrying at the same time)\n- **Configurable cap** — `maxDelayMs` prevents waits from getting absurd\n- **Selective retry** — `shouldRetry(error)` predicate lets you decide which errors are worth retrying (e.g., retry 503s, not 400s)\n- **Error preservation** — throws `RetryError` with the original error attached as `.lastError`\n\n**`retry.test.js`** — 8 comprehensive tests covering:\n- Immediate success\n- Retry-then-success\n- Giving up after max attempts\n- Custom retry predicates\n- Backoff timing validation (actually measured)\n- Jitter variation (ran multiple times)\n- Delay caps working correctly\n\n**`api-client.js`** — A practical example showing how to wrap `fetch()` with retry logic, distinguishing retryable errors (5xx, timeouts, connection refused) from non-retryable ones (4xx client errors).\n\n**Choices I made:**\n- Used `Math.pow(backoffFactor, attempt - 1)` so attempt 1 is 0x (immediate), attempt 2 is 1x, attempt 3 is 2x\n- Jitter is *added* to the base delay rather than randomizing the whole thing — this preserves the exponential shape while reducing collision\n- Defaults: 3 attempts, 100ms initial delay, 10s max, 2x backoff. These are sensible for most APIs\n- `shouldRetry` defaults to retrying everything, letting callers opt-out of specific errors rather than opt-in to which ones to retry",
+  "verifyPresent": false,
+  "work": {
+    "filesAdded": 4,
+    "entryBytes": 0,
+    "attempted": true
+  },
+  "fileCount": 5
+}

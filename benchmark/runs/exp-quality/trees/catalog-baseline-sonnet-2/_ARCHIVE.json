@@ -1,0 +1,14 @@
+{
+  "archivedAt": "2026-08-01T13:38:28.527Z",
+  "originalDir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-dPTaEB",
+  "task": "catalog",
+  "arm": "baseline",
+  "model": "sonnet",
+  "run": 2,
+  "strataBuild": null,
+  "turns": 39,
+  "costUsd": 0.8163535000000001,
+  "deliveredRecalls": [],
+  "verifyResult": "no verify.js",
+  "note": "node_modules excluded — reinstallable, not evidence."
+}

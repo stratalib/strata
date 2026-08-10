@@ -1,0 +1,18 @@
+{
+  "archivedAt": "2026-08-01T15:03:35.358Z",
+  "originalDir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-GBQWwt",
+  "task": "catalog",
+  "arm": "strata",
+  "model": "sonnet",
+  "run": 1,
+  "strataBuild": "40c84878e2f0",
+  "turns": 48,
+  "costUsd": 1.3068964999999997,
+  "deliveredRecalls": [
+    "observability.logging.v1",
+    "api.pagination.v1",
+    "cache.ratelimit.v1"
+  ],
+  "verifyResult": "9 passed, 3 FAILED",
+  "note": "node_modules excluded — reinstallable, not evidence."
+}

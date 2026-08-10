@@ -1,0 +1,14 @@
+{
+  "archivedAt": "2026-08-02T15:46:55.679Z",
+  "originalDir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-sxaYob",
+  "task": "stripejune",
+  "arm": "baseline",
+  "model": "sonnet",
+  "run": 3,
+  "strataBuild": null,
+  "turns": 56,
+  "costUsd": 1.7067722999999997,
+  "deliveredRecalls": [],
+  "verifyResult": "no verify.js",
+  "note": "node_modules excluded — reinstallable, not evidence."
+}

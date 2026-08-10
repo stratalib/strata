@@ -1,0 +1,41 @@
+{
+  "task": "retry",
+  "mode": "greenfield",
+  "arm": "strata",
+  "run": 1,
+  "model": "haiku",
+  "strataBuild": "29762d587e34",
+  "ok": true,
+  "turns": 17,
+  "inputTokens": 90,
+  "outputTokens": 2967,
+  "cacheReadTokens": 646026,
+  "costUsd": 0.14972259999999998,
+  "wallMs": 105676,
+  "dir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-PWktBI",
+  "strataCalls": 1,
+  "armValid": true,
+  "synthetic": false,
+  "deliveredRecalls": [
+    "http.resilient-client.v1",
+    "comm.email.v1"
+  ],
+  "verifyResult": "2/2 checks passed",
+  "diagnosis": {
+    "toolSearchFired": true,
+    "strataUseFired": true,
+    "hubComposed": false,
+    "hubUnreachableFellBackLocal": false,
+    "hubDeclined": false,
+    "verifyRan": true,
+    "bodyParserBugLanguage": false
+  },
+  "finalSummary": "Done. **Strata composed a production-grade API retry helper into your project.**\n\nThe implementation handles flaky APIs with:\n- **Exponential backoff with full jitter** — spreading retries across time so recovered services don't get hammered by the whole fleet at once\n- **Idempotency awareness** — GET/PUT/DELETE auto-retry safely; POST/PATCH only if you mark them `idempotent: true` (where you own the Idempotency-Key)\n- **Circuit breaker** — after 5 failures, fail fast for 30s, then probe recovery with one request\n- **Timeout per attempt** — each retry gets its own timeout window, so a hung connection doesn't burn the budget\n- **HTTP-aware retry classification** — 5xx/429/408 retry; 4xx (except 429) fail immediately; respects server's Retry-After header\n\nAll 72 unit tests pass, and the end-to-end verification confirms the app boots and routes work correctly. The helper is in `strata/composed-pkg/index.js`, already wired into `server.js:43–49`.\n\n**Decisions I made without asking:**\n- Used Strata to compose pre-verified modules instead of hand-writing retry logic (reduces bugs, includes test coverage)\n- Kept circuitBreaker as the default behavior (a 30s reset window is reasonable for most upstreams; config via env is available)\n- Set per-attempt timeout rather than total-request timeout (more predictable backoff math, better for retries)",
+  "verifyPresent": true,
+  "work": {
+    "filesAdded": 13,
+    "entryBytes": 4192,
+    "attempted": true
+  },
+  "fileCount": 14
+}

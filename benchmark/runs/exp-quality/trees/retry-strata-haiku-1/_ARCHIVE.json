@@ -1,0 +1,17 @@
+{
+  "archivedAt": "2026-08-05T08:35:49.726Z",
+  "originalDir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-PWktBI",
+  "task": "retry",
+  "arm": "strata",
+  "model": "haiku",
+  "run": 1,
+  "strataBuild": "29762d587e34",
+  "turns": 17,
+  "costUsd": 0.14972259999999998,
+  "deliveredRecalls": [
+    "http.resilient-client.v1",
+    "comm.email.v1"
+  ],
+  "verifyResult": "2/2 checks passed",
+  "note": "node_modules excluded — reinstallable, not evidence."
+}

@@ -1,0 +1,58 @@
+{
+  "schema": "strata-guide/v1",
+  "meta": { "authoredBy": "strata-guide/fixture", "reviewedByHuman": true },
+
+  "guidance": "Persistence is IN-MEMORY. @prisma/client is NOT installed and prisma/schema.prisma is aspirational — do NOT add Prisma, do NOT run migrations, do NOT reconcile against those tables. New entities (users, sessions, audit, idempotency) use in-memory stores. Products are served from src/data/productRepository.js.",
+
+  "stack": { "language": "javascript", "moduleSystem": "commonjs", "framework": "express", "runtime": "node" },
+  "layout": { "sourceRoot": "src", "entryPoint": "src/server.js", "routes": "src/routes", "dataAccess": "src/data", "envFile": ".env" },
+  "conventions": { "naming": "camelCase", "idField": "id", "asyncStyle": "async-await", "routeStyle": "plural-nouns" },
+
+  "datastores": {
+    "mem": { "kind": "in-memory", "via": "in-memory", "handle": "", "liveAtRuntime": true },
+    "prisma": {
+      "kind": "postgres", "via": "prisma", "schemaFile": "prisma/schema.prisma", "liveAtRuntime": false,
+      "_note": "Declared only to record the truth: this schema exists but @prisma/client is not installed and nothing uses it at runtime. Bind nothing here."
+    }
+  },
+
+  "domains": [
+    {
+      "name": "product", "entity": "Product", "exists": true, "store": "mem",
+      "idField": "id", "route": "/products",
+      "storeInterface": ["list()", "getById(id)"],
+      "methodAliases": { "findAll": "list", "findById": "getById" }
+    },
+    {
+      "name": "user", "entity": "User", "exists": false, "store": "mem",
+      "idField": "id", "route": "/auth",
+      "storeInterface": ["findById(id)", "findByEmail(email)", "create(data)"],
+      "fields": [
+        { "name": "id", "type": "string", "isId": true, "generated": true },
+        { "name": "email", "type": "string", "unique": true },
+        { "name": "passwordHash", "type": "string" }
+      ]
+    },
+    {
+      "name": "audit", "entity": "AuditEvent", "exists": false, "store": "mem",
+      "idField": "id", "route": "/audit",
+      "storeInterface": ["create(data)", "list(opts)"],
+      "fields": [
+        { "name": "id", "type": "string", "isId": true, "generated": true },
+        { "name": "actorId", "type": "string" },
+        { "name": "action", "type": "string" },
+        { "name": "createdAt", "type": "date" }
+      ]
+    }
+  ],
+
+  "capabilities": {
+    "EntityStore": { "defaultBacking": "mem" },
+    "SessionStore": { "backing": "mem" },
+    "IdempotencyStore": { "backing": "mem" },
+    "RateLimiterStore": { "backing": "mem" },
+    "Cache": { "backing": "mem" }
+  },
+
+  "env": { "declared": ["DATABASE_URL"], "casing": "SCREAMING_SNAKE" }
+}

@@ -1,0 +1,24 @@
+{
+  "name": "payment-processor",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "node tests/test-suite.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "stripe": "^14.13.0",
+    "bullmq": "^5.3.0",
+    "redis": "^4.6.12",
+    "nodemailer": "^6.9.7",
+    "pdfkit": "^0.13.0",
+    "dotenv": "^16.3.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

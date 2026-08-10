@@ -1,0 +1,38 @@
+{
+  "task": "stripejune",
+  "mode": "greenfield",
+  "arm": "baseline",
+  "run": 3,
+  "model": "opus",
+  "strataBuild": null,
+  "ok": true,
+  "turns": 60,
+  "inputTokens": 120,
+  "outputTokens": 41302,
+  "cacheReadTokens": 2908450,
+  "costUsd": 3.142279999999999,
+  "wallMs": 706911,
+  "dir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-kHW9Hg",
+  "strataCalls": 0,
+  "armValid": true,
+  "synthetic": false,
+  "deliveredRecalls": [],
+  "verifyResult": "no verify.js",
+  "diagnosis": {
+    "toolSearchFired": true,
+    "strataUseFired": false,
+    "hubComposed": false,
+    "hubUnreachableFellBackLocal": false,
+    "hubDeclined": false,
+    "verifyRan": false,
+    "bodyParserBugLanguage": false
+  },
+  "finalSummary": "Everything's in place. The build is complete and verified. Here's where we landed.\n\n## What got built\n\nA payment processing system with the full flow working: **Stripe webhook → verify signature → confirmation email → background job → PDF receipt → receipt email.**\n\n**Two processes** (this is the key architectural shape):\n- `npm start` — the web server. Receives Stripe webhooks, verifies them, sends the fast confirmation email, enqueues the slow work, returns 200 quickly.\n- `npm run worker` — the background worker. Pulls jobs off Redis, generates the PDF, emails it. Runs separately so slow work never makes the webhook time out (Stripe retries anything that doesn't 2xx fast).\n\n**The four requested pieces, each with the non-obvious part handled:**\n1. **Stripe webhooks + signature verification** — uses `express.raw()` mounted *before* any JSON parser, because Stripe signs the raw bytes and a JSON parser would destroy them. Three tests prove tampered/unsigned/wrong-secret payloads are rejected with zero side effects, using Stripe's own crypto (not a stub).\n2. **Confirmation email** (Nodemailer/SMTP) — sent inline, lightweight, with the customer name HTML-escaped.\n3. **Background job** (BullMQ + Redis) — with retries + exponential backoff, so a transient SMTP failure retries instead of dropping the receipt.\n4. **PDF receipt** (PDFKit) — real generated PDF, attached to the receipt email.\n\n**24 unit tests, all passing.**\n\n## The bug I found and fixed\n\nMid-build I realized the confirmation email was sent inline on *every* webhook delivery, while only the *job* was deduplicated. Stripe redelivers events on network retries — so a redelivery would send a **second confirmation email** to the customer. I added a Redis-backed idempotency gate (`SET NX` — atomic claim-if-first) in front of all side effects, with claim-release-on-failure so a genuine retry can still re-attempt. There's now a test that fires the same event twice and asserts exactly one email and one job.\n\n## Decisio",
+  "verifyPresent": false,
+  "work": {
+    "filesAdded": 24,
+    "entryBytes": 859,
+    "attempted": true
+  },
+  "fileCount": 25
+}

@@ -1,0 +1,38 @@
+{
+  "task": "idempotency",
+  "mode": "brownfield",
+  "arm": "baseline",
+  "run": 3,
+  "model": "haiku",
+  "strataBuild": null,
+  "ok": true,
+  "turns": 46,
+  "inputTokens": 232,
+  "outputTokens": 14052,
+  "cacheReadTokens": 1614374,
+  "costUsd": 0.3024143999999999,
+  "wallMs": 213219,
+  "dir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-yMs8Zs",
+  "strataCalls": 0,
+  "armValid": true,
+  "synthetic": false,
+  "deliveredRecalls": [],
+  "verifyResult": "no verify.js",
+  "diagnosis": {
+    "toolSearchFired": false,
+    "strataUseFired": false,
+    "hubComposed": false,
+    "hubUnreachableFellBackLocal": false,
+    "hubDeclined": false,
+    "verifyRan": false,
+    "bodyParserBugLanguage": false
+  },
+  "finalSummary": "## Summary\n\nI've implemented idempotent order request handling with the following components:\n\n**src/data/orderRepository.js** — Stores orders and maintains an idempotency index. When `create()` is called with an idempotency key that already exists, it returns the existing order instead of creating a duplicate. Each order is assigned a unique ID and timestamped.\n\n**src/middleware/validation.js** — Validates order requests before processing. Ensures:\n- `idempotencyKey` is a non-empty string\n- `customerId` is a non-empty string  \n- `items` is a non-empty array with valid SKU and positive quantity per item\n\n**src/utils/logger.js** — Logs each request with ISO timestamps and structured data, including the idempotency key, customer ID, and item count on receipt, and the outcome (created vs. retry detected) on completion.\n\n**src/routes/orders.js** — Handles POST /orders and GET /orders/:id. On create, checks if the idempotency key has been seen before—if so, returns the existing order with 200 status; if not, creates and returns it with 201. Logs retries to show each attempt.\n\n**Key behaviors:**\n- Multiple requests with the same idempotency key return the same order (no duplicates)\n- The retry response status is 200 (not 201) to indicate the order already existed\n- All requests are logged with timestamp, idempotency key, and context\n- Invalid requests fail validation with detailed error messages\n- Calculations correctly sum item quantities × prices\n\nThe server runs on port 3000 by default and integrates with the existing health endpoint. All validation and idempotency logic has been tested and verified to work correctly.",
+  "verifyPresent": false,
+  "work": {
+    "filesAdded": 7,
+    "entryBytes": 376,
+    "attempted": true
+  },
+  "fileCount": 14
+}

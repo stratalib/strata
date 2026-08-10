@@ -1,0 +1,38 @@
+{
+  "task": "retry",
+  "mode": "greenfield",
+  "arm": "baseline",
+  "run": 2,
+  "model": "sonnet",
+  "strataBuild": null,
+  "ok": true,
+  "turns": 9,
+  "inputTokens": 18,
+  "outputTokens": 7248,
+  "cacheReadTokens": 339750,
+  "costUsd": 0.328616,
+  "wallMs": 84886,
+  "dir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-V1Kf4o",
+  "strataCalls": 0,
+  "armValid": true,
+  "synthetic": false,
+  "deliveredRecalls": [],
+  "verifyResult": "no verify.js",
+  "diagnosis": {
+    "toolSearchFired": false,
+    "strataUseFired": false,
+    "hubComposed": false,
+    "hubUnreachableFellBackLocal": false,
+    "hubDeclined": false,
+    "verifyRan": false,
+    "bodyParserBugLanguage": false
+  },
+  "finalSummary": "Confirmed working via `npm test`. Two files added:\n\n- **`retry.js`** — `retryWithBackoff(fn, options)`: generic retry-with-exponential-backoff-and-jitter wrapper for any async function. Plus `fetchWithRetry(url, fetchOptions, retryOptions)`: a convenience wrapper over `fetch` with sensible retry-on-5xx/429 defaults.\n- **`retry.test.js`** — 18 tests covering success path, retry-then-succeed, exhaustion, custom retry predicates, `onRetry` hooks, exponential growth/capping, jitter bounds, `AbortSignal` cancellation (both pre-aborted and mid-backoff), and the `fetch`-specific status-code logic.\n\nJudgment calls I'd defend if asked:\n\n1. **Plain JS, zero dependencies, Node's built-in `node:test`** — the repo is greenfield with no stack signals (`package.json` was empty), so I avoided imposing TypeScript or a test framework choice that wasn't already implied.\n2. **\"Full jitter with a floor\" rather than pure full-jitter (`random(0, cap)`)** — pure full jitter can occasionally produce a near-zero delay right after a failure, which is exactly the retry-storm behavior backoff exists to prevent. Keeping a `(1 - jitter)` floor guarantees a minimum backoff while still decorrelating retries.\n3. **Default `isRetryable` treats every error as retryable except `AbortError`** — a generic helper can't know which errors from an arbitrary `fn` are permanent (e.g., validation errors) vs. transient, so I exposed `isRetryable` as an override rather than guessing; `fetchWithRetry` layers a more specific policy (retry 5xx/429/network errors, not 4xx) on top since HTTP semantics are well-defined.\n4. **Cancellation via `AbortSignal`** rather than a bespoke `cancel()` API — it's the standard platform primitive and composes with `fetch` directly.\n5. **CommonJS (`module.exports`)** — matches the absence of `\"type\": \"module\"` in `package.json`; safest default for an unconfigured Node project.",
+  "verifyPresent": false,
+  "work": {
+    "filesAdded": 3,
+    "entryBytes": 0,
+    "attempted": true
+  },
+  "fileCount": 4
+}

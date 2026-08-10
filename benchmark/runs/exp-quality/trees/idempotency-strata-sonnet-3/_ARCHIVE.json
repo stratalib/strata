@@ -1,0 +1,18 @@
+{
+  "archivedAt": "2026-08-01T18:30:09.146Z",
+  "originalDir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-OQ0E6U",
+  "task": "idempotency",
+  "arm": "strata",
+  "model": "sonnet",
+  "run": 3,
+  "strataBuild": "40c84878e2f0",
+  "turns": 43,
+  "costUsd": 1.1176020000000002,
+  "deliveredRecalls": [
+    "observability.logging.v1",
+    "validation.request.v1",
+    "api.idempotency.v1"
+  ],
+  "verifyResult": "9/9 checks passed",
+  "note": "node_modules excluded — reinstallable, not evidence."
+}

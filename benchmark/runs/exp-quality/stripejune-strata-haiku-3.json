@@ -1,0 +1,41 @@
+{
+  "task": "stripejune",
+  "mode": "greenfield",
+  "arm": "strata",
+  "run": 3,
+  "model": "haiku",
+  "strataBuild": "29762d587e34",
+  "ok": true,
+  "turns": 47,
+  "inputTokens": 242,
+  "outputTokens": 17205,
+  "cacheReadTokens": 1952395,
+  "costUsd": 0.3733884999999999,
+  "wallMs": 319391,
+  "dir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-h5lxCa",
+  "strataCalls": 1,
+  "armValid": true,
+  "synthetic": false,
+  "deliveredRecalls": [
+    "payment.stripe-webhook.v1",
+    "comm.email.v1"
+  ],
+  "verifyResult": "7/7 checks passed",
+  "diagnosis": {
+    "toolSearchFired": true,
+    "strataUseFired": true,
+    "hubComposed": false,
+    "hubUnreachableFellBackLocal": false,
+    "hubDeclined": false,
+    "verifyRan": true,
+    "bodyParserBugLanguage": false
+  },
+  "finalSummary": "Perfect! The payment processing system is complete and all tests are passing. Here's what was built:\n\n## Summary\n\n**Payment Processing System** — Node.js + Express with:\n\n1. **Stripe Webhooks** (via Strata's verified module)\n   - Signature verification with HMAC-SHA256\n   - Replay attack prevention (5-minute timestamp tolerance)\n   - Automatic event deduplication for redeliveries\n\n2. **Email Confirmation** (Strata mailer + Nodemailer)\n   - Immediate purchase confirmation on checkout\n   - In-memory mode (testing) or SMTP (production)\n   - 3 retries with exponential backoff\n\n3. **Background Job Queue** (BullMQ + Redis)\n   - PDF receipt generation using PDFKit\n   - In-memory fallback when Redis unavailable\n   - Automatic retries and dead-letter handling\n   - Graceful shutdown with signal handlers\n\n4. **Two-Stage Purchase Flow**\n   - Fast: confirmation email sent immediately\n   - Async: receipt PDF generated and emailed in background\n   - Both deliver reliably with retry logic\n\nAll 7 integration tests pass without external dependencies (no Redis, SMTP, or Stripe account needed for testing). Production-ready with pluggable email transports and comprehensive error handling.",
+  "verifyPresent": true,
+  "work": {
+    "filesAdded": 18,
+    "entryBytes": 3910,
+    "attempted": true
+  },
+  "fileCount": 19
+}

@@ -1,0 +1,32 @@
+
+### CATALOG
+arm              quality  scores           cost      turns
+haiku baseline   70.8%    5/8 6/8 6/8      $0.128 1.00x24
+haiku + STRATA   87.5%    8/8 6/8 7/8      $0.221 1.73x32
+sonnet baseline  62.5%    5/8 5/8 5/8      $0.838 6.57x38
+sonnet + STRATA  100.0%   8/8 8/8 8/8      $1.145 8.98x43
+opus baseline    75.0%    6/8 6/8 6/8      $1.181 9.26x32
+
+### IDEMPOTENCY
+arm              quality  scores           cost      turns
+haiku baseline   66.7%    5/7 4/7 5/7      $0.220 1.00x33
+haiku + STRATA   85.7%    6/7 6/7 6/7      $0.269 1.22x36
+sonnet baseline  85.7%    6/7 6/7 6/7      $0.973 4.42x39
+sonnet + STRATA  100.0%   7/7 7/7 7/7      $1.356 6.15x47
+opus baseline    90.5%    6/7 6/7 7/7      $1.155 5.24x27
+
+### STRIPEJUNE
+arm              quality  scores           cost      turns
+haiku baseline   29.2%    7/8 0/8 0/8      $0.359 1.00x48
+haiku + STRATA   100.0%   8/8 8/8 8/8      $0.423 1.18x49
+sonnet baseline  95.8%    8/8 8/8 7/8      $1.937 5.40x64
+sonnet + STRATA  95.8%    8/8 7/8 8/8      $3.374 9.41x82
+opus baseline    75.0%    7/8 7/8 4/8      $2.302 6.42x45
+
+### RETRY
+arm              quality  scores           cost      turns
+haiku baseline   85.7%    6/7 6/7          $0.171 1.00x18   (1 excluded)
+haiku + STRATA   95.2%    7/7 7/7 6/7      $0.154 0.90x15
+sonnet baseline  64.3%    5/7 4/7          $0.528 3.08x18   (1 excluded)
+sonnet + STRATA  95.2%    6/7 7/7 7/7      $0.595 3.48x20
+opus baseline    95.2%    7/7 7/7 6/7      $0.697 4.07x12

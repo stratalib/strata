@@ -1,0 +1,967 @@
+{
+  "generatedAt": "2026-08-01T17:32:20.683Z",
+  "tool": "eslint9 + sonarjs2 + security3",
+  "rows": [
+    {
+      "tree": "catalog-baseline-haiku-1",
+      "task": "catalog",
+      "arm": "baseline",
+      "model": "haiku",
+      "run": 1,
+      "byModel": {
+        "errors": 5,
+        "warnings": 0,
+        "security": 0,
+        "noisy": 0,
+        "sonar": 5,
+        "loc": 191,
+        "files": 6
+      },
+      "byStrata": {
+        "errors": 0,
+        "warnings": 0,
+        "security": 0,
+        "noisy": 0,
+        "sonar": 0,
+        "loc": 0,
+        "files": 0
+      },
+      "byTest": {
+        "errors": 0,
+        "warnings": 0,
+        "security": 0,
+        "noisy": 0,
+        "sonar": 0,
+        "loc": 0,
+        "files": 0
+      }
+    },
+    {
+      "tree": "catalog-baseline-haiku-2",
+      "task": "catalog",
+      "arm": "baseline",
+      "model": "haiku",
+      "run": 2,
+      "byModel": {
+        "errors": 7,
+        "warnings": 0,
+        "security": 0,
+        "noisy": 0,
+        "sonar": 6,
+        "loc": 183,
+        "files": 6
+      },
+      "byStrata": {
+        "errors": 0,
+        "warnings": 0,
+        "security": 0,
+        "noisy": 0,
+        "sonar": 0,
+        "loc": 0,
+        "files": 0
+      },
+      "byTest": {
+        "errors": 0,
+        "warnings": 0,
+        "security": 0,
+        "noisy": 0,
+        "sonar": 0,
+        "loc": 0,
+        "files": 0
+      }
+    },
+    {
+      "tree": "catalog-baseline-haiku-3",
+      "task": "catalog",
+      "arm": "baseline",
+      "model": "haiku",
+      "run": 3,
+      "byModel": {
+        "errors": 5,
+        "warnings": 0,
+        "security": 0,
+        "noisy": 0,
+        "sonar": 5,
+        "loc": 172,
+        "files": 6
+      },
+      "byStrata": {
+        "errors": 0,
+        "warnings": 0,
+        "security": 0,
+        "noisy": 0,
+        "sonar": 0,
+        "loc": 0,
+        "files": 0
+      },
+      "byTest": {
+        "errors": 0,
+        "warnings": 0,
+        "security": 0,
+        "noisy": 0,
+        "sonar": 0,
+        "loc": 0,
+        "files": 0
+      }
+    },
+    {
+      "tree": "catalog-baseline-opus-1",
+      "task": "catalog",
+      "arm": "baseline",
+      "model": "opus",
+      "run": 1,
+      "byModel": {
+        "errors": 6,
+        "warnings": 0,
+        "security": 0,
+        "noisy": 0,
+        "sonar": 5,
+        "loc": 280,
+        "files": 7
+      },
+      "byStrata": {
+        "errors": 0,
+        "warnings": 0,
+        "security": 0,
+        "noisy": 0,
+        "sonar": 0,
+        "loc": 0,
+        "files": 0
+      },
+      "byTest": {
+        "errors": 0,
+        "warnings": 0,
+        "security": 0,
+        "noisy": 0,
+        "sonar": 0,
+        "loc": 0,
+        "files": 0
+      }
+    },
+    {
+      "tree": "catalog-baseline-opus-2",
+      "task": "catalog",
+      "arm": "baseline",
+      "model": "opus",
+      "run": 2,
+      "byModel": {
+        "errors": 5,
+        "warnings": 0,
+        "security": 0,
+        "noisy": 0,
+        "sonar": 5,
+        "loc": 220,
+        "files": 6
+      },
+      "byStrata": {
+        "errors": 0,
+        "warnings": 0,
+        "security": 0,
+        "noisy": 0,
+        "sonar": 0,
+        "loc": 0,
+        "files": 0
+      },
+      "byTest": {
+        "errors": 0,
+        "warnings": 0,
+        "security": 0,
+        "noisy": 0,
+        "sonar": 0,
+        "loc": 0,
+        "files": 0
+      }
+    },
+    {
+      "tree": "catalog-baseline-opus-3",
+      "task": "catalog",
+      "arm": "baseline",
+      "model": "opus",
+      "run": 3,
+      "byModel": {
+        "errors": 5,
+        "warnings": 0,
+        "security": 0,
+        "noisy": 0,
+        "sonar": 5,
+        "loc": 271,
+        "files": 7
+      },
+      "byStrata": {
+        "errors": 0,
+        "warnings": 0,
+        "security": 0,
+        "noisy": 0,
+        "sonar": 0,
+        "loc": 0,
+        "files": 0
+      },
+      "byTest": {
+        "errors": 0,
+        "warnings": 0,
+        "security": 0,
+        "noisy": 0,
+        "sonar": 0,
+        "loc": 0,
+        "files": 0
+      }
+    },
+    {
+      "tree": "catalog-baseline-sonnet-1",
+      "task": "catalog",
+      "arm": "baseline",
+      "model": "sonnet",
+      "run": 1,
+      "byModel": {
+        "errors": 5,
+        "warnings": 1,
+        "security": 0,
+        "noisy": 1,
+        "sonar": 5,
+        "loc": 191,
+        "files": 6
+      },
+      "byStrata": {
+        "errors": 0,
+        "warnings": 0,
+        "security": 0,
+        "noisy": 0,
+        "sonar": 0,
+        "loc": 0,
+        "files": 0
+      },
+      "byTest": {
+        "errors": 0,
+        "warnings": 0,
+        "security": 0,
+        "noisy": 0,
+        "sonar": 0,
+        "loc": 0,
+        "files": 0
+      }
+    },
+    {
+      "tree": "catalog-baseline-sonnet-2",
+      "task": "catalog",
+      "arm": "baseline",
+      "model": "sonnet",
+      "run": 2,
+      "byModel": {
+        "errors": 5,
+        "warnings": 1,
+        "security": 0,
+        "noisy": 1,
+        "sonar": 5,
+        "loc": 167,
+        "files": 6
+      },
+      "byStrata": {
+        "errors": 0,
+        "warnings": 0,
+        "security": 0,
+        "noisy": 0,
+        "sonar": 0,
+        "loc": 0,
+        "files": 0
+      },
+      "byTest": {
+        "errors": 0,
+        "warnings": 0,
+        "security": 0,
+        "noisy": 0,
+        "sonar": 0,
+        "loc": 0,
+        "files": 0
+      }
+    },
+    {
+      "tree": "catalog-baseline-sonnet-3",
+      "task": "catalog",
+      "arm": "baseline",
+      "model": "sonnet",
+      "run": 3,
+      "byModel": {
+        "errors": 6,
+        "warnings": 0,
+        "security": 0,
+        "noisy": 0,
+        "sonar": 5,
+        "loc": 231,
+        "files": 6
+      },
+      "byStrata": {
+        "errors": 0,
+        "warnings": 0,
+        "security": 0,
+        "noisy": 0,
+        "sonar": 0,
+        "loc": 0,
+        "files": 0
+      },
+      "byTest": {
+        "errors": 0,
+        "warnings": 0,
+        "security": 0,
+        "noisy": 0,
+        "sonar": 0,
+        "loc": 0,
+        "files": 0
+      }
+    },
+    {
+      "tree": "catalog-strata-haiku-1",
+      "task": "catalog",
+      "arm": "strata",
+      "model": "haiku",
+      "run": 1,
+      "byModel": {
+        "errors": 4,
+        "warnings": 0,
+        "security": 0,
+        "noisy": 0,
+        "sonar": 4,
+        "loc": 139,
+        "files": 3
+      },
+      "byStrata": {
+        "errors": 3,
+        "warnings": 9,
+        "security": 0,
+        "noisy": 9,
+        "sonar": 3,
+        "loc": 609,
+        "files": 1
+      },
+      "byTest": {
+        "errors": 14,
+        "warnings": 4,
+        "security": 0,
+        "noisy": 4,
+        "sonar": 13,
+        "loc": 1102,
+        "files": 5
+      }
+    },
+    {
+      "tree": "catalog-strata-haiku-2",
+      "task": "catalog",
+      "arm": "strata",
+      "model": "haiku",
+      "run": 2,
+      "byModel": {
+        "errors": 5,
+        "warnings": 0,
+        "security": 0,
+        "noisy": 0,
+        "sonar": 5,
+        "loc": 196,
+        "files": 4
+      },
+      "byStrata": {
+        "errors": 3,
+        "warnings": 9,
+        "security": 0,
+        "noisy": 9,
+        "sonar": 3,
+        "loc": 609,
+        "files": 1
+      },
+      "byTest": {
+        "errors": 14,
+        "warnings": 4,
+        "security": 0,
+        "noisy": 4,
+        "sonar": 13,
+        "loc": 1102,
+        "files": 5
+      }
+    },
+    {
+      "tree": "catalog-strata-haiku-3",
+      "task": "catalog",
+      "arm": "strata",
+      "model": "haiku",
+      "run": 3,
+      "byModel": {
+        "errors": 5,
+        "warnings": 0,
+        "security": 0,
+        "noisy": 0,
+        "sonar": 5,
+        "loc": 142,
+        "files": 4
+      },
+      "byStrata": {
+        "errors": 8,
+        "warnings": 18,
+        "security": 1,
+        "noisy": 17,
+        "sonar": 7,
+        "loc": 902,
+        "files": 2
+      },
+      "byTest": {
+        "errors": 14,
+        "warnings": 4,
+        "security": 0,
+        "noisy": 4,
+        "sonar": 13,
+        "loc": 1326,
+        "files": 6
+      }
+    },
+    {
+      "tree": "catalog-strata-sonnet-1",
+      "task": "catalog",
+      "arm": "strata",
+      "model": "sonnet",
+      "run": 1,
+      "byModel": {
+        "errors": 5,
+        "warnings": 0,
+        "security": 0,
+        "noisy": 0,
+        "sonar": 5,
+        "loc": 141,
+        "files": 4
+      },
+      "byStrata": {
+        "errors": 3,
+        "warnings": 9,
+        "security": 0,
+        "noisy": 9,
+        "sonar": 3,
+        "loc": 609,
+        "files": 1
+      },
+      "byTest": {
+        "errors": 14,
+        "warnings": 4,
+        "security": 0,
+        "noisy": 4,
+        "sonar": 13,
+        "loc": 1117,
+        "files": 5
+      }
+    },
+    {
+      "tree": "catalog-strata-sonnet-2",
+      "task": "catalog",
+      "arm": "strata",
+      "model": "sonnet",
+      "run": 2,
+      "byModel": {
+        "errors": 5,
+        "warnings": 0,
+        "security": 0,
+        "noisy": 0,
+        "sonar": 5,
+        "loc": 153,
+        "files": 4
+      },
+      "byStrata": {
+        "errors": 3,
+        "warnings": 9,
+        "security": 0,
+        "noisy": 9,
+        "sonar": 3,
+        "loc": 609,
+        "files": 1
+      },
+      "byTest": {
+        "errors": 14,
+        "warnings": 4,
+        "security": 0,
+        "noisy": 4,
+        "sonar": 13,
+        "loc": 1117,
+        "files": 5
+      }
+    },
+    {
+      "tree": "catalog-strata-sonnet-3",
+      "task": "catalog",
+      "arm": "strata",
+      "model": "sonnet",
+      "run": 3,
+      "byModel": {
+        "errors": 5,
+        "warnings": 0,
+        "security": 0,
+        "noisy": 0,
+        "sonar": 5,
+        "loc": 141,
+        "files": 4
+      },
+      "byStrata": {
+        "errors": 3,
+        "warnings": 9,
+        "security": 0,
+        "noisy": 9,
+        "sonar": 3,
+        "loc": 609,
+        "files": 1
+      },
+      "byTest": {
+        "errors": 14,
+        "warnings": 4,
+        "security": 0,
+        "noisy": 4,
+        "sonar": 13,
+        "loc": 1102,
+        "files": 5
+      }
+    },
+    {
+      "tree": "idempotency-baseline-haiku-1",
+      "task": "idempotency",
+      "arm": "baseline",
+      "model": "haiku",
+      "run": 1,
+      "byModel": {
+        "errors": 6,
+        "warnings": 0,
+        "security": 0,
+        "noisy": 0,
+        "sonar": 6,
+        "loc": 213,
+        "files": 5
+      },
+      "byStrata": {
+        "errors": 0,
+        "warnings": 0,
+        "security": 0,
+        "noisy": 0,
+        "sonar": 0,
+        "loc": 0,
+        "files": 0
+      },
+      "byTest": {
+        "errors": 0,
+        "warnings": 0,
+        "security": 0,
+        "noisy": 0,
+        "sonar": 0,
+        "loc": 0,
+        "files": 0
+      }
+    },
+    {
+      "tree": "idempotency-baseline-haiku-2",
+      "task": "idempotency",
+      "arm": "baseline",
+      "model": "haiku",
+      "run": 2,
+      "byModel": {
+        "errors": 6,
+        "warnings": 1,
+        "security": 0,
+        "noisy": 1,
+        "sonar": 6,
+        "loc": 712,
+        "files": 8
+      },
+      "byStrata": {
+        "errors": 0,
+        "warnings": 0,
+        "security": 0,
+        "noisy": 0,
+        "sonar": 0,
+        "loc": 0,
+        "files": 0
+      },
+      "byTest": {
+        "errors": 0,
+        "warnings": 0,
+        "security": 0,
+        "noisy": 0,
+        "sonar": 0,
+        "loc": 0,
+        "files": 0
+      }
+    },
+    {
+      "tree": "idempotency-baseline-haiku-3",
+      "task": "idempotency",
+      "arm": "baseline",
+      "model": "haiku",
+      "run": 3,
+      "byModel": {
+        "errors": 5,
+        "warnings": 0,
+        "security": 0,
+        "noisy": 0,
+        "sonar": 5,
+        "loc": 262,
+        "files": 8
+      },
+      "byStrata": {
+        "errors": 0,
+        "warnings": 0,
+        "security": 0,
+        "noisy": 0,
+        "sonar": 0,
+        "loc": 0,
+        "files": 0
+      },
+      "byTest": {
+        "errors": 0,
+        "warnings": 0,
+        "security": 0,
+        "noisy": 0,
+        "sonar": 0,
+        "loc": 0,
+        "files": 0
+      }
+    },
+    {
+      "tree": "idempotency-baseline-sonnet-1",
+      "task": "idempotency",
+      "arm": "baseline",
+      "model": "sonnet",
+      "run": 1,
+      "byModel": {
+        "errors": 5,
+        "warnings": 0,
+        "security": 0,
+        "noisy": 0,
+        "sonar": 5,
+        "loc": 486,
+        "files": 9
+      },
+      "byStrata": {
+        "errors": 0,
+        "warnings": 0,
+        "security": 0,
+        "noisy": 0,
+        "sonar": 0,
+        "loc": 0,
+        "files": 0
+      },
+      "byTest": {
+        "errors": 0,
+        "warnings": 0,
+        "security": 0,
+        "noisy": 0,
+        "sonar": 0,
+        "loc": 0,
+        "files": 0
+      }
+    },
+    {
+      "tree": "idempotency-baseline-sonnet-2",
+      "task": "idempotency",
+      "arm": "baseline",
+      "model": "sonnet",
+      "run": 2,
+      "byModel": {
+        "errors": 5,
+        "warnings": 0,
+        "security": 0,
+        "noisy": 0,
+        "sonar": 5,
+        "loc": 317,
+        "files": 7
+      },
+      "byStrata": {
+        "errors": 0,
+        "warnings": 0,
+        "security": 0,
+        "noisy": 0,
+        "sonar": 0,
+        "loc": 0,
+        "files": 0
+      },
+      "byTest": {
+        "errors": 0,
+        "warnings": 0,
+        "security": 0,
+        "noisy": 0,
+        "sonar": 0,
+        "loc": 0,
+        "files": 0
+      }
+    },
+    {
+      "tree": "idempotency-baseline-sonnet-3",
+      "task": "idempotency",
+      "arm": "baseline",
+      "model": "sonnet",
+      "run": 3,
+      "byModel": {
+        "errors": 6,
+        "warnings": 0,
+        "security": 0,
+        "noisy": 0,
+        "sonar": 6,
+        "loc": 438,
+        "files": 7
+      },
+      "byStrata": {
+        "errors": 0,
+        "warnings": 0,
+        "security": 0,
+        "noisy": 0,
+        "sonar": 0,
+        "loc": 0,
+        "files": 0
+      },
+      "byTest": {
+        "errors": 0,
+        "warnings": 0,
+        "security": 0,
+        "noisy": 0,
+        "sonar": 0,
+        "loc": 0,
+        "files": 0
+      }
+    },
+    {
+      "tree": "idempotency-strata-haiku-1",
+      "task": "idempotency",
+      "arm": "strata",
+      "model": "haiku",
+      "run": 1,
+      "byModel": {
+        "errors": 10,
+        "warnings": 0,
+        "security": 0,
+        "noisy": 0,
+        "sonar": 8,
+        "loc": 287,
+        "files": 5
+      },
+      "byStrata": {
+        "errors": 6,
+        "warnings": 13,
+        "security": 1,
+        "noisy": 12,
+        "sonar": 6,
+        "loc": 840,
+        "files": 1
+      },
+      "byTest": {
+        "errors": 11,
+        "warnings": 5,
+        "security": 0,
+        "noisy": 5,
+        "sonar": 10,
+        "loc": 1238,
+        "files": 6
+      }
+    }
+  ],
+  "cells": {
+    "catalog|haiku+baseline": {
+      "n": 3,
+      "all": {
+        "errors": 17,
+        "warnings": 0,
+        "security": 0,
+        "sonar": 16,
+        "loc": 546,
+        "per1k": 31.1
+      },
+      "modelWritten": {
+        "errors": 17,
+        "warnings": 0,
+        "security": 0,
+        "sonar": 16,
+        "loc": 546,
+        "per1k": 31.1
+      },
+      "strataDelivered": {
+        "errors": 0,
+        "warnings": 0,
+        "security": 0,
+        "sonar": 0,
+        "loc": 0
+      }
+    },
+    "catalog|haiku+strata": {
+      "n": 3,
+      "all": {
+        "errors": 28,
+        "warnings": 36,
+        "security": 1,
+        "sonar": 27,
+        "loc": 2597,
+        "per1k": 24.6
+      },
+      "modelWritten": {
+        "errors": 14,
+        "warnings": 0,
+        "security": 0,
+        "sonar": 14,
+        "loc": 477,
+        "per1k": 29.4
+      },
+      "strataDelivered": {
+        "errors": 14,
+        "warnings": 36,
+        "security": 1,
+        "sonar": 13,
+        "loc": 2120
+      }
+    },
+    "catalog|opus+baseline": {
+      "n": 3,
+      "all": {
+        "errors": 16,
+        "warnings": 0,
+        "security": 0,
+        "sonar": 15,
+        "loc": 771,
+        "per1k": 20.8
+      },
+      "modelWritten": {
+        "errors": 16,
+        "warnings": 0,
+        "security": 0,
+        "sonar": 15,
+        "loc": 771,
+        "per1k": 20.8
+      },
+      "strataDelivered": {
+        "errors": 0,
+        "warnings": 0,
+        "security": 0,
+        "sonar": 0,
+        "loc": 0
+      }
+    },
+    "catalog|sonnet+baseline": {
+      "n": 3,
+      "all": {
+        "errors": 16,
+        "warnings": 2,
+        "security": 0,
+        "sonar": 15,
+        "loc": 589,
+        "per1k": 30.6
+      },
+      "modelWritten": {
+        "errors": 16,
+        "warnings": 2,
+        "security": 0,
+        "sonar": 15,
+        "loc": 589,
+        "per1k": 30.6
+      },
+      "strataDelivered": {
+        "errors": 0,
+        "warnings": 0,
+        "security": 0,
+        "sonar": 0,
+        "loc": 0
+      }
+    },
+    "catalog|sonnet+strata": {
+      "n": 3,
+      "all": {
+        "errors": 24,
+        "warnings": 27,
+        "security": 0,
+        "sonar": 24,
+        "loc": 2262,
+        "per1k": 22.5
+      },
+      "modelWritten": {
+        "errors": 15,
+        "warnings": 0,
+        "security": 0,
+        "sonar": 15,
+        "loc": 435,
+        "per1k": 34.5
+      },
+      "strataDelivered": {
+        "errors": 9,
+        "warnings": 27,
+        "security": 0,
+        "sonar": 9,
+        "loc": 1827
+      }
+    },
+    "idempotency|haiku+baseline": {
+      "n": 3,
+      "all": {
+        "errors": 17,
+        "warnings": 1,
+        "security": 0,
+        "sonar": 17,
+        "loc": 1187,
+        "per1k": 15.2
+      },
+      "modelWritten": {
+        "errors": 17,
+        "warnings": 1,
+        "security": 0,
+        "sonar": 17,
+        "loc": 1187,
+        "per1k": 15.2
+      },
+      "strataDelivered": {
+        "errors": 0,
+        "warnings": 0,
+        "security": 0,
+        "sonar": 0,
+        "loc": 0
+      }
+    },
+    "idempotency|haiku+strata": {
+      "n": 1,
+      "all": {
+        "errors": 16,
+        "warnings": 13,
+        "security": 1,
+        "sonar": 14,
+        "loc": 1127,
+        "per1k": 25.7
+      },
+      "modelWritten": {
+        "errors": 10,
+        "warnings": 0,
+        "security": 0,
+        "sonar": 8,
+        "loc": 287,
+        "per1k": 34.8
+      },
+      "strataDelivered": {
+        "errors": 6,
+        "warnings": 13,
+        "security": 1,
+        "sonar": 6,
+        "loc": 840
+      }
+    },
+    "idempotency|sonnet+baseline": {
+      "n": 3,
+      "all": {
+        "errors": 16,
+        "warnings": 0,
+        "security": 0,
+        "sonar": 16,
+        "loc": 1241,
+        "per1k": 12.9
+      },
+      "modelWritten": {
+        "errors": 16,
+        "warnings": 0,
+        "security": 0,
+        "sonar": 16,
+        "loc": 1241,
+        "per1k": 12.9
+      },
+      "strataDelivered": {
+        "errors": 0,
+        "warnings": 0,
+        "security": 0,
+        "sonar": 0,
+        "loc": 0
+      }
+    }
+  },
+  "disabledIncompatibleRules": [
+    "sonarjs/no-unused-expressions"
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "archivedAt": "2026-08-01T17:59:51.100Z",
+  "originalDir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-KGcvpG",
+  "task": "idempotency",
+  "arm": "strata",
+  "model": "haiku",
+  "run": 3,
+  "strataBuild": "40c84878e2f0",
+  "turns": 40,
+  "costUsd": 0.24109690000000003,
+  "deliveredRecalls": [
+    "observability.logging.v1",
+    "api.idempotency.v1",
+    "validation.request.v1"
+  ],
+  "verifyResult": "9/9 checks passed",
+  "note": "node_modules excluded — reinstallable, not evidence."
+}

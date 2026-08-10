@@ -1,0 +1,20 @@
+{
+  "name": "bench-greenfield",
+  "version": "1.0.0",
+  "private": true,
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "worker": "node worker.js",
+    "verify": "node strata/verify.js"
+  },
+  "dependencies": {
+    "bullmq": "^6.0.8",
+    "dotenv": "^16.0.0",
+    "express": "^4.18.0",
+    "ioredis": "^6.0.0",
+    "nodemailer": "^9.0.4",
+    "pdfkit": "^0.19.1",
+    "strata-composed": "file:./strata/composed-pkg"
+  }
+}

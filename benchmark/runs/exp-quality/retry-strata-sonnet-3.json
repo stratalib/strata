@@ -1,0 +1,41 @@
+{
+  "task": "retry",
+  "mode": "greenfield",
+  "arm": "strata",
+  "run": 3,
+  "model": "sonnet",
+  "strataBuild": "29762d587e34",
+  "ok": true,
+  "turns": 21,
+  "inputTokens": 36,
+  "outputTokens": 8540,
+  "cacheReadTokens": 977795,
+  "costUsd": 0.6958025,
+  "wallMs": 141483,
+  "dir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-5NaeDA",
+  "strataCalls": 1,
+  "armValid": true,
+  "synthetic": false,
+  "deliveredRecalls": [
+    "http.resilient-client.v1",
+    "comm.email.v1"
+  ],
+  "verifyResult": "2/2 checks passed",
+  "diagnosis": {
+    "toolSearchFired": true,
+    "strataUseFired": true,
+    "hubComposed": false,
+    "hubUnreachableFellBackLocal": false,
+    "hubDeclined": false,
+    "verifyRan": true,
+    "bodyParserBugLanguage": false
+  },
+  "finalSummary": "Done. The project now has just `retry.js` (the helper, zero dependencies) and `retry.test.js` (13 passing tests via Node's built-in `node:test`), run with `npm test`.\n\n**What it does:** `withRetry(fn, opts)` wraps any async call and retries on failure with exponential backoff + full jitter (randomizing the delay within the window, not just the delay itself — this is what stops every client from retrying in lockstep and re-killing a service that's just recovering). It honors a `Retry-After` value if the error carries one, classifies which failures are worth retrying (5xx, 429, 408, or no status at all → retry; other 4xx → don't, since those fail identically forever), and lets the caller override that classification or mark an error `permanent` directly.\n\n**Ambiguous calls I made and would defend:**\n- **Generic wrapper, not fetch-specific.** \"Calls a flaky API\" didn't specify fetch/axios/an SDK, so `withRetry(fn)` takes any `() => Promise`. It's usable anywhere a call can fail, not just HTTP.\n- **No circuit breaker.** Strata's delivered module included one; I left it out because \"retry with backoff\" and \"stop calling a dead service entirely\" are different concerns, and adding it would be scope beyond what was asked. Easy to layer on later if needed.\n- **POST/non-idempotent retries aren't specially gated.** Since this wraps an arbitrary function (not method-aware like an HTTP client), I couldn't infer idempotency from a verb. The retry decision is entirely up to `isRetryable`/`err.permanent`, so the caller is responsible for not passing in a non-idempotent operation unless it's actually safe to repeat.\n\nI also had to walk back most of what Strata initially generated — it delivered a full Express server with an unrelated ~500-line transactional email module bundled in, which was well beyond the ask. I kept only the retry/backoff logic (verified by its own test suite, which all passed) and rebuilt it as the standalone helper described above.",
+  "verifyPresent": false,
+  "work": {
+    "filesAdded": 3,
+    "entryBytes": 0,
+    "attempted": true
+  },
+  "fileCount": 4
+}

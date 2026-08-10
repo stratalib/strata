@@ -1,0 +1,14 @@
+{
+  "archivedAt": "2026-08-03T08:14:23.546Z",
+  "originalDir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-dTovfz",
+  "task": "stripejune",
+  "arm": "baseline",
+  "model": "opus",
+  "run": 2,
+  "strataBuild": null,
+  "turns": 35,
+  "costUsd": 1.8190275,
+  "deliveredRecalls": [],
+  "verifyResult": "no verify.js",
+  "note": "node_modules excluded — reinstallable, not evidence."
+}

@@ -1,0 +1,14 @@
+{
+  "archivedAt": "2026-08-02T14:23:34.288Z",
+  "originalDir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-MfKDM0",
+  "task": "stripejune",
+  "arm": "baseline",
+  "model": "haiku",
+  "run": 1,
+  "strataBuild": null,
+  "turns": 46,
+  "costUsd": 0.3073810999999999,
+  "deliveredRecalls": [],
+  "verifyResult": "no verify.js",
+  "note": "node_modules excluded — reinstallable, not evidence."
+}

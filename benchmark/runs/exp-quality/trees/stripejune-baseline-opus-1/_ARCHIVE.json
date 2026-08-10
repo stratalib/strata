@@ -1,0 +1,14 @@
+{
+  "archivedAt": "2026-08-02T16:04:32.821Z",
+  "originalDir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-QPci1V",
+  "task": "stripejune",
+  "arm": "baseline",
+  "model": "opus",
+  "run": 1,
+  "strataBuild": null,
+  "turns": 41,
+  "costUsd": 1.945455,
+  "deliveredRecalls": [],
+  "verifyResult": "no verify.js",
+  "note": "node_modules excluded — reinstallable, not evidence."
+}

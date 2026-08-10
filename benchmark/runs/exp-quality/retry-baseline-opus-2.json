@@ -1,0 +1,38 @@
+{
+  "task": "retry",
+  "mode": "greenfield",
+  "arm": "baseline",
+  "run": 2,
+  "model": "opus",
+  "strataBuild": null,
+  "ok": true,
+  "turns": 13,
+  "inputTokens": 24,
+  "outputTokens": 10319,
+  "cacheReadTokens": 370016,
+  "costUsd": 0.6350859999999999,
+  "wallMs": 166413,
+  "dir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-6YXO6s",
+  "strataCalls": 0,
+  "armValid": true,
+  "synthetic": false,
+  "deliveredRecalls": [],
+  "verifyResult": "no verify.js",
+  "diagnosis": {
+    "toolSearchFired": false,
+    "strataUseFired": false,
+    "hubComposed": false,
+    "hubUnreachableFellBackLocal": false,
+    "hubDeclined": false,
+    "verifyRan": false,
+    "bodyParserBugLanguage": false
+  },
+  "finalSummary": "16/16 passing, and the whole suite dropped from ~2.5s to ~160ms once the delay tests stopped really sleeping. The three previously-slow tests (`onRetry`, `delay is capped`, `jitter`) are now sub-millisecond.\n\n**You are here — done.** Two files, `retry.js` (the helper) and `retry.test.js` (the tests), plus a `package.json` with `npm test` wired up. `npm test` → `node --test`.\n\n## What I built\n\n`retry(fn, options)` — runs your async operation and, on retryable failure, waits with **exponential backoff + full jitter** and tries again until it succeeds or the attempt budget runs out.\n\n```js\nimport { retry } from './retry.js';\n\nconst data = await retry(\n  async ({ signal }) => {\n    const res = await fetch('https://flaky.example/api', { signal });\n    if (!res.ok) {\n      const err = new Error(`HTTP ${res.status}`);\n      err.status = res.status;   // lets the default retry policy see it\n      throw err;\n    }\n    return res.json();\n  },\n  { retries: 4, minDelayMs: 200, maxDelayMs: 10_000 },\n);\n```\n\nOptions: `retries` (default 3), `minDelayMs` (200), `maxDelayMs` (10 000), `factor` (2), `isRetryable`, `onRetry`, `signal` (AbortSignal), and an injectable `random` for testing. Also exports `defaultIsRetryable` so you can reuse or wrap the built-in policy.\n\n## Ambiguous calls I made, and why\n\n- **Plain ESM JavaScript, zero dependencies, `node:test`.** The project was an empty `package.json`. A retry helper shouldn't drag in a library, and using Node's built-ins means it runs with nothing to install. If you'd rather have TypeScript, this ports directly.\n- **What's retryable by default:** HTTP **429 + 5xx** and known transient network codes (`ECONNRESET`, `ETIMEDOUT`, …). Other **4xx are not retried** — same bad request, same failure, so retrying just wastes time and budget. An explicit `err.retryable = true/false` overrides the heuristic. When an error has no status and no recognized code, I **default to retryable** and let the attempt limit stop it — I'd rather over-retry a",
+  "verifyPresent": false,
+  "work": {
+    "filesAdded": 3,
+    "entryBytes": 0,
+    "attempted": true
+  },
+  "fileCount": 4
+}

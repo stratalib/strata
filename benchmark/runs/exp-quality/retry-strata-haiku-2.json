@@ -1,0 +1,41 @@
+{
+  "task": "retry",
+  "mode": "greenfield",
+  "arm": "strata",
+  "run": 2,
+  "model": "haiku",
+  "strataBuild": "29762d587e34",
+  "ok": true,
+  "turns": 15,
+  "inputTokens": 73,
+  "outputTokens": 4104,
+  "cacheReadTokens": 496978,
+  "costUsd": 0.1319188,
+  "wallMs": 90748,
+  "dir": "C:\\Users\\user\\AppData\\Local\\Temp\\bench-RRWIzp",
+  "strataCalls": 1,
+  "armValid": true,
+  "synthetic": false,
+  "deliveredRecalls": [
+    "http.resilient-client.v1",
+    "comm.email.v1"
+  ],
+  "verifyResult": "2/2 checks passed",
+  "diagnosis": {
+    "toolSearchFired": true,
+    "strataUseFired": true,
+    "hubComposed": false,
+    "hubUnreachableFellBackLocal": false,
+    "hubDeclined": false,
+    "verifyRan": true,
+    "bodyParserBugLanguage": false
+  },
+  "finalSummary": "Done. Here's what you have:\n\n**`retry.js`** — A concise helper that wraps the resilient HTTP client. It exports:\n- `createRetryClient(opts)` — Creates a client with retry + backoff + circuit breaker\n- `CircuitOpenError` — Thrown when the upstream is down; tells you how long to wait\n- `HttpError` — Thrown on failure; carries status, attempts, and response body\n\n**Core features:**\n1. **Exponential backoff with jitter** — Retries use 2^attempt backoff to avoid thundering herd\n2. **Circuit breaker** — Fails fast when upstream is clearly broken; probes for recovery after cooldown\n3. **Smart retries** — GET/HEAD/PUT/DELETE always retry; POST/PATCH only if you say `idempotent: true`\n4. **Per-attempt timeouts** — Each retry gets its own timeout; stale AbortSignals won't cancel later attempts\n5. **Retry-After headers** — Honors server's backoff hints (429, 503)\n6. **Non-retryable 4xx** — Doesn't count against circuit breaker (e.g., 404 won't trigger open)\n\n**What you'd typically use:**\n\n```js\nconst client = createRetryClient({ baseUrl: 'https://api.example.com', retries: 3 });\nconst data = await client.get('/endpoint');  // Retries on 5xx, network errors, 429, 503\n```\n\nThe verification suite confirms the implementation works end-to-end. Everything in `strata/composed-pkg/index.js` is plain, readable code you can modify if needed.\n\n**Design choices I made:**\n- Export only the most common entry point (`createRetryClient`), not every utility. You can access the other functions through the strata module if needed.\n- Kept backoff jitter enabled by default (prevents synchronized thundering herd after outage recovery).\n- Circuit breaker is on by default but can be disabled by passing `circuitBreaker: false`.\n- Idempotent POST requires explicit opt-in to avoid accidentally retrying state-changing operations.",
+  "verifyPresent": true,
+  "work": {
+    "filesAdded": 15,
+    "entryBytes": 4192,
+    "attempted": true
+  },
+  "fileCount": 16
+}

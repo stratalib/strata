@@ -99,21 +99,37 @@ and a tool that always says yes is a tool you stop trusting.</sub>
 
 60 full agent sessions: four backend tasks, five arms, three runs each. Checks were frozen and published before the first run, every check carries a negative control proving it can fail, and every output tree is archived. Delivered module source is not published — modules live in the hub and reach a project at call time.
 
-| Arm | Catalog | Idempotency | Payments | Retry | Average | Cost |
-|---|---|---|---|---|---|---|
-| haiku | 70.8% | 66.7% | 29.2% | 85.7% | **63.1%** | $0.22 |
-| **haiku + Strata** | 87.5% | 85.7% | 100% | 95.2% | **92.1%** | $0.27 |
-| sonnet | 62.5% | 85.7% | 95.8% | 64.3% | **77.1%** | $1.07 |
-| **sonnet + Strata** | 100% | 100% | 95.8% | 95.2% | **97.8%** | $1.62 |
-| opus | 75.0% | 90.5% | 75.0% | 95.2% | **83.9%** | $1.33 |
+### Did it work the first time?
 
-- A cheap model with Strata scores above a frontier model without it, at a fifth of the cost.
-- `sonnet + Strata` is the only arm to reach a perfect score, and reaches it twice. No baseline at any tier reached one in thirty-six attempts.
-- Quality does not track price across baselines: sonnet is the weakest arm on catalog while costing 6.6× the cheapest.
+| Arm | Worked first try | Wall time | Cost / run | Cost of one working feature |
+|---|---|---|---|---|
+| haiku | **0 / 11** — 0% | 5.1 min | $0.22 | **never produced one** |
+| **haiku + Strata** | **6 / 12** — 50% | **3.6 min** | $0.27 | **$0.53** |
+| sonnet | 2 / 11 — 18% | 4.4 min | $1.07 | $5.88 |
+| **sonnet + Strata** | **10 / 12** — 83% | 6.1 min | $1.62 | **$1.94** |
+| opus | 3 / 12 — 25% | 5.2 min | $1.33 | $5.33 |
 
-**Cost is a premium on three of four tasks** — +73% on catalog, +22% on idempotency, +74% on sonnet's payments run. The trade is quality and predictability, not spend. On payments the effect inverts with model strength: given the same modules, haiku's session length is unchanged (48 → 49 turns) while sonnet's grows 28% (64 → 82) as it re-reads and reworks code it did not write.
+"Worked first try" = every pre-registered check for that task passed, with no second attempt. Plain haiku is the cheapest per run and produced nothing that fully worked in eleven attempts.
 
-Full methodology, per-run scores and every instrument defect found along the way: [`docs/BENCHMARK.md`](docs/BENCHMARK.md).
+### Share of checks passed
+
+| Arm | Catalog | Idempotency | Payments | Retry | Average |
+|---|---|---|---|---|---|
+| haiku | 70.8% | 66.7% | 29.2% | 85.7% | **63.1%** |
+| **haiku + Strata** | 87.5% | 85.7% | 100% | 95.2% | **92.1%** |
+| sonnet | 62.5% | 85.7% | 95.8% | 64.3% | **77.1%** |
+| **sonnet + Strata** | 100% | 100% | 95.8% | 95.2% | **97.8%** |
+| opus | 75.0% | 90.5% | 75.0% | 95.2% | **83.9%** |
+
+**Two checks were failed by every baseline run at every tier and passed by every Strata run** — a rate limiter whose window never refills (baseline 0/9, Strata 6/6) and a malformed request that returns a stack trace to the caller (0/9, 6/6). haiku 0/3, sonnet 0/3, opus 0/3 on both. A larger model fixed neither.
+
+### What it costs you
+
+**Strata is a cost premium per session** — +26% on haiku, +51% on sonnet. That premium is caused by reading, not writing: two thirds to four fifths of an agent bill is re-reading accumulated context, and a Strata session reads ~12–14k tokens of delivered implementation where a baseline reads ~1k. Work is underway to close it; it is not closed today.
+
+**Roughly three quarters of the advantage is in defects you would not have noticed** — edge cases, timing, and correctness bugs that surface later as incidents. On defects you *would* notice, a plain model is already right 86.4% of the time. That is why `strata/verify.js` exists: it turns correctness into a list of named checks you can read.
+
+Full methodology, per-run scores, the visible/invisible split and every instrument defect found along the way: [`docs/BENCHMARK.md`](docs/BENCHMARK.md).
 
 ---
 

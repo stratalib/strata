@@ -65,6 +65,56 @@ code costs less than writing it, and it was included expecting a loss.
 
 Quality is the share of pre-registered checks passed. Cost is the mean session bill.
 
+## Outcome
+
+The board above answers "what share of checks passed". That is the right question for a method and
+the wrong one for a reader deciding whether to install something. The same runs, asked the question
+a user actually has:
+
+| Arm | Worked first try | Wall time | Cost / run | Cost of one working feature |
+|---|---|---|---|---|
+| haiku | **0 / 11** — 0% | 5.1 min | $0.22 | **never produced one** |
+| **haiku + Strata** | **6 / 12** — 50% | **3.6 min** | $0.27 | **$0.53** |
+| sonnet | 2 / 11 — 18% | 4.4 min | $1.07 | $5.88 |
+| **sonnet + Strata** | **10 / 12** — 83% | 6.1 min | $1.62 | **$1.94** |
+| opus | 3 / 12 — 25% | 5.2 min | $1.33 | $5.33 |
+
+"Worked first try" means every pre-registered check for that task passed on that run, with no second
+attempt. "Cost of one working feature" is the cost per run divided by the share of runs that fully
+worked — the expected spend to obtain one.
+
+Two runs are ungraded (`retry-baseline-haiku-1`, `retry-baseline-sonnet-1`): they delivered
+TypeScript the probe could not drive, and are recorded as unmeasured rather than as zeros, which is
+why some denominators are 11 rather than 12.
+
+Plain haiku is the cheapest per run and produced nothing that fully worked in eleven attempts. That
+is the case for measuring outcomes rather than attempts: a failed run is not a discount. In this
+battery failed runs were not even cheap — a haiku baseline cost $0.17 when the app booted and $0.38
+when it did not, because the model burns turns flailing.
+
+## Where the advantage lives
+
+Not every defect is one a developer would notice. Grouping the checks by how a defect would surface
+to the person who asked for the feature:
+
+| Class | Would they notice? | baseline | with Strata | gain |
+|---|---|---|---|---|
+| obvious — wrong answer to an ordinary request | likely | 86.4% | 93.8% | **+7.4 pts** |
+| edge — needs malformed or hostile input | rarely | 66.7% | 87.5% | +20.8 pts |
+| load — needs traffic, timing or concurrency | rarely | 70.7% | 96.3% | +25.6 pts |
+| silent — surfaces later as an incident | never | 70.9% | 98.1% | **+27.3 pts** |
+
+**About three quarters of the advantage is in defects the requester could not have noticed.** On the
+defects they would notice, a plain model is already right 86.4% of the time.
+
+This is the honest shape of the result, and it cuts both ways. It means "it looks fine" is a
+reasonable report from someone running a plain model — for what they can see, it mostly is. It also
+means the value is invisible without something that makes it visible, which is what
+`strata/verify.js` is for: it turns correctness into a list of named checks and a number.
+
+The classification is a judgement call, published so it can be argued with:
+`benchmark/quality/analyze-visibility.js`.
+
 ### What holds
 
 - A cheap model with Strata scores above a frontier model without it, at a fifth of the cost.
@@ -73,11 +123,22 @@ Quality is the share of pre-registered checks passed. Cost is the mean session b
 - Quality does not track price across baselines: sonnet is the weakest arm on catalog while costing
   6.6× the cheapest, and opus loses to haiku + Strata on three of four tasks.
 - Strata's spread is tighter. Where baselines swing within a single cell, the Strata cells repeat.
+- **Two checks were failed by every baseline run at every tier, and passed by every Strata run.** A
+  rate limiter whose window never refills (baseline 0/9, Strata 6/6) and a malformed request that
+  returns a stack trace to the caller (0/9, 6/6). haiku 0/3, sonnet 0/3, opus 0/3 on both. Paying for
+  a larger model fixed neither.
 
 ### What does not
 
 - **Cost is a premium on three of four tasks** — +73% on catalog, +22% on idempotency, +74% on sonnet's
   payments run. The trade is quality and predictability, not spend.
+- **The premium is caused by reading, not by writing.** Two thirds to four fifths of an agent bill is
+  cache-read — re-reading the accumulated conversation on every turn. Strata sessions read ~12–14k
+  tokens of delivered implementation into context against a baseline's ~1k, and they read it early,
+  where it is re-billed on every remaining turn. Measured as re-billed token-turns that is 10.4× the
+  baseline on haiku and 21.6× on sonnet. Meanwhile Strata halves the number of files the model writes
+  and barely moves output tokens at all, because model output is mostly reasoning rather than code.
+  Reproduce with `benchmark/quality/analyze-cost.js` and `analyze-reads.js`.
 - **The payments task is half covered.** Strata has a verified Stripe webhook module but no queue or PDF
   module, so the model hand-writes those in both arms while Strata still charges its overhead.
 - **On payments the effect inverts with model strength.** Given the same modules, haiku's session length
@@ -148,6 +209,17 @@ drive and are recorded as unmeasured rather than as zeros. See the caveat above.
 | `benchmark/quality/suites.js` | the pre-registered checks |
 | `benchmark/quality/grade.js` | the grader |
 | `benchmark/quality/negative-control.js` | the mutations proving each check can fail |
+| `benchmark/quality/verify-board.js` | recomputes the published board from the raw grades |
+| `benchmark/quality/outcome-board.js` | the outcome table above |
+| `benchmark/quality/analyze-visibility.js` | the visible/invisible split |
+| `benchmark/quality/verify-universal.js` | exact counts behind "every baseline failed this" |
+| `benchmark/quality/analyze-cost.js` · `analyze-reads.js` | where the cost premium comes from |
+
+One instrument note worth stating, since it would otherwise be invisible: `GRADES.json` keys 40 of
+its 60 rows by run name and the other 20 by the original temp directory. Joining on run name alone
+silently drops twenty runs, including the three most expensive sessions in the battery, and inflates
+every Strata average. `verify-board.js` joins on both keys and reproduces the published board exactly;
+any re-analysis should use it as the reference.
 
 Raw session transcripts are not published. They record host paths and full agent conversations, and the
 archived trees are the artifact the scores are actually computed from.

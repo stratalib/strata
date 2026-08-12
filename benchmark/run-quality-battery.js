@@ -73,6 +73,14 @@ const ARM_PLAN = [
   ['baseline', 'sonnet'],
   ['strata', 'sonnet'],
   ['baseline', 'opus'],
+  // PRE-INJECTION — the provenance experiment. Same implementation the Strata arm received, taken
+  // byte-for-byte from that task's own archived Strata run, but already committed as ordinary project
+  // source: no MCP server, no tool call, no strata/ directory, no banner identifying it as generated.
+  // Tests whether the audit that drives Strata's cost overrun is caused by the code or by watching a
+  // tool hand it over. Opt in with `--arms preinject`; it is NOT part of the default queue, so the
+  // published five-arm battery is unaffected.
+  ['preinject', 'haiku'],
+  ['preinject', 'sonnet'],
 ];
 
 const QUEUE = [];

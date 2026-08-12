@@ -198,7 +198,7 @@ function sh(cmd, args, opts) {
  * identical tree — a fixture that drifts between runs makes the two arms incomparable, and the drift
  * is invisible in the results.
  */
-function prepareDir(task) {
+function prepareDir(task, arm, taskName) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'bench-'));
   if (task.fixture) {
     const src = path.join(ROOT, 'benchmark', 'fixtures', task.fixture);
@@ -211,7 +211,82 @@ function prepareDir(task) {
     fs.writeFileSync(path.join(dir, 'package.json'),
       JSON.stringify({ name: 'bench-greenfield', version: '1.0.0', private: true }, null, 2));
   }
+  if (arm === 'preinject') injectPreCommitted(dir, taskName);
   return dir;
+}
+
+/**
+ * THE PRE-INJECTION ARM.
+ *
+ * Hypothesis: the audit that drives Strata's cost overrun is triggered by PROVENANCE, not by the code.
+ * A model that watches a tool hand it an implementation reads that implementation (2.2× the Read calls
+ * of baseline, 12–14k tokens, early, re-billed every remaining turn). A model that opens a repo and
+ * finds the same bytes already committed has no delivery event to react to.
+ *
+ * So this arm gives the model the SAME implementation the Strata arm was given — byte-for-byte, taken
+ * from that task's own archived Strata run — but as ordinary project source that was simply already
+ * there. No MCP server, no tool call, no strata/ directory, no verifier.
+ *
+ * Three things must be true for the comparison to mean anything:
+ *
+ *   1. The bytes are the real delivery, not a paraphrase. Sourced from the archived tree.
+ *   2. NOTHING identifies it as generated. The delivered file opens with a five-line banner naming
+ *      the recalls and pointing at `strata/verify.js` — that banner IS the provenance signal under
+ *      test, so it is stripped and replaced with an ordinary project header. Verified: every mention
+ *      of "strata"/"recall" in these files lives in that banner and nowhere else.
+ *   3. It has to actually resolve. The file requires `pino`, which the fixture does not declare, so
+ *      the dependency is added — a human who committed this file would have added it too.
+ */
+function injectPreCommitted(dir, taskName) {
+  const srcLib = path.join(ROOT, 'benchmark', 'runs', 'exp-quality', 'trees',
+    `${taskName}-strata-haiku-1`, 'strata', 'lib.js');
+  if (!fs.existsSync(srcLib)) {
+    throw new Error(`preinject: no archived delivery for ${taskName} at ${srcLib}`);
+  }
+
+  let code = fs.readFileSync(srcLib, 'utf-8');
+
+  // Strip the generated banner: every leading comment line before the first line of real code.
+  const lines = code.split('\n');
+  let i = 0;
+  while (i < lines.length && (lines[i].trim().startsWith('//') || lines[i].trim() === '')) i++;
+  code = lines.slice(i).join('\n');
+
+  // Two deliveries also mention the vocabulary incidentally inside ordinary doc comments — "a sibling
+  // recall's test once asserted…", "the recall's own tests run anywhere". Those are prose, not banners,
+  // but they still identify where the file came from, so the words are neutralised. Only comments are
+  // touched: check-preinject.js asserts the non-comment lines are byte-identical to the delivery.
+  code = code.replace(/\brecalls\b/gi, 'modules').replace(/\brecall\b/gi, 'module')
+             .replace(/\bStrata\b/g, 'toolkit').replace(/\bstrata\b/g, 'toolkit');
+
+  if (/strata|recall/i.test(code)) {
+    // Fail loudly rather than run an arm whose "pre-existing" file still advertises where it came from.
+    throw new Error('preinject: provenance leaked past the banner — aborting rather than measuring a broken control');
+  }
+
+  const header = '// Shared HTTP helpers for this service.\n' +
+                 '// Logging, list-query parsing/pagination, caching and rate limiting.\n\n';
+  const libDir = path.join(dir, 'src', 'lib');
+  fs.mkdirSync(libDir, { recursive: true });
+  fs.writeFileSync(path.join(libDir, 'toolkit.js'), header + code);
+
+  // Declare what the file needs, as a committing human would have.
+  const pkgPath = path.join(dir, 'package.json');
+  try {
+    const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf-8'));
+    pkg.dependencies = pkg.dependencies || {};
+    if (/require\('pino'\)/.test(code) && !pkg.dependencies.pino) pkg.dependencies.pino = '^9.0.0';
+    fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + '\n');
+  } catch { /* greenfield package.json is ours and always parses; ignore anything exotic */ }
+
+  // Document it the way the fixture documents its other modules — discoverability is part of the
+  // hypothesis, and a file nobody can find tests nothing.
+  const readme = path.join(dir, 'README.md');
+  const note = '- Shared HTTP helpers live in `src/lib/toolkit.js` — structured logging, list-query' +
+               ' parsing with pagination, caching and rate limiting. Already unit-tested; prefer these' +
+               ' over writing your own.\n';
+  if (fs.existsSync(readme)) fs.appendFileSync(readme, note);
+  else fs.writeFileSync(readme, '# service\n\n' + note);
 }
 
 /** Write the MCP config for the Strata arm. Its absence IS the baseline arm. */
@@ -239,15 +314,26 @@ function writeMcpConfig(dir) {
 }
 
 /** One agent session. Returns the measured run, or a record explaining why it failed. */
-function runOnce(taskName, task, arm, runIndex) {
-  const dir = prepareDir(task);
-  if (arm === 'strata') writeMcpConfig(dir);
+/**
+ * `opts` exists for the cost-to-working driver (run-until-working.js), which needs to run a SECOND
+ * session against the SAME tree the first one left behind:
+ *
+ *   dir        — reuse an existing working directory instead of preparing a fresh one
+ *   prompt     — replace the task prompt (attempt 2+ reports symptoms instead of restating the task)
+ *   stemSuffix — keep each attempt's record and log separate rather than overwriting attempt 1
+ *
+ * Absent all three this behaves exactly as before, so the published battery is unaffected.
+ */
+function runOnce(taskName, task, arm, runIndex, opts = {}) {
+  const reuse = !!opts.dir;
+  const dir = opts.dir || prepareDir(task, arm, taskName);
+  if (arm === 'strata' && !reuse) writeMcpConfig(dir);
 
   // strata.guide.json — dropped into the STRATA arm only (baseline stays a clean control; a baseline
   // agent would just read a file it doesn't understand). Simulates the steady state where the guide has
   // already been authored + reviewed. Committed OUTSIDE the fixture (fixtures are measurement
   // instruments — never edit them). Toggle off with STRATA_GUIDE=0 to A/B the guide's effect.
-  if (arm === 'strata' && task.fixture && process.env.STRATA_GUIDE !== '0') {
+  if (arm === 'strata' && !reuse && task.fixture && process.env.STRATA_GUIDE !== '0') {
     // --guide overrides the default `${fixture}.guide.json` with an arbitrary file — e.g. a
     // proactively hand-authored guide that specifies a domain BEFORE any task has ever built it
     // (STRATA-GUIDE.md Part 2, the untested "Case B path 2" lever). Without this flag every task
@@ -319,7 +405,7 @@ function runOnce(taskName, task, arm, runIndex) {
   const model = arg('--model', '');
 
   const args = [
-    '-p', task.prompt + AUTONOMY + NUDGE,
+    '-p', (opts.prompt || task.prompt) + AUTONOMY + NUDGE,
     ...(model ? ['--model', model] : []),
     // stream-json emits every tool call, not just the final message. With plain `json` we only see the
     // closing summary, so "did it call strata_use?" is unanswerable — and I answered it wrongly once by
@@ -441,7 +527,10 @@ function runOnce(taskName, task, arm, runIndex) {
     // Recorded as a first-class field: a Strata arm where the tool never fired is not a slower Strata,
     // it is a second baseline, and it must never be averaged in as though it were a measurement.
     strataCalls,
-    armValid: arm === 'baseline' ? strataCalls === 0 : strataCalls > 0,
+    // Only the strata arm requires the tool to have fired. EVERY other arm — baseline, preinject —
+    // requires that it did NOT. The old rule tested `arm === 'baseline'`, so any third arm was
+    // silently required to call strata_use and could never be valid.
+    armValid: arm === 'strata' ? strataCalls > 0 : strataCalls === 0,
     synthetic,
     deliveredRecalls,
     verifyResult,
@@ -470,7 +559,7 @@ function runOnce(taskName, task, arm, runIndex) {
   // because by then the haiku baseline no longer existed.
   //
   // A measurement that silently overwrites another measurement is worse than a missing one.
-  const stem = `${taskName}-${arm}-${model || 'default'}-${runIndex}`;
+  const stem = `${taskName}-${arm}-${model || 'default'}-${runIndex}${opts.stemSuffix || ''}`;
   fs.writeFileSync(path.join(OUT, stem + '.json'), JSON.stringify(run, null, 2));
   // The raw transcript is kept so every number above can be re-derived instead of trusted.
   fs.writeFileSync(path.join(OUT, stem + '.log'), raw.slice(0, 4 * 1024 * 1024));

@@ -708,6 +708,45 @@ function tokenize(s: string): string[] {
   return s.toLowerCase().split(/[\s,.\-_/]+/).filter(t => t.length > 1 && !SCORE_STOPWORDS.has(t));
 }
 
+/**
+ * Minimum shared prefix for two words to count as the same term.
+ *
+ * Six is chosen to be long enough that unrelated technical words do not collide ("logging"/"logical"
+ * → "loggin" vs "logica", correctly no match) while short enough to absorb ordinary English
+ * inflection. Words shorter than this fall back to exact substring matching, so no short token's
+ * behaviour changes.
+ */
+const STEM_MIN = 6;
+
+/**
+ * Does `field` mention `token`, allowing for inflection?
+ *
+ * Scoring was pure `String.includes`, which is blind to morphology — and that blindness lost a whole
+ * benchmark task. On 2026-08-16 the idempotency task asked for "idempotent POST requests" and
+ * "duplicate prevention"; the library's `api.idempotency.v1`, named "Idempotency Keys for Express",
+ * scored ZERO on both of its highest-weight fields because **"idempotency" does not contain
+ * "idempotent"** — they diverge at the tenth character. It ranked third among layer-2 recalls, was cut
+ * by PER_LAYER_CAP, and Strata shipped logging + validation instead. The delivery then reported
+ * "8/8 CHECKS PASSED — the delivered feature works end to end" for eight checks about correlation ids
+ * and error envelopes, while the thing actually asked for (not creating two orders) was absent. The
+ * session trusted the pass, went hunting through composed-pkg for a function that was never there, and
+ * cost 2.3x the baseline.
+ *
+ * Prefix comparison is deliberately cruder than a real stemmer: a stemmer is a dependency and a source
+ * of surprises, and the failure here is the plain one where two forms of the same word share a long
+ * prefix. Measured effect on the observed capabilities: api.idempotency.v1 53 → 112 for its own task,
+ * with catalog, stripejune and retry selections unchanged (benchmark/quality/selection-probe.js).
+ */
+function fieldHit(field: string, token: string): boolean {
+  if (field.includes(token)) return true;
+  if (token.length < STEM_MIN) return false;
+  const stem = token.slice(0, STEM_MIN);
+  for (const w of field.split(/[^a-z0-9]+/)) {
+    if (w.length >= STEM_MIN && w.slice(0, STEM_MIN) === stem) return true;
+  }
+  return false;
+}
+
 function scoreRecall(r: RecallEntry, tokens: string[], primaryTokens: Set<string>): number {
   const id   = r.id.toLowerCase();
   const name = r.name.toLowerCase();
@@ -716,10 +755,10 @@ function scoreRecall(r: RecallEntry, tokens: string[], primaryTokens: Set<string
   let score = tokens.reduce((s, t) => {
     const boost = primaryTokens.size > 0 && primaryTokens.has(t) ? 2 : 1;
     return s + boost * (
-      (id.includes(t)   ? 12 : 0) +
-      (name.includes(t) ?  8 : 0) +
-      (desc.includes(t) ?  5 : 0) +
-      (tags.includes(t) ?  4 : 0)
+      (fieldHit(id, t)   ? 12 : 0) +
+      (fieldHit(name, t) ?  8 : 0) +
+      (fieldHit(desc, t) ?  5 : 0) +
+      (fieldHit(tags, t) ?  4 : 0)
     );
   }, 0);
   // Soft-deprioritize low-fitness recalls (benchmark-derived signal).
@@ -1451,12 +1490,28 @@ function deconflictRecallContents(
  * Greenfield is untouched: with no shape there is nothing to collide with, and the assembly is exactly
  * what the project should be.
  */
+/**
+ * Rewrite any file-list line that names a file the client displaced.
+ *
+ * Line-exact matching on the trimmed content, not a global search-and-replace: `server.js` appears in
+ * prose and in import examples throughout the guidance, and rewriting those would corrupt working
+ * instructions. Only a line whose entire content IS the filename is a file-list entry.
+ */
+function correctFileList(text: string, displaced: string[]): string {
+  if (!displaced.length) return text;
+  const map = new Map(displaced.map(d => [d, `strata/${d.replace(/\.js$/, '.reference.js')}`]));
+  return text.split('\n').map(line => {
+    const to = map.get(line.trim());
+    return to ? line.replace(line.trim(), to) : line;
+  }).join('\n');
+}
+
 function adaptRemoteToProjectShape(
   files: Record<string, string>,
   shape: ProjectShape | null,
   projectDir: string,
-): { files: Record<string, string>; note: string } {
-  if (!shape) return { files, note: '' };            // greenfield — the assembly IS the project
+): { files: Record<string, string>; note: string; displaced: string[] } {
+  if (!shape) return { files, note: '', displaced: [] };   // greenfield — the assembly IS the project
 
   const out: Record<string, string> = {};
   const displaced: string[] = [];
@@ -1509,10 +1564,11 @@ function adaptRemoteToProjectShape(
     out[norm] = source;
   }
 
-  if (!displaced.length) return { files: out, note: '' };
+  if (!displaced.length) return { files: out, note: '', displaced: [] };
 
   return {
     files: out,
+    displaced,
     note: `\n\n— Adapted to your project —\n`
       + `This project already has an entry point (\`${shape.entryFile}\`), so Strata did NOT overwrite it `
       + `and did NOT change your package.json scripts. The composed application was written to `
@@ -1775,6 +1831,62 @@ function placeScaffoldFile(name: string, content: string, projectDir: string, sc
     return false;
   }
   fs.writeFileSync(rootPath, content);
+  return true;
+}
+
+/**
+ * Drop the source copy of the assembly once it is installed as a dependency.
+ *
+ * `installAssemblyAsDependency()` deliberately COPIES rather than moves, because the verifier and the
+ * selftest used to import the assembly by relative path. That left the audited copy sitting in the
+ * tree next to the disguised one — and it is the single most-read file in the whole benchmark:
+ * 120.8k tokens across 32 reads, 50% of all delivered-code reads. The provenance trick only works if
+ * there is no source copy to find.
+ *
+ * SELF-VERIFYING, because a wrong guess here is a broken require in the user's app. Rather than
+ * reason about which builders emit which relative imports, scan what was actually written: if any
+ * file still mentions the assembly, keep it. Deleting is only safe when nothing points at it.
+ *
+ * Returns true if the copy was removed.
+ */
+function dropRedundantAssemblyCopy(
+  projectDir: string,
+  strataDir: string,
+  assemblyFilename: string,
+  depName: string | undefined,
+): boolean {
+  if (!depName) return false;
+  const assembly = path.join(strataDir, assemblyFilename);
+  if (!fs.existsSync(assembly)) return false;
+
+  const stem = assemblyFilename.replace(/\.js$/, '');
+  const stack = [projectDir];
+  while (stack.length) {
+    const d = stack.pop()!;
+    let entries;
+    try { entries = fs.readdirSync(d, { withFileTypes: true }); } catch { continue; }
+    for (const e of entries) {
+      if (e.name === 'node_modules' || e.name === '.git') continue;
+      const p = path.join(d, e.name);
+      if (e.isDirectory()) {
+        // The dependency copy is SUPPOSED to contain it; it is the replacement, not a reference.
+        if (e.name !== 'composed-pkg') stack.push(p);
+        continue;
+      }
+      if (p === assembly || !/\.(js|cjs|mjs|json)$/.test(e.name)) continue;
+      let src = '';
+      try { src = fs.readFileSync(p, 'utf-8'); } catch { continue; }
+      // Any mention at all is treated as a reference. False negatives here cost a few KB;
+      // false positives cost a `Cannot find module` in someone's server.
+      if (src.includes(assemblyFilename) || src.includes(`/${stem}'`) || src.includes(`/${stem}"`)) {
+        console.error(`[strata] keeping ${assemblyFilename} — still referenced by ${path.relative(projectDir, p)}`);
+        return false;
+      }
+    }
+  }
+
+  fs.rmSync(assembly);
+  console.error(`[strata] removed the source copy of ${assemblyFilename} — installed as ${depName}`);
   return true;
 }
 
@@ -2755,8 +2867,26 @@ function buildWiring(
   const guide = emitGuideAdapters(recalls, projectDir);
   files.push(...guide.files);
 
-  buildSelftest(recalls, assemblyFilename, strataDir);
+  /**
+   * VERIFIER FIRST, then the unit layer only if there is no verifier.
+   *
+   * strata/tests/ is ~38 KB of the library's OWN admission evidence — the adversarial suites each
+   * recall had to survive to be admitted. Re-shipping them into every user's repo is like shipping a
+   * dependency's test suite with an app: nobody reads them, and every byte in the tree is a byte the
+   * model may spend a turn reading. They already passed, on the hub, before the module was servable.
+   *
+   * What the project actually needs proved is different: does MY app, with MY routes and MY data, do
+   * what I asked? That is verify.js, end to end. So when a verifier exists it is the proof, and the
+   * unit layer is dropped. When one cannot be generated (a library-style delivery with no HTTP
+   * surface — the retry helper), selftest.js IS the only proof and still ships.
+   *
+   * Order matters: buildVerifier() decides whether to include a unit stage by checking whether
+   * selftest.js exists. Running it first means that check is naturally false, instead of writing a
+   * unit stage and then deleting the file it requires.
+   */
   const verified = buildVerifier(recalls, entity, strataDir, `node ${shape.entryFile}`, taskText);
+  if (!verified) buildSelftest(recalls, assemblyFilename, strataDir);
+  dropRedundantAssemblyCopy(projectDir, strataDir, assemblyFilename, depName);
   if (verified) files.push({ name: 'strata/verify.js', injectSlots: [], writtenToRoot: false });
 
   console.error(`[strata] brownfield: wiring at ${wiringRel}, mounted=${mounted}, verifier=${verified}, guideAdapters=${guide.adapters.length}`);
@@ -2943,8 +3073,11 @@ function buildCompose(
     files.push({ name: '.env.example', injectSlots: [], writtenToRoot: rooted });
   }
 
-  buildSelftest(recalls, assemblyFilename, strataDir);
-  if (buildVerifier(recalls, entity, strataDir, 'node server.js', taskText)) {
+  // Verifier first; the unit layer only if there is no verifier. See the note on the brownfield path.
+  const gfVerified = buildVerifier(recalls, entity, strataDir, 'node server.js', taskText);
+  if (!gfVerified) buildSelftest(recalls, assemblyFilename, strataDir);
+  dropRedundantAssemblyCopy(projectDir, strataDir, assemblyFilename, gfDepName);
+  if (gfVerified) {
     files.push({ name: 'strata/verify.js', injectSlots: [], writtenToRoot: false });
   }
 
@@ -3210,7 +3343,13 @@ function runShell(cmd: string, cwd: string, timeoutMs: number): Promise<{ ok: bo
 async function autoRunVerification(strataDir: string, projectDir: string): Promise<string> {
   const hasVerify = fs.existsSync(path.join(strataDir, 'verify.js'));
   const hasSelftest = fs.existsSync(path.join(strataDir, 'selftest.js'));
-  if (!hasVerify && !hasSelftest) return '';
+  if (!hasVerify && !hasSelftest) {
+    // Say so on stderr (never stdout — that carries JSON-RPC). A silent '' here disables the single
+    // highest-leverage part of the delivery and is indistinguishable from "the feature isn't built".
+    // That is exactly how it went unnoticed: on the hub path this function was never even reached.
+    console.error(`[strata] auto-verification skipped — no verify.js or selftest.js in ${strataDir}`);
+    return '';
+  }
 
   const install = await runShell('npm install', projectDir, INSTALL_TIMEOUT_MS);
   if (!install.ok) {
@@ -3226,10 +3365,38 @@ async function autoRunVerification(strataDir: string, projectDir: string): Promi
     ? 'runs the recalls\' unit tests, then starts the app and exercises each requirement against it'
     : 'the same adversarial tests each recall had to pass to enter the library, re-run against the code delivered here';
 
-  return `\n=== AUTO-VERIFICATION — already run by the engine, not you (${script}) ===\n`
-    + `This ${label}. Output below is real, from an actual run just now — not a claim, something you can `
-    + `re-run yourself with \`node ${script}\` if you want to see it happen live.\n`
-    + `${check.timedOut ? `(timed out after ${VERIFY_TIMEOUT_MS / 1000}s — partial output below)\n` : ''}`
+  /**
+   * Lead with the VERDICT, not with a header.
+   *
+   * This block is now the first thing in the delivery, so its first line is the first thing the model
+   * reads. "12/12 checks passed" answers the question before it is formed; "=== AUTO-VERIFICATION ==="
+   * makes the model read on to find out whether anything happened. The tally is lifted out of the
+   * script's own output rather than counted here — if the output does not state one, say so plainly
+   * instead of inventing a number.
+   */
+  const tally = (check.output.match(/\d+\s*\/\s*\d+\s+checks?\s+passed/i) || [])[0];
+  const verdict = check.timedOut ? `TIMED OUT after ${VERIFY_TIMEOUT_MS / 1000}s`
+    : !check.ok ? 'FAILED'
+    : tally ? tally.replace(/\s+/g, ' ').toUpperCase()
+    : 'RAN (see output)';
+
+  /**
+   * DISCLOSE the provenance; do not editorialise about it.
+   *
+   * This block used to end with "it was written by the same tool that wrote the code, so it is a fast
+   * first pass rather than independent proof" — honest, and measurably expensive. A session that got
+   * 15/15 PASSED here re-ran the verifier itself, confirmed it, and then spent twenty-five further
+   * turns hand-testing the exact same properties: booting on five ports, curling /products, running a
+   * 70-request rate-limit loop. Zero edits resulted. We asked for that, in writing.
+   *
+   * Provenance is still stated — "generated alongside the code" is the fact a reader needs to weigh
+   * it. What is gone is the instruction about what to DO with that fact. Stating a limitation is
+   * honesty; telling the model to go and re-derive the result is a spending decision we were making
+   * on the user's behalf.
+   */
+  return `\n=== VERIFICATION: ${verdict} — run by the engine before this reply (${script}) ===\n`
+    + `This ${label}. Generated alongside the code; the output below is from a real run just now, `
+    + `reproducible with \`node ${script}\`.\n`
     + `${check.output || '(no output captured)'}\n`;
 }
 
@@ -3478,22 +3645,22 @@ ${manifest}
 ${guideBlock}
 === WHAT IT CHECKS ===
 ${hasVerifier ? `
-This project's copy of strata/verify.js runs the recalls' unit tests, then starts the app on a free
-port and exercises each requirement against the running server, printing one line per check. It is a
-script in your project — read it to see exactly what it asserts. Same tool wrote it, so treat it as a
-fast first pass alongside your own reading, not as independent proof. It has ALREADY been run once by
-the engine that delivered this — see AUTO-VERIFICATION below for that output — and you can re-run it
-yourself anytime with \`node strata/verify.js\`.` : `
+strata/verify.js starts the app on a free port and exercises each requirement against the running
+server, printing one line per check. It is an ordinary script in this project, generated alongside the
+code. It was run by the engine before this reply — the output is at the TOP of this message — and
+\`node strata/verify.js\` reproduces it.` : `
 This project's copy of strata/selftest.js re-runs, against the exact code delivered here, the
 adversarial tests each recall had to pass to enter the library: a forged webhook signature is rejected,
 a replayed event is de-duplicated, a malformed payload does not crash the process. Each printed line is
 one such case. The assertions live in strata/tests/ — read them to see what is actually being checked.
-It has ALREADY been run once by the engine that delivered this — see AUTO-VERIFICATION below for that
-output — and you can re-run it yourself anytime with \`node strata/selftest.js\`.`}
+It has ALREADY been run once by the engine that delivered this — its output is at the TOP of this
+message — and you can re-run it yourself anytime with \`node strata/selftest.js\`.`}
 
 === WHAT IS WIRED AND WHAT IS LEFT ===
 The exports listed above are already imported and called by the generated files.
-${injects.length ? `These slots are the only parts Strata could not derive from the task — they are yours to fill:\n${injects.join('\n')}` : 'No slots were left unfilled.'}
+${injects.length
+  ? `These slots are the only parts Strata could not derive from the task — they are yours to fill:\n${injects.join('\n')}`
+  : 'Nothing was left unfilled: no slots, no wiring gaps, no follow-up steps.'}
 Be terse — code, not prose.
 
 === If you find a defect ===
@@ -4026,7 +4193,36 @@ server.registerTool(
 
             console.error(`[strata] composed on hub (${remote.recalls.length} recalls), substituted locally`
               + (adapted.note ? ' — adapted to existing project shape' : ''));
-            return { content: [{ type: 'text' as const, text: remote.guidance + adapted.note }] };
+
+            /**
+             * Auto-verify HERE too, not only on the local path.
+             *
+             * This return is the hub path, and hub mode is the default for every fresh install — so
+             * this is the branch essentially every real user takes. It returned before reaching the
+             * autoRunVerification() call further down, which meant the single highest-leverage part of
+             * the delivery (run the check in the engine; hand over the result instead of a to-do) has
+             * never actually run for anybody outside a local-mode benchmark.
+             *
+             * Verified by instrumenting the helper: on a clean hub delivery its diagnostic never
+             * printed at all, because the function was never called.
+             */
+            const hubVerification = await autoRunVerification(strataDir, dir);
+
+            /**
+             * Correct the file list before handing it over.
+             *
+             * `guidance` is the composer's own output, but generated on the HUB against an empty
+             * scratch directory — so it always describes the greenfield composition. When this project
+             * already had an entry point, the client wrote `strata/x.reference.js` instead of `x`, and
+             * the inherited list still names `x`. A delivery that lists a file it did not write is a
+             * small lie in the one place we are asking to be believed (see the note on `modified?`),
+             * and a session that catches it has every reason to re-check everything else we said.
+             */
+            const corrected = correctFileList(remote.guidance, adapted.displaced);
+            const hubText = hubVerification
+              ? `${hubVerification.trim()}\n\n${corrected}${adapted.note}`
+              : corrected + adapted.note;
+            return { content: [{ type: 'text' as const, text: hubText }] };
           }
         } catch (e) {
           // A substitution refusal is a REAL defect — the hub sent a placeholder this engine does not
@@ -4106,7 +4302,13 @@ server.registerTool(
       // Run the check NOW, in the engine, before the model spends a turn deciding to — see the function
       // comment for why this is the highest-leverage single change to the delivery (converts a turn cost
       // into wall-clock cost, which cost ≈ context × turns does not charge for at all).
-      systemText += await autoRunVerification(strataDir, dir);
+      //
+      // PREPENDED, not appended. Buried at the bottom, under the file list and the export dump, the
+      // result reads as an appendix to a to-do list — the model has already decided what it is going to
+      // do by the time it reaches it. First is where a verdict belongs: the delivery opens by saying
+      // what happened when it was run, and everything after that is detail.
+      const verification = await autoRunVerification(strataDir, dir);
+      if (verification) systemText = `${verification.trim()}\n\n${systemText}`;
 
       // The receipt is what makes signalling free. At shutdown we read the files the session wrote
       // and run the analysis strata_signal used to charge a ToolSearch + a turn for.

@@ -40,6 +40,7 @@ Thumbs.db
 !/scripts/render-banner-svg.js
 !/scripts/render-benchmark-svg.js
 !/scripts/sync-gitignore.js
+!/scripts/test-claude-preset.js
 !/scripts/test-selection.js
 
 # ── docs: the writeup and its generated charts ──
@@ -72,3 +73,11 @@ Thumbs.db
 
 # Install artifacts of the archived trees — the sessions' code is the artifact, not their lockfiles.
 /benchmark/runs/**/package-lock.json
+
+# >>> BEGIN generated recall exclusion — edit scripts/sync-gitignore.js, not this block
+# The recall library is served from the hub and is NOT part of this repository. Everything under
+# recalls/ stays local: the admitted recalls (their implementations are the project's actual IP)
+# and the quarantined npm-scrape junkyard alike. No exceptions, no re-included paths — a single
+# `!` line here would put an implementation on GitHub permanently.
+/recalls/
+# <<< END generated recall exclusion

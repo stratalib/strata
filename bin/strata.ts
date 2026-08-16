@@ -3,6 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import os from 'os';
 import { consentAlreadyShown, markConsentShown, setTelemetry } from '../src/logger.js';
+import { writePresetTo, removePresetFrom, presetBlock } from '../src/claude-preset.js';
 
 const command = process.argv[2];
 const subcommand = process.argv[3];
@@ -66,67 +67,31 @@ function saveConfig(data: Record<string, unknown>): void {
   fs.writeFileSync(configPath, JSON.stringify(data, null, 2));
 }
 
-// ─── Global CLAUDE.md writer ──────────────────────────────────────────────────
-// Writes Strata usage instructions to ~/.claude/CLAUDE.md so Claude Code
-// knows to call strata_use in EVERY project, not just this one.
+// ─── Agent-instructions preset ────────────────────────────────────────────────
+// The block itself, and the guarantee that adding it never rewrites a user's file, live in
+// src/claude-preset.ts. Kept out of this CLI deliberately: the additive property is the part that
+// has to be TESTED (scripts/test-claude-preset.js), and a string buried in an if/else chain is not.
 
-const STRATA_CLAUDE_MD_MARKER = '<!-- strata-instructions -->';
-const STRATA_CLAUDE_MD_BLOCK = `${STRATA_CLAUDE_MD_MARKER}
-## Strata — Recall-Augmented Coding
-
-Strata gives you ONE tool: \`strata_use\`. That is the entire surface — there is nothing else to look
-for, and searching for other Strata tools costs turns and finds nothing.
-
-Call it ONCE, at the start of a task where you are writing meaningful new code — a feature, a module,
-a new file, a bug fix needing substantial new logic.
-
-- **Skip it for:** typos, renames, reformatting, a 1–3 line edit, a comment, a find-and-replace.
-- **Arguments:**
-  - \`dir\` — absolute path to the project root.
-  - \`task\` — a short label for the work.
-  - \`capabilities\` — 3–6 short phrases naming the core technical components. YOU are the best-placed
-    thing in the system to write these, because you have read the whole task in context. Preserve any
-    package named explicitly.
-    e.g. \`["cursor pagination with sorting", "request body validation", "structured request logging"]\`
-
-Strata writes real files into the project and states which it CREATED and which it MODIFIED. It also
-writes \`strata/verify.js\` — one command that runs the unit tests, boots the app, and exercises each
-requirement end to end. Running it is the fastest way to find out whether any of it is wrong.
-
-It is ordinary code, not a black box. Read as much of it as the stakes of the task warrant, change what
-does not fit, and delete what you did not ask for. If Strata declines the task, believe it — that is a
-measured judgement that writing it yourself is cheaper here.
-<!-- /strata-instructions -->`;
+/** Report one preset write in the same voice as the rest of the installer. */
+function reportPreset(res: ReturnType<typeof writePresetTo>, label: string, G: string, Dim: string, Re: string): void {
+  const verb: Record<string, string> = {
+    created: 'Written', appended: 'Added', updated: 'Refreshed',
+    migrated: 'Migrated', unchanged: 'Current',
+  };
+  if (res.action === 'refused' || res.action === 'failed') {
+    process.stdout.write(`  ✗ Skipped    ${label}  ${Dim}(${res.error ?? 'unknown error'})${Re}\n`);
+    return;
+  }
+  const note = res.action === 'unchanged' ? 'already up to date'
+    : res.action === 'migrated' ? 'replaced the older Strata block'
+    : res.action === 'appended' ? 'appended, your file left intact'
+    : res.backupPath ? 'backup beside it' : 'new file';
+  process.stdout.write(`  ${G}✓ ${(verb[res.action] ?? 'Wrote').padEnd(9)}${Re}${label}  ${Dim}(${note})${Re}\n`);
+}
 
 function writeGlobalClaudeMd(G: string, Dim: string, Re: string): void {
-  const claudeDir  = path.join(os.homedir(), '.claude');
-  const claudeMdPath = path.join(claudeDir, 'CLAUDE.md');
-
-  try {
-    if (!fs.existsSync(claudeDir)) fs.mkdirSync(claudeDir, { recursive: true });
-
-    let existing = '';
-    if (fs.existsSync(claudeMdPath)) {
-      existing = fs.readFileSync(claudeMdPath, 'utf-8');
-    }
-
-    if (existing.includes(STRATA_CLAUDE_MD_MARKER)) {
-      // Already written — update the block in place
-      const updated = existing.replace(
-        /<!-- strata-instructions -->[\s\S]*?<!-- \/strata-instructions -->/,
-        STRATA_CLAUDE_MD_BLOCK
-      );
-      fs.writeFileSync(claudeMdPath, updated, 'utf-8');
-      process.stdout.write(`  ${G}✓ Updated${Re}   ~/.claude/CLAUDE.md  ${Dim}(Strata instructions refreshed)${Re}\n`);
-    } else {
-      // Append to existing file (or create new)
-      const separator = existing.length > 0 && !existing.endsWith('\n') ? '\n\n' : '\n';
-      fs.writeFileSync(claudeMdPath, existing + separator + STRATA_CLAUDE_MD_BLOCK + '\n', 'utf-8');
-      process.stdout.write(`  ${G}✓ Written${Re}    ~/.claude/CLAUDE.md  ${Dim}(Strata instructions added)${Re}\n`);
-    }
-  } catch (e) {
-    process.stdout.write(`  ✗ Could not write ~/.claude/CLAUDE.md: ${(e as Error).message}\n`);
-  }
+  const target = path.join(os.homedir(), '.claude', 'CLAUDE.md');
+  reportPreset(writePresetTo(target), '~/.claude/CLAUDE.md', G, Dim, Re);
 }
 
 function promptGlobalActivation(Dim: string, Re: string, B: string, force?: boolean): boolean {
@@ -508,34 +473,30 @@ function registerMcp(profile: IdeProfile, serverPath: string): void {
   fs.writeFileSync(profile.configPath, JSON.stringify(cfg, null, 2));
 }
 
-const STRATA_INSTRUCTIONS_BLOCK = `
-## Strata — Recall-Augmented Coding
-
-Strata is an MCP server that delivers pre-built production code patterns (recalls) into your context.
-
-- **strata_use** — YOU decide whether to call this. Call it at the START of any task where you are writing meaningful new code. Before calling, enumerate the core technical components yourself and pass that list as the \`task\` string (not the raw user prompt). Pass the project root path. Call only once per task.
-  - Call when: writing a new file, building a feature, implementing auth / API / database / queue / email / payment / notification logic, adding middleware.
-  - Skip when: fixing a typo, renaming, reformatting, editing 1–3 existing lines, or simple refactors.
-`;
+/**
+ * Write the preset into a project-level instructions file (.cursorrules, CLAUDE.md, …).
+ *
+ * Guarded on the directory actually looking like a project. This used to write into
+ * `process.cwd()` unconditionally, so `npx stratalib init` run from a home directory or a
+ * downloads folder dropped a stray CLAUDE.md there — a file the user never asked for, in a place it
+ * means nothing, with no marker to remove it by.
+ */
+function looksLikeProject(dir: string): boolean {
+  return fs.existsSync(path.join(dir, 'package.json'))
+    || fs.existsSync(path.join(dir, '.git'))
+    || fs.existsSync(path.join(dir, 'pyproject.toml'))
+    || fs.existsSync(path.join(dir, 'go.mod'))
+    || fs.existsSync(path.join(dir, 'Cargo.toml'));
+}
 
 function writeInstructions(profile: IdeProfile, G: string, Dim: string, Re: string): void {
   if (!profile.instructionsFile) return;
-  const instrPath = path.join(process.cwd(), profile.instructionsFile);
-  const instrDir  = path.dirname(instrPath);
-
-  if (fs.existsSync(instrPath)) {
-    const existing = fs.readFileSync(instrPath, 'utf-8');
-    if (!existing.includes('strata_use')) {
-      fs.appendFileSync(instrPath, STRATA_INSTRUCTIONS_BLOCK, 'utf-8');
-      process.stdout.write(`  ${G}✓ Updated${Re}   ${profile.instructionsFile}\n`);
-    } else {
-      process.stdout.write(`  ${Dim}  Skipped${Re}   ${profile.instructionsFile} already has Strata block\n`);
-    }
-  } else {
-    if (!fs.existsSync(instrDir)) fs.mkdirSync(instrDir, { recursive: true });
-    fs.writeFileSync(instrPath, `# Project Instructions\n${STRATA_INSTRUCTIONS_BLOCK}`, 'utf-8');
-    process.stdout.write(`  ${G}✓ Created${Re}   ${profile.instructionsFile}\n`);
+  const cwd = process.cwd();
+  if (!looksLikeProject(cwd)) {
+    process.stdout.write(`  ${Dim}  Skipped   ${profile.instructionsFile}  (not a project directory)${Re}\n`);
+    return;
   }
+  reportPreset(writePresetTo(path.join(cwd, profile.instructionsFile)), profile.instructionsFile, G, Dim, Re);
 }
 
 // ─── install ──────────────────────────────────────────────────────────────────
@@ -1147,6 +1108,39 @@ Examples:
 `);
   }
 
+} else if (command === 'preset') {
+
+  // Manage the agent-instructions block on its own, without re-running a whole install. Strictly
+  // additive on add, and surgical on remove — both proven by scripts/test-claude-preset.js.
+  const a = process.argv.slice(3);
+  const G = '\x1b[38;2;100;200;100m', Dim = '\x1b[2m', Re = '\x1b[0m';
+  const toProject = a.includes('--project');
+  const target = toProject
+    ? path.join(process.cwd(), 'CLAUDE.md')
+    : path.join(os.homedir(), '.claude', 'CLAUDE.md');
+  const label = toProject ? './CLAUDE.md' : '~/.claude/CLAUDE.md';
+
+  if (a.includes('--show')) {
+    process.stdout.write('\n' + presetBlock() + '\n\n');
+
+  } else if (a.includes('--remove')) {
+    const res = removePresetFrom(target);
+    if (res.action === 'removed') {
+      process.stdout.write(`\n  ${G}✓ Removed${Re}  ${label}  ${Dim}(everything else left exactly as it was)${Re}\n\n`);
+    } else if (res.action === 'absent') {
+      process.stdout.write(`\n  ${Dim}Nothing to remove — no Strata block in ${label}${Re}\n\n`);
+    } else {
+      process.stdout.write(`\n  ✗ ${res.error ?? 'failed'}\n\n`);
+    }
+
+  } else {
+    process.stdout.write('\n');
+    reportPreset(writePresetTo(target), label, G, Dim, Re);
+    process.stdout.write(`\n  ${Dim}strata preset --show     print the block${Re}\n`);
+    process.stdout.write(`  ${Dim}strata preset --remove   take it back out${Re}\n`);
+    process.stdout.write(`  ${Dim}strata preset --project  target ./CLAUDE.md instead${Re}\n\n`);
+  }
+
 // ─── help ─────────────────────────────────────────────────────────────────────
 
 } else {
@@ -1163,6 +1157,10 @@ Examples:
   strata configure provider --provider <n> --key <k>
                                               Set LLM provider for recall decomposition
                                               Providers: anthropic · openai · deepseek · grok · kimi · gemini
+  strata preset                               Add Strata's instructions to ~/.claude/CLAUDE.md
+  strata preset --project                     Add them to ./CLAUDE.md instead
+  strata preset --remove                      Remove them again (leaves your file otherwise intact)
+  strata preset --show                        Print the block without writing anything
   strata status                               Show current config
   strata logs                                 Show usage stats (tokens saved, time saved, call history)
   strata imprint scan [path]                  Scan codebase, register local recalls + extract conventions

@@ -75,27 +75,42 @@ const strataBuildId = (() => {
  *
  * `retry` is here deliberately: we expect Strata to LOSE on it, and publishing that is the most
  * credible thing on the site.
+ *
+ * ── INSTRUMENT CHANGE, 2026-08-13: "Make sure it runs." was removed from all eleven prompts. ──
+ *
+ * Runs before this date are NOT comparable to runs after it. The published 60-run battery
+ * (docs/BENCHMARK.md, benchmark/runs/exp-quality) used the older wording and its numbers stand for
+ * what they measured; do not diff them against anything collected afterwards.
+ *
+ * Why: that sentence is an explicit instruction to verify, and it dominated the result. A session
+ * that received "15/15 CHECKS PASSED" as the first line of its tool result re-ran the verifier
+ * itself, confirmed it, and then spent twenty-five further turns hand-testing the same properties —
+ * booting on five ports, curling /products, running a 70-request rate-limit loop — and made zero
+ * edits. Bash calls went 9.3 → 26. It was doing what the prompt told it to do.
+ *
+ * No developer writing a ticket says "make sure it runs"; they state the task and check the result
+ * themselves. The phrase was benchmark scaffolding that had quietly become the thing being measured.
  */
 const TASKS = {
   catalog: {
     mode: 'brownfield', fixture: 'catalog-service',
     prompt: 'Add pagination to the products list endpoint, rate limit the API per IP, and log every request '
-      + 'with an id I can trace. Make sure it runs.',
+      + 'with an id I can trace.',
   },
   auth: {
     mode: 'brownfield', fixture: 'catalog-service',
     prompt: 'Add signup and login with email and password, keep people signed in with a session cookie, and '
-      + 'let them reset a forgotten password. Make sure it runs.',
+      + 'let them reset a forgotten password.',
   },
   rbac: {
     mode: 'brownfield', fixture: 'catalog-service',
     prompt: 'Only admins should be able to edit or delete products - everyone else should be refused. Keep a '
-      + 'record of who changed what and when, and let me page through it. Make sure it runs.',
+      + 'record of who changed what and when, and let me page through it.',
   },
   idempotency: {
     mode: 'brownfield', fixture: 'catalog-service',
     prompt: 'If a client retries the same order request it should not create two orders. Validate the request '
-      + 'body properly and log each attempt. Make sure it runs.',
+      + 'body properly and log each attempt.',
   },
   // TASK B for STRATA-GUIDE.md Part 2's two-task-same-project experiment (§12) — deliberately touches the
   // SAME `order` domain `idempotency` creates, from a DIFFERENT angle (status transitions + lookup, not
@@ -105,17 +120,17 @@ const TASKS = {
   ordercancel: {
     mode: 'brownfield', fixture: 'catalog-service', tier: 'domain-capture-test',
     prompt: 'Let a customer cancel a pending order, and let them see their past orders. A cancelled order '
-      + 'should not be payable afterward. Make sure it runs.',
+      + 'should not be payable afterward.',
   },
   publicapi: {
     mode: 'greenfield', fixture: null,
     prompt: 'Build me a small Express API for products with pagination, per-IP rate limiting, request logging, '
-      + 'and responses that do not leak internal fields. Make sure it runs.',
+      + 'and responses that do not leak internal fields.',
   },
   search: {
     mode: 'greenfield', fixture: null,
     prompt: 'Build an Express endpoint that searches products by keyword with filters and pagination, rejects '
-      + 'bad input with a clear error, and caches results. Make sure it runs.',
+      + 'bad input with a clear error, and caches results.',
   },
   // THE KITCHEN SINK. Every capability our current library composes, asked for in one go.
   //
@@ -130,7 +145,7 @@ const TASKS = {
       + 'Only admins should be able to change products, everyone else refused, and keep an audit trail of '
       + 'who changed what that I can page through. Validate every request body properly. Rate limit the API '
       + 'per IP. Log every request with an id I can trace. Paginate the product list. Make sure responses '
-      + 'never leak internal fields. Make sure it all runs.'
+      + 'never leak internal fields.'
       + " Work autonomously and make sensible choices without checking in - I am not available to answer questions. If something is ambiguous, pick the option you would defend and note it at the end.",
   },
   retry: {
@@ -155,17 +170,17 @@ const TASKS = {
   oauth: {
     mode: 'brownfield', fixture: 'catalog-service', tier: 'hard',
     prompt: 'Add "sign in with Google" using OAuth. When someone comes back from Google, log them in and '
-      + 'keep them signed in. Make it secure - I do not want CSRF or code-interception problems. Make sure it runs.',
+      + 'keep them signed in. Make it secure - I do not want CSRF or code-interception problems.',
   },
   securepw: {
     mode: 'brownfield', fixture: 'catalog-service', tier: 'hard',
     prompt: 'Add signup and login with email and password. Hash the passwords properly, do not leak whether '
-      + 'an email exists, and let people reset a forgotten password securely. Make sure it runs.',
+      + 'an email exists, and let people reset a forgotten password securely.',
   },
   export: {
     mode: 'brownfield', fixture: 'catalog-service', tier: 'commodity',
     prompt: 'Add an endpoint that exports all products as CSV or JSON without loading everything into memory '
-      + 'at once. Make sure it runs.',
+      + 'at once.',
   },
 };
 
@@ -352,6 +367,29 @@ function runOnce(taskName, task, arm, runIndex, opts = {}) {
       // "strata" arm that got no guide and quietly looks like the ungrounded baseline.
       throw new Error(`--guide ${guideOverride} does not exist (resolved: ${guideSrc})`);
     }
+  }
+
+  // ── THE CLAUDE.md PRESET — opt in with STRATA_PRESET=1 (added 2026-08-16) ────────────────────────
+  //
+  // NUDGE (below) is a SIMULATION of this file. Its own comment says so: it "mirrors that real doc text
+  // verbatim" because the fixture deliberately has no CLAUDE.md, and an un-nudged strata arm mostly
+  // never calls the tool at all. This drops the REAL artifact instead, written by the SHIPPED
+  // writePresetTo() — so the benchmark exercises the code a user actually installs rather than a
+  // paraphrase of it maintained separately in this harness.
+  //
+  // Run it with STRATA_NUDGE=0. Keeping both puts the same instruction in two channels at once and
+  // measures neither; the question is whether the real preset does the job the stand-in was doing, not
+  // whether two copies beat one.
+  //
+  // Fails LOUDLY if the preset does not land. A silent miss here would produce a run labelled "preset"
+  // that is really an un-nudged control — the quietest possible way to record a lie.
+  if (arm === 'strata' && !reuse && process.env.STRATA_PRESET === '1') {
+    const { writePresetTo } = require(path.join(ROOT, 'dist', 'src', 'claude-preset.js'));
+    const res = writePresetTo(path.join(dir, 'CLAUDE.md'));
+    if (res.action === 'refused' || res.action === 'failed') {
+      throw new Error(`STRATA_PRESET=1 but the preset did not land: ${res.error || res.action}`);
+    }
+    console.log(`  [preset] CLAUDE.md ${res.action} in strata arm`);
   }
 
   // Headless agents have nobody to ask.

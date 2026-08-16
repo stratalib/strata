@@ -35,6 +35,39 @@ const argOf = (f, d) => { const i = process.argv.indexOf(f); return i !== -1 ? p
 const MAX = Number(argOf('--max', '999'));
 
 /**
+ * Kill agent processes left behind by a reaped run, BEFORE starting the next one.
+ *
+ * The exit-127 reaping this file's header describes is partly self-inflicted, and it compounds: a
+ * reaped batch leaves its `claude` child alive, the retry spawns another, and every survivor adds
+ * memory pressure that makes the next reap likelier. Measured 2026-08-16 — one run failed five times
+ * consecutively with five orphans accumulated (plus an orphaned server holding port 3000), then
+ * completed in 47s on the first attempt after a cleanup. Retrying without this makes things worse,
+ * and the symptom is indistinguishable from API throttling, which is exactly how it was misdiagnosed.
+ *
+ * Identification is by `--strict-mcp-config`, a flag only the benchmark passes — so this can never
+ * kill the interactive session driving it.
+ */
+function reapOrphans() {
+  // Escape hatch: this spawns a PowerShell that kills processes, which is exactly the kind of thing
+  // that deserves a way to be ruled out when a batch starts failing right after it was added.
+  if (process.env.BENCH_NO_REAP === '1') return false;
+  try {
+    if (process.platform === 'win32') {
+      const ps = 'Get-CimInstance Win32_Process -Filter "Name=\'node.exe\' OR Name=\'claude.exe\'" | '
+        + 'Where-Object { $_.CommandLine -like \'*--strict-mcp-config*\' } | '
+        + 'ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }';
+      const r = spawnSync('powershell', ['-NoProfile', '-NonInteractive', '-Command', ps],
+        { stdio: 'ignore', timeout: 30_000 });
+      return r.status === 0;
+    }
+    spawnSync('pkill', ['-f', '--strict-mcp-config'], { stdio: 'ignore', timeout: 30_000 });
+    return true;
+  } catch {
+    return false;   // best effort — never let cleanup failure block the batch
+  }
+}
+
+/**
  * --arms baseline   collect ONLY the arms that do not involve Strata.
  *
  * Baseline results are DURABLE: no change to Strata can affect them, so they can be collected while
@@ -43,6 +76,15 @@ const MAX = Number(argOf('--max', '999'));
  * benchmark collection and engine fixes happen on the same day without contaminating either.
  */
 const ARMS = argOf('--arms', '').split(',').filter(Boolean);
+
+/**
+ * --models haiku   restrict the queue to one model tier.
+ *
+ * Without it, `--arms baseline` pulls haiku, sonnet AND opus, so a two-cell comparison costs three
+ * times what it needs to and takes three times as long. A controlled A/B is usually one task, one
+ * model, two arms; the queue should be able to express that.
+ */
+const MODELS = argOf('--models', '').split(',').filter(Boolean);
 
 /**
  * Ordered so that COMPLETE COMPARABLE SETS land first.
@@ -106,12 +148,12 @@ function alreadyDone(task, arm, model, run) {
 (async () => {
   fs.mkdirSync(OUT, { recursive: true });
   const todo = QUEUE
-    .filter(([, arm]) => !ARMS.length || ARMS.includes(arm))
+    .filter(([, arm, model]) => (!ARMS.length || ARMS.includes(arm)) && (!MODELS.length || MODELS.includes(model)))
     .filter(([t, a, m, r]) => !alreadyDone(t, a, m, r));
   if (ARMS.length) console.log(`arms filter: ${ARMS.join(', ')}`);
   // Counted against the SELECTED arms, not the whole queue — subtracting todo from QUEUE.length
   // reported everything the filter excluded as "already done", which is the opposite of true.
-  const selected = QUEUE.filter(([, arm]) => !ARMS.length || ARMS.includes(arm));
+  const selected = QUEUE.filter(([, arm, model]) => (!ARMS.length || ARMS.includes(arm)) && (!MODELS.length || MODELS.includes(model)));
   console.log(`queue: ${selected.length} selected, ${selected.length - todo.length} already done, ${todo.length} remaining`);
 
   let done = 0, failed = 0;
@@ -122,6 +164,10 @@ function alreadyDone(task, arm, model, run) {
     // --model and --run are read dynamically by agent-bench's arg() on every call; --out is not (it is
     // an IIFE evaluated at require time), which is why it is set at the top of this file instead.
     process.argv = ['node', 'run-quality-battery.js', '--out', 'exp-quality', '--model', model, '--run', String(runIndex)];
+
+    // Clean before every run, not just after a failure: the orphan may be from a batch that died
+    // hours ago, and a run that starts under that pressure is the one that gets reaped next.
+    reapOrphans();
 
     const t0 = Date.now();
     process.stdout.write(`\n=== ${stem} ... `);

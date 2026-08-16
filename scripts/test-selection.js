@@ -77,11 +77,26 @@ const CASES = [
   // they sit in the measured trust wall: 0/3 adoption, +32% cost, because a model SHOULD audit code it
   // did not write for signature verification. So these tasks must now MISS, and a miss is the correct,
   // cheaper outcome: an honest miss costs baseline; a forced hit cost +17-32%.
+  // UPDATED 2026-08-16. This case asserted a world that no longer exists and had been failing on every
+  // run — which is worse than having no case at all, because a permanently-red guard gets read as
+  // background noise and stops being evidence of anything. (Verified pre-existing: it fails identically
+  // with the new stem matching disabled, so it is not fallout from that change.)
+  //
+  // What changed: the BROKEN `stripe.webhook-patterns.v1` is still pulled and still forbidden. But a
+  // re-authored `payment.stripe-webhook.v1` passed admission and is in the library, and it earns its
+  // place — the stripejune benchmark run delivered it and its generated verifier passed 6/6 end to end
+  // (unsigned, forged, replayed, correctly-signed, and redelivered webhooks all handled). Asserting a
+  // MISS here would now be asserting that Strata should refuse work it does correctly.
+  //
+  // The rest of the task text is still uncovered (nodemailer, bullmq, pdfkit), so this remains a
+  // PARTIAL-coverage case — exactly the shape that produced the idempotency defect, where a confident
+  // pass was reported for a fraction of what was asked. Keeping it here as a delivering case means any
+  // future regression in the stripe path shows up as a diff rather than as silence.
   {
-    name: 'stripe (pulled — must MISS, not deliver broken code)',
+    name: 'stripe (re-authored recall — must DELIVER the webhook module)',
     task: 'Stripe webhooks with signature verification, email confirmation on purchase via Nodemailer SMTP, background job with BullMQ and Redis that generates a PDF receipt with PDFKit and emails it',
-    expectDecline: true,
-    forbid: ['payment.stripe.v1', 'stripe.webhook-patterns.v1', 'email.nodemailer.v1', 'queue.bullmq.v1', 'receipt.pdfkit.v1'],
+    expect: ['payment.stripe-webhook.v1'],
+    forbid: ['payment.stripe.v1', 'stripe.webhook-patterns.v1', 'queue.bullmq.v1', 'receipt.pdfkit.v1'],
   },
   {
     name: 'jwt (pulled — must MISS)',

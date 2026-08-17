@@ -116,6 +116,27 @@ export interface VerifierSpec {
    * the same rule as the contribution IR.
    */
   recallChecks: RecallCheck[];
+  /**
+   * Recall ids these checks actually exercise, and the delivered ids they do NOT.
+   *
+   * Every other flag in this spec answers "what should I check?". These two answer "what did I fail
+   * to check?", and without them the verifier cannot tell the difference between proving a delivery
+   * and proving part of one. It printed the same sentence either way:
+   *
+   *     8/8 checks passed — the delivered feature works end to end.
+   *
+   * Measured 2026-08-16, the idempotency task: api.idempotency.v1 shipped, and all eight checks were
+   * about correlation ids and error envelopes contributed by the OTHER two recalls. Not one exercised
+   * idempotency. The sentence above was false, in the one place the delivery asks to be believed, and
+   * the session that trusted it went hunting through composed-pkg for a guarantee nothing had tested.
+   *
+   * Coverage today comes from two places — engine-side flags (7 recalls) and checks a recall declares
+   * for itself (6 more) — leaving 9 of 22 that can ship with nothing proving them. Naming them costs
+   * one line and is honest at any coverage level; authoring the missing checks is the real fix and is
+   * per-recall work.
+   */
+  coveredRecalls: string[];
+  uncoveredRecalls: string[];
 }
 
 /** A verifier check a recall declares for itself in metadata.json. */
@@ -588,7 +609,10 @@ async function request(method, route, body, contentType, headers) {
 }
 
 const get = (route, headers) => request('GET', route, undefined, undefined, headers);
-const post = (route, body, ct) => request('POST', route, body, ct);
+// headers is the FOURTH argument, not the third. Setting a request header on a write is the whole
+// point of some recalls (idempotency keys, signed webhooks); without it they could only be tested
+// through GET, which is exactly the method they do not guard.
+const post = (route, body, ct, headers) => request('POST', route, body, ct, headers);
 
 let passed = 0;
 const failures = [];
@@ -668,6 +692,20 @@ function stopServer() {
 const HAS_HTTP = ${hasHttp};
 const HAS_SELFTEST = ${spec.hasSelftest};
 
+// Which delivered modules these checks exercise, and which they do not. Printed after the tally so
+// the reader learns the SCOPE of the result in the same breath as the result.
+const COVERED = ${JSON.stringify(spec.coveredRecalls)};
+const UNCOVERED = ${JSON.stringify(spec.uncoveredRecalls)};
+
+function printCoverage() {
+  if (COVERED.length) console.log('  exercised above: ' + COVERED.join(', '));
+  if (!UNCOVERED.length) return;
+  // State the gap plainly and stop. No advice about what to do with it — telling a reader to go and
+  // verify is how a passing result turned into twenty-five turns of hand-testing once already.
+  console.log('  NOT exercised by any check above: ' + UNCOVERED.join(', '));
+  console.log('  Those modules were delivered. Nothing here proves them.');
+}
+
 // The recalls' own behavioural suites. These prove the PRIMITIVES (a 404 must not reset the circuit
 // breaker; a bad CSV row must name its source line). The end-to-end checks below prove the WIRING.
 // Bugs live in both, so one command runs both.
@@ -699,10 +737,12 @@ async function runSelftests() {
     // Nothing to serve — a library-shaped delivery. The selftests were the whole proof.
     console.log('');
     if (failures.length === 0) {
-      console.log('  ' + passed + '/' + passed + ' checks passed — the delivered code works.');
+      console.log('  ' + passed + '/' + passed + ' checks passed' + (UNCOVERED.length ? '.' : ' — the delivered code works.'));
+      printCoverage();
       process.exit(0);
     }
     console.log('  ' + passed + ' passed, ' + failures.length + ' FAILED.');
+    printCoverage();
     process.exit(1);
   }
 
@@ -722,11 +762,13 @@ ${checks.join('\n')}
 
   console.log('');
   if (failures.length === 0) {
-    console.log('  ' + passed + '/' + passed + ' checks passed — the delivered feature works end to end.');
+    console.log('  ' + passed + '/' + passed + ' checks passed' + (UNCOVERED.length ? '.' : ' — every delivered module is exercised above.'));
+    printCoverage();
     process.exit(0);
   }
   console.log('  ' + passed + ' passed, ' + failures.length + ' FAILED:');
   for (const f of failures) console.log('    - ' + f.name + ': ' + f.error);
+  printCoverage();
   process.exit(1);
 })();
 `;

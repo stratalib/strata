@@ -2400,6 +2400,52 @@ function indentBlock(code: string, spaces = 2): string {
  * This is the piece that attacks the actual cost. Composition only ever removed the 2 turns of
  * writing; verification is 41% of the job.
  */
+/**
+ * Which delivered recalls the generated checks actually exercise — and which they miss.
+ *
+ * Coverage comes from two independent places, and neither one knows about the other:
+ *
+ *   1. ENGINE FLAGS. `buildVerifierScript` emits checks for seven recall ids it was taught by hand
+ *      (pagination, csv-import, logging, ratelimit, validation, search, stripe-webhook). Adding an
+ *      eighth means editing the engine — O(N) in the library, which is why it stalled at seven.
+ *   2. DECLARED CHECKS. A recall carries its own `verifierChecks` in metadata. Six do today.
+ *
+ * That leaves nine of twenty-two recalls able to ship with nothing proving them, and until now the
+ * verifier reported those deliveries in exactly the same words as a fully-proven one. The gate below
+ * is a MIRROR of the flags passed to buildVerifierScript; if a flag is added there and not here, this
+ * over-reports coverage — so the two lists are asserted equal by scripts/test-verifier-coverage.js
+ * rather than kept in step by memory.
+ */
+function coverageOf(
+  recalls: RecallEntry[],
+  ctx: { wantsCache: boolean; wantsRateLimit: boolean; csvHeader: string | null; route: string | null },
+): { coveredRecalls: string[]; uncoveredRecalls: string[] } {
+  const covered = new Set<string>();
+  for (const r of recalls) {
+    if ((r.verifierChecks ?? []).length > 0) { covered.add(r.id); continue; }
+    switch (r.id) {
+      case 'api.pagination.v1':          if (ctx.route) covered.add(r.id); break;
+      case 'data.csv-import.v1':         if (ctx.csvHeader) covered.add(r.id); break;
+      case 'observability.logging.v1':   covered.add(r.id); break;
+      case 'validation.request.v1':      covered.add(r.id); break;
+      case 'search.fulltext.v1':         covered.add(r.id); break;
+      case 'payment.stripe-webhook.v1':  covered.add(r.id); break;
+      case 'cache.ratelimit.v1':         if (ctx.wantsCache || ctx.wantsRateLimit) covered.add(r.id); break;
+      default: break;
+    }
+  }
+  return {
+    coveredRecalls: recalls.filter(r => covered.has(r.id)).map(r => r.id),
+    uncoveredRecalls: recalls.filter(r => !covered.has(r.id)).map(r => r.id),
+  };
+}
+
+/** Recall ids buildVerifierScript emits checks for via hardcoded engine flags. Mirrored in coverageOf. */
+export const ENGINE_COVERED_RECALLS = [
+  'api.pagination.v1', 'data.csv-import.v1', 'observability.logging.v1', 'validation.request.v1',
+  'search.fulltext.v1', 'payment.stripe-webhook.v1', 'cache.ratelimit.v1',
+] as const;
+
 function buildVerifier(
   recalls: RecallEntry[],
   entity: Entity | null,
@@ -2558,6 +2604,7 @@ function buildVerifier(
         code: substituteEntity(c.code, entity, null, null),
       })),
     ),
+    ...coverageOf(recalls, { wantsCache, wantsRateLimit, csvHeader, route }),
   });
 
   fs.mkdirSync(strataDir, { recursive: true });

@@ -91,6 +91,17 @@ const ARMS = argOf('--arms', '').split(',').filter(Boolean);
 const MODELS = argOf('--models', '').split(',').filter(Boolean);
 
 /**
+ * --guide <path>   override the fixture's default guide for the strata arm.
+ *
+ * Captured HERE, at module load, not inside the loop: the loop rewrites process.argv before every run,
+ * so reading it later returns whatever the previous iteration wrote. Dropped entirely at first, and the
+ * symptom was quiet — the run logged "[guide] dropped catalog-service.guide.json" while the caller had
+ * asked for the order-domain guide, so the experiment would have measured the wrong file and looked
+ * like a null result.
+ */
+const GUIDE_ARG = argOf('--guide', '');
+
+/**
  * Ordered so that COMPLETE COMPARABLE SETS land first.
  *
  * The machine may kill this at any point, so the queue is interleaved rather than grouped by arm: after
@@ -167,7 +178,12 @@ function alreadyDone(task, arm, model, run) {
 
     // --model and --run are read dynamically by agent-bench's arg() on every call; --out is not (it is
     // an IIFE evaluated at require time), which is why it is set at the top of this file instead.
-    process.argv = ['node', 'run-quality-battery.js', '--out', 'exp-quality', '--model', model, '--run', String(runIndex)];
+    // --guide must SURVIVE this reset. agent-bench reads it dynamically, so dropping it here silently
+    // fell back to the fixture's default guide — the run then reported "[guide] dropped
+    // catalog-service.guide.json" while the caller had asked for the order-domain one, and the whole
+    // experiment would have measured the wrong file.
+    process.argv = ['node', 'run-quality-battery.js', '--out', 'exp-quality', '--model', model, '--run', String(runIndex),
+      ...(GUIDE_ARG ? ['--guide', GUIDE_ARG] : [])];
 
     // Clean before every run, not just after a failure: the orphan may be from a batch that died
     // hours ago, and a run that starts under that pressure is the one that gets reaped next.

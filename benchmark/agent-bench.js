@@ -409,10 +409,21 @@ function runOnce(taskName, task, arm, runIndex, opts = {}) {
   // its own, since strata's arm still produced the same doc sprawl) — so it reaches BOTH arms identically
   // and the comparison stays fair. Same single-line discipline as AUTONOMY itself: a raw newline here
   // breaks sh()'s Windows shell-quoting (see run-twophase.js's ANALYZE_PROMPT comment).
+  // INSTRUMENT CHANGE 2026-08-17: "example or demo scripts" was not read as covering THROWAWAY TEST
+  // scripts, so it kept happening. One strata run wrote test-idempotency.js, test-validation.js and
+  // test-complete.js, ran each, then DELETED them all — 14 of its 19 work calls, on a run whose first
+  // five calls had already produced the same outcome as the cheapest run in the cell. It knew they
+  // were unwanted; the wording just never named them.
+  //
+  // Applied to BOTH arms, like every other line here, so it cannot flatter either one. It does reduce
+  // measured variance, which means runs from before this date are not comparable to runs after it.
   const TERSE = ' Do not create documentation files (README, ARCHITECTURE, DEPLOYMENT, DECISIONS, '
     + 'SUMMARY, QUICKSTART, COMPONENTS, or similar) unless the task explicitly asks for documentation - '
     + 'a short code comment where genuinely non-obvious is enough. Do not write example or demo scripts '
-    + 'unless asked. Spend your effort on working, tested code, not on narrating what you built.';
+    + 'unless asked, and do not write throwaway test or verification scripts (test-*.js, check-*.js, '
+    + 'verify-*.js or similar) to prove your own work - if the project already has a test or '
+    + 'verification command, run that instead. Spend your effort on working, tested code, not on '
+    + 'narrating what you built.';
 
   const AUTONOMY = ' Work autonomously and make sensible choices without checking in - I am not '
     + 'available to answer questions. If something is ambiguous, pick the option you would defend and '

@@ -193,17 +193,47 @@ function domainToEntity(d: Domain): Entity {
 export function entityFromGuide(guide: StrataGuide | null, taskText: string): Entity | null {
   if (!guide?.domains?.length) return null;
   const hay = taskText.toLowerCase();
-  const hit = guide.domains.find(d => {
-    const names = [d.name, d.entity, d.route?.replace(/^\//, '')].filter(Boolean) as string[];
-    return names.some(n => {
-      const t = n.toLowerCase().replace(/s$/, '');
-      return t.length > 2 && new RegExp(`\\b${t}s?\\b`).test(hay);
-    });
-  });
-  // Only a domain that carries FIELDS is usable — substitution needs columns, and a domain declared as
-  // pure intent (name + operations, no shape yet) cannot drive generation.
-  if (!hit || !(hit.fields ?? []).length) return null;
-  return domainToEntity(hit);
+
+  /**
+   * Where in the task each of a domain's names is first mentioned, and how often.
+   *
+   * THE SUBJECT LEADS. "Order creation … from live Product prices" is a task about orders that mentions
+   * products; "paginate products and link to orders" is the reverse. Position separates them and a
+   * name-set membership test does not — which is how the first draft of this function lost a benchmark
+   * run. It used `find()`, so the FIRST domain in array order that matched anywhere won: Product is
+   * declared before Order, the task mentioned Product in a subordinate clause, and Product took the
+   * slot. Worse, Product carried no fields in that guide, so the viability guard below returned NULL
+   * rather than trying the next candidate — resolution fell back to the crawl, routesFromGuide received
+   * the wrong domain, no endpoints were generated, and the session rebuilt the orders API by hand at
+   * 3.8x the cost of the runs where this resolved correctly.
+   */
+  const scored = guide.domains
+    // Only a domain that carries FIELDS can drive generation — substitution needs columns. Filtering
+    // FIRST is what makes a non-viable match fall through instead of aborting the whole lookup.
+    .filter(d => (d.fields ?? []).length > 0)
+    .map(d => {
+      const names = [d.name, d.entity, d.route?.replace(/^\//, '')].filter(Boolean) as string[];
+      let first = Infinity;
+      let hits = 0;
+      for (const n of names) {
+        const t = n.toLowerCase().replace(/s$/, '');
+        if (t.length <= 2) continue;
+        const re = new RegExp(`\\b${t}s?\\b`, 'g');
+        let m: RegExpExecArray | null;
+        while ((m = re.exec(hay)) !== null) {
+          hits++;
+          if (m.index < first) first = m.index;
+        }
+      }
+      return { domain: d, first, hits, ops: (d.operations ?? []).length };
+    })
+    .filter(c => c.hits > 0)
+    .sort((a, b) =>
+      a.first - b.first            // the subject is named first
+      || b.hits - a.hits           // then whichever the task is actually about
+      || b.ops - a.ops);           // then the one the guide has plans for
+
+  return scored.length ? domainToEntity(scored[0].domain) : null;
 }
 
 /**

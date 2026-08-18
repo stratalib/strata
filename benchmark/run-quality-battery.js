@@ -58,6 +58,10 @@ function reapOrphans() {
         + 'ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }';
       const r = spawnSync('powershell', ['-NoProfile', '-NonInteractive', '-Command', ps],
         { stdio: 'ignore', timeout: 30_000 });
+      // Stop-Process -Force RETURNS BEFORE THE PROCESS IS GONE. Without this settle the next run
+      // starts while the old agent is still dying and gets killed alongside it — which is exactly why
+      // this reaper appeared not to work: the manual cleanup that 'fixed' it differed only by a sleep.
+      spawnSync(process.execPath, ['-e', 'setTimeout(()=>{},2500)'], { stdio: 'ignore', timeout: 8000 });
       return r.status === 0;
     }
     spawnSync('pkill', ['-f', '--strict-mcp-config'], { stdio: 'ignore', timeout: 30_000 });

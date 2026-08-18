@@ -37,8 +37,11 @@ import { imprint as runImprint, resolveGlue, loadConventions, scanEnvFile } from
 import { extractEntities, resolveEntity, resolveDataSource, sortableFields, filterableFields, routePath, csvSchemaFor, Entity, EntityField } from './imprint/entities.js';
 import { detectProjectShape, mountWiring, appVarName, ProjectShape } from './imprint/project-shape.js';
 import { buildVerifierScript } from './verifier.js';
-import { loadGuide } from './guide.js';
+import { loadGuide, StrataGuide } from './guide.js';
 import { generateAdapters } from './guide-generate.js';
+import { writeSeedIfAbsent, entityFromGuide, guideBlockFor } from './guide-seed.js';
+import { checksFromGuide } from './guide-checks.js';
+import { routesFromGuide, GuideRouteResult } from './guide-routes.js';
 import { appendUsageLog, hashProject } from './logger.js';
 import { embedText, cosineSimilarity } from './embeddings.js';
 import pkg from '../package.json';
@@ -2456,6 +2459,14 @@ function buildVerifier(
 ): boolean {
   const has = (id: string): boolean => recalls.some(r => r.id === id);
 
+  // Declared operations become checks HERE, alongside the recalls' own — one pipeline, one coverage
+  // report, so a guide promise and a recall behaviour are held to the same standard.
+  let guideForChecks: StrataGuide | null = null;
+  // strataDir is always <projectRoot>/strata, so the guide sits one level up. Threading projectDir
+  // through the signature would touch every caller for a value already implied.
+  try { guideForChecks = loadGuide(path.dirname(strataDir)); } catch { /* malformed — reported by emitGuideAdapters */ }
+  const guideChecks = checksFromGuide(guideForChecks, taskText);
+
   // A recall being SELECTED does not mean all of its capabilities were EMITTED. cache.ratelimit.v1
   // ships a cache and a limiter behind separate `when` gates, so a task asking only for rate limiting
   // gets the limiter alone. The verifier used to key off the recall list and then assert on an
@@ -2598,13 +2609,24 @@ function buildVerifier(
     hasRoutes: recalls.some(r => r.compose?.server?.routesFile),
     // Checks the recalls declared for themselves. The entity is substituted into the code the same way
     // it is for fragments, so a check can say `{{ROUTE}}` and get the project's real route.
-    recallChecks: recalls.flatMap(r =>
-      (r.verifierChecks ?? []).map(c => ({
-        name: c.name,
-        code: substituteEntity(c.code, entity, null, null),
-      })),
-    ),
-    ...coverageOf(recalls, { wantsCache, wantsRateLimit, csvHeader, route }),
+    recallChecks: [
+      ...recalls.flatMap(r =>
+        (r.verifierChecks ?? []).map(c => ({
+          name: c.name,
+          code: substituteEntity(c.code, entity, null, null),
+        })),
+      ),
+      // Checks compiled from the guide's declared guarantees (v1.2). These prove the DECLARATION, not a
+      // recall — an operation the guide promised is either exercised here or named as unproven below.
+      ...guideChecks.checks,
+    ],
+    ...(() => {
+      const cov = coverageOf(recalls, { wantsCache, wantsRateLimit, csvHeader, route });
+      // A guarantee no compiler could express joins the same list the verifier already prints. Any
+      // other treatment would let a declared promise pass in silence, which is the failure this whole
+      // mechanism exists to prevent.
+      return { ...cov, uncoveredRecalls: [...cov.uncoveredRecalls, ...guideChecks.uncovered] };
+    })(),
   });
 
   fs.mkdirSync(strataDir, { recursive: true });
@@ -2811,13 +2833,46 @@ function buildWiring(
     ? beforePieces.filter(p => p.rank > BODY_PARSER_RANK).map(p => indentBlock(p.code)).join('\n\n')
     : '';
 
-  const routes = contributors
+  const recallRoutes = contributors
     .filter(r => r.compose!.server!.routesFile)
     .sort((a, b) => a.id.localeCompare(b.id))
     .map(r => subst(readFragment(r, r.compose!.server!.routesFile!)))
     .filter(Boolean)
-    .map(c => indentBlock(c))
-    .join('\n\n');
+    .map(c => indentBlock(c));
+
+  /**
+   * ENDPOINTS FROM THE GUIDE (v1.2).
+   *
+   * A recall cannot own an endpoint whose shape is business logic — what an order IS was never
+   * knowable in advance. A declaration can. Emitting it here, in the same slot the recalls' own routes
+   * use, is what lets a decorator like api.idempotency.v1 compose ONTO it: by the time middleware is
+   * ranked and mounted, the route it guards exists.
+   *
+   * Deliberately AFTER the recalls' routes: a recall route is a proven artefact from the library, a
+   * declared one is this project's own intent, and where both touch a path the library's version is
+   * the one that was tested.
+   */
+  let guideGen: GuideRouteResult = { code: '', requires: [], files: [], built: [], skipped: [] };
+  try {
+    const g = loadGuide(projectDir);
+    guideGen = routesFromGuide(g, entity?.name ?? null, {
+      sourceRoot: shape.sourceRoot || '',
+      hasValidation: contributors.some(r => r.id === 'validation.request.v1'),
+    });
+  } catch { /* malformed guide — emitGuideAdapters reports it; never block delivery */ }
+
+  for (const f of guideGen.files) {
+    const full = path.join(projectDir, f.rel);
+    // Never overwrite a store the project already has: the guide says this domain does not exist, but
+    // the file might, and clobbering someone's data module is the undisclosed-write failure again.
+    if (!fs.existsSync(full)) {
+      fs.mkdirSync(path.dirname(full), { recursive: true });
+      fs.writeFileSync(full, f.source, 'utf-8');
+    }
+  }
+  if (guideGen.requires.length) extraRequires.push(...guideGen.requires);
+
+  const routes = [...recallRoutes, ...(guideGen.code ? [indentBlock(guideGen.code)] : [])].join('\n\n');
 
   const afterMw = rankedFragments(contributors, x => x.errorHandlers, taskText)
     .map(({ recall, frag }) => subst(renderFragment(recall, frag, 'errorHandler')))
@@ -2841,6 +2896,10 @@ function buildWiring(
 
   const files: ScaffoldFile[] = [
     { name: wiringRel, injectSlots: extractInjectSlots(wiring), writtenToRoot: true },
+    // Stores generated for declared domains are DISCLOSED like every other write. An undisclosed file
+    // in someone's src/ has the shape of an attack whatever the intent — this project has been flagged
+    // for exactly that twice, and the rule is absolute.
+    ...guideGen.files.map(f => ({ name: f.rel, injectSlots: [], writtenToRoot: true })),
   ];
 
   // Splice the three mount calls into the project's own entry point — but only when the anchors are
@@ -4107,9 +4166,32 @@ server.registerTool(
       // silently never fired. The prose you are handed is not a dependable input; the project's own
       // structure outweighs it.
       const taskText = [task, ...capabilities].join(' ');
-      const entity = resolveEntity(extractEntities(dir), taskText, dir);
+
+      /**
+       * THE MAP COMES FIRST (v1.2).
+       *
+       * Seeding writes strata.guide.json only when it is ABSENT, and only from facts read off disk —
+       * never over a guide someone authored, because the authored half (operations, guarantees, domains
+       * that do not exist yet) is the expensive part and a crawl cannot reproduce it. The file is
+       * disclosed in the delivery like every other write; the rule against silent writes is about
+       * undisclosed ones, and an undisclosed write has the shape of an attack whatever the intent.
+       */
+      const seeded = writeSeedIfAbsent(dir);
+      if (seeded) console.error(`[strata] seeded ${seeded.path} — ${seeded.result.domainNames.join(', ')}`);
+      let projectGuide: StrataGuide | null = null;
+      try { projectGuide = loadGuide(dir); } catch { /* malformed — emitGuideAdapters reports it */ }
+
+      /**
+       * Guide first, crawl second. The crawl's scoring contest abstains whenever two entities are
+       * close ("Order (14) vs Invoice (12) — refusing to guess"), which is right but permanent: the
+       * answer is re-derived every run and never recorded. A guide IS the recorded answer, so a domain
+       * that names itself in the task wins outright and the abstain never fires.
+       */
+      const fromGuide = entityFromGuide(projectGuide, taskText);
+      const entity = fromGuide ?? resolveEntity(extractEntities(dir), taskText, dir);
       if (entity) {
-        console.error(`[strata] entity resolved: ${entity.name} (${entity.source}), ${entity.fields.length} fields`);
+        console.error(`[strata] entity resolved: ${entity.name} (${entity.source}), ${entity.fields.length} fields`
+          + `${fromGuide ? ' [from guide]' : ''}`);
       }
 
       // Does this project already HAVE an Express app? If so, generating a second one is the single
@@ -4356,6 +4438,12 @@ server.registerTool(
       // what happened when it was run, and everything after that is detail.
       const verification = await autoRunVerification(strataDir, dir);
       if (verification) systemText = `${verification.trim()}\n\n${systemText}`;
+
+      // The map, AFTER the delivery detail. It describes the next call, not this one — putting it above
+      // the verification verdict would bury the result of the run that just happened, which is the one
+      // thing the reader needs first.
+      const mapBlock = guideBlockFor(projectGuide, seeded ? seeded.path : null);
+      if (mapBlock) systemText = `${systemText}\n${mapBlock}`;
 
       // The receipt is what makes signalling free. At shutdown we read the files the session wrote
       // and run the analysis strata_signal used to charge a ToolSearch + a turn for.

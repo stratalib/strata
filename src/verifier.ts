@@ -165,8 +165,13 @@ export function buildVerifierScript(spec: VerifierSpec): string {
   // put a route in someone's app, we owe them a check that it answers.
   // A webhook IS an HTTP surface. Omitting it here would start no server, so every check above would
   // be skipped and the verifier would go back to proving nothing.
+  // DECLARED CHECKS ARE AN HTTP SURFACE TOO. Every check a recall or a guide declares is written
+  // against get()/post(), so if any exist the server must start. Without this the engine-flag list
+  // above decided alone, and a delivery whose only checks were declared ones (idempotency + validation,
+  // both decorators, neither setting a flag) started no server, ran nothing, and printed
+  // "0/0 checks passed" — the same false green this mechanism exists to abolish, with a rounder number.
   const hasHttp = !!(spec.listRoute || spec.importRoute || spec.hasLogging || spec.hasRateLimit
-    || spec.hasRoutes || spec.hasStripeWebhook);
+    || spec.hasRoutes || spec.hasStripeWebhook || spec.recallChecks.length > 0);
 
   if (hasHttp) {
     checks.push(`

@@ -29,8 +29,10 @@ function loadCache() {
   try { return JSON.parse(fs.readFileSync(CACHE, 'utf-8')); } catch { return {}; }
 }
 const cache = loadCache();
+const unstable = [];
 
-function gradeOne(stem, suite) {
+/** One grading pass. */
+function gradeOnce(stem, suite) {
   const tree = path.join(RUNS, 'trees', stem);
   if (!fs.existsSync(tree)) return null;
   const r = spawnSync(process.execPath,
@@ -38,8 +40,43 @@ function gradeOne(stem, suite) {
     { encoding: 'utf-8', timeout: 300_000, cwd: ROOT });
   try {
     const j = JSON.parse(r.stdout);
-    return { passed: j.passed, total: j.total, suiteHash: j.suiteHash, unmeasurable: j.unmeasurable || null };
+    return { passed: j.passed, total: j.total, suiteHash: j.suiteHash, unmeasurable: j.unmeasurable || null,
+      failing: (j.results || []).filter(x => !x.pass).map(x => x.id).sort().join(',') };
   } catch { return null; }
+}
+
+/** Block for `ms` without a busy loop — grading boots servers, and they need a moment to let go. */
+function settle(ms) {
+  spawnSync(process.execPath, ['-e', `setTimeout(()=>{},${ms})`], { stdio: 'ignore', timeout: ms + 5000 });
+}
+
+/**
+ * Grade until the answer is STABLE, and say so when it is not.
+ *
+ * Grading straight after a batch produced systematically worse scores than the same trees graded a
+ * minute later: an exp-v20 cell recorded 6/7, 5/7, 5/7 on its first pass and then returned 6/7 twelve
+ * times in a row. The runs had only just finished, and grade.js boots the delivered app — so the first
+ * pass was competing with whatever the benchmark had not finished tearing down.
+ *
+ * Averaging that in makes an instrument artefact look like a product defect, which is the wrong
+ * direction to be wrong in: it UNDERSTATES the thing being measured, so nobody goes looking. Two
+ * agreeing passes are required; a disagreement is broken by a third and reported rather than hidden,
+ * because a check that scores the same bytes two ways is a finding in its own right.
+ */
+function gradeOne(stem, suite) {
+  settle(2500);
+  const a = gradeOnce(stem, suite);
+  if (!a) return null;
+  const b = gradeOnce(stem, suite);
+  if (!b) return a;
+  if (a.passed === b.passed && a.failing === b.failing) return a;
+
+  const c = gradeOnce(stem, suite);
+  const votes = [a, b, c].filter(Boolean);
+  const best = votes.sort((x, y) =>
+    votes.filter(v => v.passed === y.passed).length - votes.filter(v => v.passed === x.passed).length)[0];
+  unstable.push(`${stem}: graded ${votes.map(v => v.passed + '/' + v.total).join(' then ')} — using ${best.passed}/${best.total}`);
+  return best;
 }
 
 const stems = fs.existsSync(RUNS)
@@ -78,6 +115,18 @@ for (const stem of stems) {
 }
 
 const tasks = [...new Set(rows.map(r => r.task))];
+
+// A tree that scores two ways is a finding, not a rounding error. Print it above the board so it is
+// read before the numbers it affects, never after.
+if (unstable.length) {
+  console.log('\n  UNSTABLE GRADING — the same tree scored differently on repeat passes:');
+  for (const u of unstable) console.log('    ' + u);
+}
+if (skipped.length) {
+  console.log('\n  EXCLUDED — the harness marked these invalid, they are not data:');
+  for (const s of skipped) console.log('    ' + s.stem.padEnd(34) + s.why);
+}
+
 console.log(`\n  RUNS — ${dirName}\n`);
 console.log('  run                             turns      $     checks');
 console.log('  ' + '─'.repeat(58));

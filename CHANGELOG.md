@@ -85,31 +85,52 @@ can see — never by the verifier Strata generates, which would be marking its o
 Per run: baseline 5/8, 6/8, 6/8 — Strata **8/8, 8/8, 8/8**. No overlap between the arms on any axis:
 the worst Strata run beats the best baseline run on turns, cost, time and quality alike.
 
-### Payments — Stripe webhook handling *(n=1, directional only)*
+### Payments — Stripe webhooks, plus emailed PDF receipts on a background queue
 
-| | baseline | Strata |
-|---|---|---|
-| turns | 65 | 42 |
-| cost | $0.523 | $0.461 |
-| quality | 87.5% | 100% |
+| | baseline | **Strata** | |
+|---|---|---|---|
+| turns | 48.7 | **43.7** | 0.90× |
+| cost | $0.406 | **$0.385** | 0.95× |
+| quality | 16.7% | **66.7%** | |
+
+Per run: baseline **0/8, 0/8, 4/8** — Strata **0/8, 8/8, 8/8**.
+
+This is the hardest task in the set and the most honest one to publish, because both arms produce a
+build that does not run. Baseline's first run never wrote an entry point at all. Strata's first run
+shipped an unsatisfiable dependency tree — `bullmq@5.81.3` needs `redis >= 5`, pinned beside
+`redis@4.7.1`, so `npm install` fails outright. Both of those packages were chosen by the model:
+Strata has no recall for queues or PDF generation, and covers only the webhook.
+
+The lesson is the same one the cost figures show. Strata's advantage tracks how much of the task its
+library actually covers. Here it covers one capability out of four, and the numbers move accordingly —
+0.95× on cost, which is a wash.
 
 ### The number we think actually matters
 
 Run the same task three times and the interesting question is not "was it good" but **"was it the
-same"**. On an order-idempotency task:
+same"**. On an order-idempotency task — *"if a client retries the same order request it should not
+create two orders"*:
 
 | | baseline | **Strata** |
 |---|---|---|
-| quality, run by run | 86%, **57%**, 71% | **86%, 86%, 86%** |
-| standard deviation | **11.7 points** | **0.0 points** |
+| quality, run by run | **14%**, 71%, 71% | **86%, 86%, 86%** |
+| standard deviation | **26.9 points** | **0.0 points** |
+| turns | 27.7 | **21.7** (0.78×) |
+| cost | $0.175 | **$0.134** (0.77×) |
 | lines of code written | 201 | 46 |
 | project files touched | 4.0 | 0.3 |
 
-Baseline edited `prisma/schema.prisma` — the database schema — in two of three runs, for a task that
-never mentioned the data model. Across three runs it touched six different files, only two of them
-every time. You cannot predict which files come back changed.
+The 14% run is not a fluke and not a grading artefact — it scores the same on repeat passes. The
+session invented an order API whose create endpoint *"rejected all 5 shapes"* the grader tried, and
+because every other property depends on being able to create an order at all, five checks became
+undemonstrable at once. That is the shape of the risk: not a slightly worse result, a **cliff**, and
+nothing in the session's own output says it happened.
 
-Strata does not beat the ceiling; baseline's best run reaches the same 86%. **Strata reaches it every
+Baseline also edited `prisma/schema.prisma` — the database schema — on a task that never mentions the
+data model, and across three runs touched six different files with only two written every time. You
+cannot predict which files come back changed.
+
+Strata does not beat the ceiling; a good baseline run reaches the same 86%. **Strata reaches it every
 time.**
 
 ### What we do not claim

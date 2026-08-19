@@ -3,6 +3,66 @@
 Four backend tasks, five arms, three runs each. 60 full agent sessions measured end to end — cost is
 the whole session bill, not a token count from a single call.
 
+---
+
+## v1.1 — the number that survives scrutiny
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/consistency-dark.svg">
+  <img src="assets/consistency-light.svg" alt="Quality of every individual run. Without Strata the results scatter; with Strata every run of a task lands on the same score." width="760">
+</picture>
+
+Run one task three times with one model and the interesting question is not *"was it good"* but
+**"was it the same"**.
+
+| task | without Strata | **with Strata** |
+|---|---|---|
+| catalog | 63%, 75%, 75% | **100%, 100%, 100%** |
+| idempotency | **14%**, 71%, 71% | **86%, 86%, 86%** |
+| stripejune | 0%, 0%, 50% | 0%, 100%, 100% |
+
+On the two tasks the library covers well, **every Strata run of a task returns the identical score** —
+a standard deviation of 0.0 against baseline's 26.9 points on idempotency. Strata does not beat the
+ceiling; a good baseline run reaches the same 86%. It reaches it *every time*.
+
+The idempotency 14% is stable across repeat gradings, not a grading artefact. That session invented an
+order API whose create endpoint rejected all five request shapes the grader tried, and because every
+other property depends on creating an order, five checks became undemonstrable at once. **A cliff, not
+a slightly worse result** — and nothing in the session's own output says it happened.
+
+### Where it does not hold
+
+**stripejune is published with its failures intact.** Both arms produce a build that does not run:
+baseline never wrote an entry point in one run, and Strata shipped `bullmq@5.81.3` pinned beside
+`redis@4.7.1` in another, which cannot `npm install`. Both packages are model-chosen — Strata covers
+the webhook and nothing else on that task.
+
+That is the rule the whole board obeys: **Strata's advantage tracks how much of the task its library
+actually covers.** Four capabilities asked for, one covered, and the cost ratio lands at 0.95× — a wash.
+
+### Cost, on a matched instrument
+
+| task | | turns | cost | quality |
+|---|---|---|---|---|
+| catalog | baseline | 31.3 | $0.190 | 70.8% |
+| | **Strata** | **15.0** | **$0.077** | **100%** |
+| idempotency | baseline | 27.7 | $0.175 | 52.4% |
+| | **Strata** | **21.7** | **$0.134** | **85.7%** |
+| stripejune | baseline | 48.7 | $0.406 | 16.7% |
+| | **Strata** | **43.7** | **$0.385** | **66.7%** |
+
+Cost is the least stable number here — it moves with the model, the prompt and the machine, and every
+figure above needs its caveats. The consistency figures need none.
+
+`n=3`, Claude Haiku 4.5, one model per cell. Nothing here speaks to Sonnet or Opus.
+
+---
+
+## The original 60-run battery
+
+Everything below is the earlier five-arm battery on a different prompt instrument. Its numbers are not
+averaged with the v1.1 cells above, and never should be.
+
 ## Method
 
 **Pre-registered.** Every check was written from the task prompt alone and committed before the first

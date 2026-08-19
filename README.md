@@ -17,8 +17,9 @@ command that boots the app and exercises every requirement against a live server
 [![site](https://img.shields.io/badge/stratalib.com-E6EDF3?style=flat-square)](https://stratalib.com)
 [![x](https://img.shields.io/badge/%40stratalib-0B0F14?style=flat-square&logo=x&logoColor=white)](https://x.com/stratalib)
 
-[![runs](https://img.shields.io/badge/benchmark-60%20runs-5EE7FF?style=flat-square)](docs/BENCHMARK.md)
-[![quality](https://img.shields.io/badge/haiku%20%2B%20Strata-92.1%25-7CF29A?style=flat-square)](docs/BENCHMARK.md)
+[![version](https://img.shields.io/badge/v1.1-5EE7FF?style=flat-square)](CHANGELOG.md)
+[![consistency](https://img.shields.io/badge/run--to--run%20spread-0.0%20pts-7CF29A?style=flat-square)](docs/BENCHMARK.md)
+[![cost](https://img.shields.io/badge/catalog-0.40%C3%97%20cost-7CF29A?style=flat-square)](docs/BENCHMARK.md)
 [![assertions](https://img.shields.io/badge/adversarial%20assertions-1%2C264-F5C96A?style=flat-square)](docs/BENCHMARK.md)
 [![gates](https://img.shields.io/badge/admission%20gates-6-E6EDF3?style=flat-square)](#admission-gates)
 
@@ -92,6 +93,48 @@ and a tool that always says yes is a tool you stop trusting.</sub>
 
 <div align="center">
   <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/consistency-dark.svg">
+    <img src="docs/assets/consistency-light.svg" alt="Quality of every individual run. Without Strata the results scatter; with Strata every run of a task lands on the same score." width="760">
+  </picture>
+</div>
+
+Run one task three times with one model. The interesting question is not *"was it good"* — it is **"was it the same"**.
+
+| task | without Strata | **with Strata** |
+|---|---|---|
+| catalog | 63%, 75%, 75% | **100%, 100%, 100%** |
+| idempotency | **14%**, 71%, 71% | **86%, 86%, 86%** |
+| stripejune | 0%, 0%, 50% | 0%, 100%, 100% |
+
+On the two tasks the library covers well, **every Strata run returns the identical score** — a run-to-run spread of 0.0 points against baseline's 26.9 on idempotency. Strata does not beat the ceiling; a good baseline run reaches the same 86%. It reaches it *every time*.
+
+That 14% is not a grading artefact — it repeats on re-grade. The session invented an order API whose create endpoint rejected every request shape the grader tried, and since everything else depends on creating an order, five checks collapsed at once. **A cliff, not a slightly worse result**, and nothing in the session's own output says it happened.
+
+Baseline also edited `prisma/schema.prisma` — the database schema — in two of three runs, on a task that never mentions the data model, and touched six different files across three runs with only two written every time. You cannot predict which files come back changed. Strata touched **0.3** project files per run and wrote 46 lines to baseline's 201.
+
+**Where it does not hold:** stripejune is published with its failures intact. Both arms produce a build that does not run — baseline never wrote an entry point in one run, Strata shipped `bullmq@5.81.3` pinned beside `redis@4.7.1` in another, which cannot install. Both packages are model-chosen; Strata covers the webhook and nothing else there. That is the rule the whole board obeys: **the advantage tracks how much of the task the library actually covers.**
+
+### Cost, on a matched instrument
+
+| task | | turns | cost | quality |
+|---|---|---|---|---|
+| catalog | baseline | 31.3 | $0.190 | 70.8% |
+| | **Strata** | **15.0** | **$0.077** | **100%** |
+| idempotency | baseline | 27.7 | $0.175 | 52.4% |
+| | **Strata** | **21.7** | **$0.134** | **85.7%** |
+| stripejune | baseline | 48.7 | $0.406 | 16.7% |
+| | **Strata** | **43.7** | **$0.385** | **66.7%** |
+
+`n=3`, Claude Haiku 4.5, one model per cell. Cost is the least stable number here — it moves with the model, the prompt and the machine. The consistency figures need no such caveat.
+
+---
+
+### The earlier 60-run battery
+
+Everything below is a five-arm battery on a **different prompt instrument**. Its numbers are never averaged with the v1.1 cells above.
+
+<div align="center">
+  <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/assets/benchmark-dark.svg">
     <img src="docs/assets/benchmark-light.svg" alt="Quality against cost across 60 benchmark runs" width="760">
   </picture>
@@ -125,7 +168,9 @@ and a tool that always says yes is a tool you stop trusting.</sub>
 
 ### What it costs you
 
-**Strata is a cost premium per session** — +26% on haiku, +51% on sonnet. That premium is caused by reading, not writing: two thirds to four fifths of an agent bill is re-reading accumulated context, and a Strata session reads ~12–14k tokens of delivered implementation where a baseline reads ~1k. Work is underway to close it; it is not closed today.
+**This battery measured a cost premium** — +26% on haiku, +51% on sonnet — caused by reading rather than writing: most of an agent bill is re-reading accumulated context, and a session here read ~12–14k tokens of delivered implementation where a baseline read ~1k.
+
+**v1.1 removed it.** The implementation is now installed as a dependency instead of copied in as source, the unit-test layer is no longer shipped, and the delivery leads with the result of a verification run the engine already performed. On the same catalog task the premium became **0.40× baseline cost**. See the v1.1 figures above; the sentence about a premium describes this older battery only.
 
 **Roughly three quarters of the advantage is in defects you would not have noticed** — edge cases, timing, and correctness bugs that surface later as incidents. On defects you *would* notice, a plain model is already right 86.4% of the time. That is why `strata/verify.js` exists: it turns correctness into a list of named checks you can read.
 

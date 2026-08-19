@@ -202,6 +202,26 @@ function sh(cmd, args, opts) {
   const base = Object.assign({ encoding: 'utf-8', maxBuffer: 64 * 1024 * 1024 }, opts || {});
   if (process.platform !== 'win32') return spawnSync(cmd, args, base);
 
+  /**
+   * BENCH_DIRECT_SPAWN=1 — skip the shell entirely.
+   *
+   * The shell wrapper below exists for CVE-2024-27980: Node refuses to spawn a `.cmd` shim directly.
+   * But `claude` on this machine resolves to claude.EXE (confirmed from the command line of an orphaned
+   * agent), and an .exe needs no shell at all. The wrapper therefore adds a cmd.exe process between the
+   * harness and the agent — one more thing that can die and take the pipe with it, which is the shape
+   * of the exit-127 failures that have cost more of this project's time than any bug in the product.
+   *
+   * Kept behind a flag rather than swapped outright: the published battery ran through the shell path,
+   * and silently changing how every run is launched would make new numbers incomparable to old ones for
+   * a reason nobody would think to look for.
+   */
+  if (process.env.BENCH_DIRECT_SPAWN === '1') {
+    const exe = spawnSync('where', [cmd], { encoding: 'utf-8' });
+    const resolved = (exe.stdout || '').split(/\r?\n/).map(s => s.trim()).find(s => /\.exe$/i.test(s));
+    if (resolved) return spawnSync(resolved, args, Object.assign({ shell: false }, base));
+    // No .exe on PATH — fall through to the shell path rather than failing the run.
+  }
+
   const quoted = args.map(a => (/^[\w.@/:\\-]+$/.test(a) ? a : '"' + String(a).replace(/(["\\])/g, '\\$1') + '"'));
   return spawnSync(`${cmd} ${quoted.join(' ')}`, Object.assign({ shell: true }, base));
 }

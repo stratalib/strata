@@ -26,6 +26,7 @@
  */
 import { StrataGuide, Domain, DomainOperation } from './guide.js';
 import { RecallCheck } from './verifier.js';
+import { resolveKind, sampleBody, Route } from './guide-kinds.js';
 
 /** `POST /orders` → { method, path }. Returns null for a route we cannot parse. */
 function parseRoute(route: string | undefined): { method: string; path: string } | null {
@@ -35,78 +36,27 @@ function parseRoute(route: string | undefined): { method: string; path: string }
   return { method: m[1].toUpperCase(), path: m[2] };
 }
 
-/** JS literal for a minimal body that satisfies the domain's required, non-generated fields. */
-function sampleBody(domain: Domain): string {
-  const out: Record<string, unknown> = {};
-  for (const f of domain.fields ?? []) {
-    if (f.isId || f.generated) continue;
-    if (!f.required) continue;
-    if (f.enumValues?.length) { out[f.name] = f.enumValues[0]; continue; }
-    switch (f.type) {
-      case 'number':  out[f.name] = 1; break;
-      case 'boolean': out[f.name] = true; break;
-      case 'date':    out[f.name] = new Date().toISOString(); break;
-      default:        out[f.name] = `strata-probe`; break;
-    }
-  }
-  return JSON.stringify(out);
-}
+// sampleBody now lives in guide-kinds.ts, beside the kinds that need it. Two copies drifted once
+// already — this file's version had no `array` case, so a declared list produced a probe body the
+// generated validation rejected, and the check failed for a reason that had nothing to do with the
+// behaviour under test.
 
-interface Compiler {
-  id: string;
-  /** Does this guarantee read like the shape this compiler proves? */
-  match: RegExp;
-  build: (op: DomainOperation, domain: Domain, r: { method: string; path: string }) => RecallCheck | null;
+/** The universal floor: is anything serving this path at all? */
+function floorCheck(domain: Domain, op: DomainOperation, r: Route): RecallCheck {
+  return {
+    name: `${domain.entity}.${op.name}: ${r.method} ${r.path} is served`,
+    code: [
+      r.method === 'GET'
+        ? `const res = await get('${r.path}');`
+        : `const res = await post('${r.path}', ${JSON.stringify(sampleBody(domain))}, 'application/json');`,
+      // A 404 alone does not mean "unrouted": a parameterised path probed with a literal ":id" is SERVED
+      // and correctly answers 404 for a missing record. Express's unmatched-route 404 is HTML; a served
+      // handler's is JSON. That is the discriminator.
+      `const routed = res.status !== 404 || (res.body !== undefined && res.body !== null);`,
+      `assert(routed, '${r.method} ${r.path} returned an unrouted 404 (HTML, not JSON) — the guide declares this operation, and nothing serves it.');`,
+    ].join('\n'),
+  };
 }
-
-/**
- * The recognised shapes. Each compiler produces an assertion anchored on a POSITIVE outcome, because a
- * check that only asserts "not an error" passes against an app that never implemented the behaviour —
- * proven the hard way this morning, when unwiring a middleware left 3 of 4 new checks still green.
- */
-const COMPILERS: Compiler[] = [
-  {
-    id: 'idempotent-replay',
-    match: /retr(y|ied|ies).*(same|identical).*(key|request)|never.*duplicate|exactly.?once|at.?most.?once|returns the (original|stored|first)/i,
-    build: (op, domain, r) => {
-      if (r.method === 'GET') return null;
-      const body = sampleBody(domain);
-      return {
-        name: `${domain.entity}.${op.name}: a retried request with the same key does not create a second record`,
-        code: [
-          `const key = 'strata-guarantee-' + Date.now();`,
-          `const body = ${JSON.stringify(body)};`,
-          `const a = await post('${r.path}', body, 'application/json', { 'idempotency-key': key });`,
-          `assert(a.status >= 200 && a.status < 300, '${r.method} ${r.path} first call returned ' + a.status + ' — the declared operation must succeed before its guarantee can hold.');`,
-          `const b = await post('${r.path}', body, 'application/json', { 'idempotency-key': key });`,
-          `assert(b.status === a.status, 'a replay returned ' + b.status + ' but the original returned ' + a.status + '; the guide declares the retry returns the original response.');`,
-          `const idOf = (x) => x && x.body && (x.body.id ?? x.body._id ?? (x.body.data && x.body.data.id));`,
-          `if (idOf(a) !== undefined) assert(idOf(b) === idOf(a), 'the replay produced a DIFFERENT record (' + idOf(b) + ' vs ' + idOf(a) + ') — that is the duplicate the guarantee forbids.');`,
-        ].join('\n'),
-      };
-    },
-  },
-  {
-    id: 'endpoint-exists',
-    // Not a guarantee compiler — the floor. A declared operation whose route does not answer at all
-    // cannot have any of its guarantees hold, and saying so early makes every later failure readable.
-    match: /.*/,
-    build: (op, domain, r) => ({
-      name: `${domain.entity}.${op.name}: ${r.method} ${r.path} is served`,
-      code: [
-        r.method === 'GET'
-          ? `const res = await get('${r.path}');`
-          : `const res = await post('${r.path}', ${JSON.stringify(sampleBody(domain))}, 'application/json');`,
-        // A 404 alone does not mean "unrouted". A parameterised path probed with a literal ":id" is
-        // SERVED and correctly answers 404 for a record that does not exist — the first draft of this
-        // check read that as "nothing serves it" and failed a route that was working. The discriminator
-        // is the body: Express's unmatched-route 404 is HTML, a served handler's 404 is JSON.
-        `const routed = res.status !== 404 || (res.body !== undefined && res.body !== null);`,
-        `assert(routed, '${r.method} ${r.path} returned an unrouted 404 (HTML, not JSON) — the guide declares this operation, and nothing serves it.');`,
-      ].join('\n'),
-    }),
-  },
-];
 
 export interface GuideCheckResult {
   checks: RecallCheck[];
@@ -145,14 +95,23 @@ export function checksFromGuide(guide: StrataGuide | null, taskText: string): Gu
         continue;
       }
 
-      const floor = COMPILERS.find(c => c.id === 'endpoint-exists')!.build(op, domain, r);
-      if (floor) checks.push(floor);
+      // FLOOR: the route is served at all. Cheap, universal, and it makes every later failure
+      // readable — a transition that "fails" because nothing answers the path is a different bug from
+      // one that answers and does the wrong thing.
+      checks.push(floorCheck(domain, op, r));
 
-      if (!op.guarantees) continue;
-      const compiler = COMPILERS.find(c => c.id !== 'endpoint-exists' && c.match.test(op.guarantees!));
-      const built = compiler?.build(op, domain, r) ?? null;
+      // BEHAVIOURAL: whatever this operation's KIND knows how to prove. The kind owns both halves, so
+      // a generated behaviour and its proof cannot drift apart.
+      const { kind, meta } = resolveKind(domain, op, r);
+      const ctx = { domain, op, route: r, store: '', idField: domain.idField ?? 'id', meta };
+      const built = kind.check(ctx);
       if (built) checks.push(built);
-      else uncovered.push(`${domain.entity}.${op.name} — "${op.guarantees.slice(0, 80)}${op.guarantees.length > 80 ? '…' : ''}"`);
+      else {
+        // No proof — say so. A generated behaviour that nothing exercises must never pass in silence.
+        const gap = kind.checkGap?.(ctx);
+        if (gap) uncovered.push(gap);
+        else if (op.guarantees) uncovered.push(`${domain.entity}.${op.name} — "${op.guarantees.slice(0, 80)}${op.guarantees.length > 80 ? '…' : ''}"`);
+      }
     }
   }
 

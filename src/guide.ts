@@ -68,10 +68,21 @@ export interface Datastore {
 
 export interface DomainField {
   name: string;
-  type: string;            // "string" | "number" | "boolean" | "date" | "enum"
+  type: string;            // "string" | "number" | "boolean" | "date" | "enum" | "array"
   isId?: boolean;
   generated?: boolean;
   required?: boolean;
+  /**
+   * Value a new record starts with when the caller supplies none.
+   *
+   * Load-bearing for state fields. A transition declares which states it may run FROM; if a freshly
+   * created record has no state at all, every transition refuses it — measured, as a 409 from a
+   * cancelOrder whose order had `status: undefined` because `status` was not a required field and so
+   * nothing ever set it. Where this is absent for an enum, the generated store falls back to the FIRST
+   * enum member, which is the conventional lifecycle order (building/ready/promoted,
+   * pending/paid/cancelled, active/paused/cancelled) and is proven by the generated check either way.
+   */
+  default?: unknown;
   unique?: boolean;
   min?: number;
   minLength?: number;
@@ -109,6 +120,24 @@ export interface DomainOperation {
   guarantees?: string;
   /** e.g. "src/routes/orders.js" — must resolve (v1 fact-check). */
   implementedIn?: string;
+  /**
+   * A state transition, declared as DATA rather than left to be read out of prose.
+   *
+   * `on` is any field that carries state — an enum, a boolean flag, or a nullable timestamp; all three
+   * are common and picking one would make this serve a third of the cases it should. `to` is an enum
+   * member, true/false, or "now"/null. `idempotent` is the author's call and nothing else's: one
+   * company answers a repeated cancel with the current order, another with 409, and neither is derivable
+   * from the word "cancel".
+   *
+   * Optional. Without it the engine will try to compile the same information out of `requires` and
+   * `guarantees`, and will emit an INJECT slot rather than guess if it cannot.
+   */
+  transition?: {
+    on: string;
+    from?: string[];
+    to: string | boolean | null;
+    idempotent?: boolean;
+  };
   _note?: string;
 }
 

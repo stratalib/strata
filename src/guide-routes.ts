@@ -25,6 +25,7 @@
  * code that compiles, boots, passes a smoke test, and is quietly wrong.
  */
 import { StrataGuide, Domain, DomainOperation } from './guide.js';
+import { resolveKind, sampleBody, camel, Route } from './guide-kinds.js';
 
 export interface GuideRouteResult {
   /** Route code for the wiring template's {{ROUTES}} slot. */
@@ -47,27 +48,20 @@ function parseRoute(route?: string): { method: string; path: string } | null {
   return m ? { method: m[1].toUpperCase(), path: m[2] } : null;
 }
 
-const camel = (s: string) => s.charAt(0).toLowerCase() + s.slice(1);
-
 /**
- * What KIND of operation is this, from its method and path alone?
+ * The initial value of every field a new record does not carry.
  *
- * Deliberately shallow. The four shapes below are the ones whose semantics HTTP itself defines, so
- * generating them is transcription rather than invention. Anything else — /cancel, /approve, /refund —
- * carries meaning only the author knows, and gets a slot.
+ * Only two sources, both cheap to justify: an explicitly declared `default`, and — for an enum — its
+ * first member. Nothing else is invented; a string or number without a default simply stays absent.
  */
-type Kind = 'create' | 'list' | 'read' | 'update' | 'delete' | 'custom';
-function kindOf(method: string, p: string): Kind {
-  const hasParam = /:\w+/.test(p);
-  const trailing = p.split('/').filter(Boolean).pop() ?? '';
-  const verbSuffix = hasParam && !/^:\w+$/.test(trailing);
-  if (verbSuffix) return 'custom';
-  if (method === 'POST' && !hasParam) return 'create';
-  if (method === 'GET' && !hasParam) return 'list';
-  if (method === 'GET') return 'read';
-  if (method === 'PUT' || method === 'PATCH') return 'update';
-  if (method === 'DELETE') return 'delete';
-  return 'custom';
+function initialValues(domain: Domain): Record<string, unknown> {
+  const out: Record<string, unknown> = {};
+  for (const f of domain.fields ?? []) {
+    if (f.isId || f.generated) continue;
+    if (f.default !== undefined) { out[f.name] = f.default; continue; }
+    if (f.type === 'enum' && f.enumValues?.length) out[f.name] = f.enumValues[0];
+  }
+  return out;
 }
 
 /** The in-memory store backing a domain the project does not have a table for. */
@@ -93,8 +87,14 @@ function pick(input) {
   return out;
 }
 
+// Values a new record starts with. Declared defaults first; failing that, an enum field starts at its
+// FIRST member, which is how lifecycles are conventionally written (pending/paid/cancelled,
+// building/ready/promoted). Without this a record is created with no state at all, and every declared
+// transition refuses it — a 409 that looks like a business rule and is really a missing initial value.
+const DEFAULTS = ${JSON.stringify(initialValues(domain))};
+
 function create(input) {
-  const row = Object.assign({ ${id}: seq++ }, pick(input), { createdAt: new Date().toISOString() });
+  const row = Object.assign({ ${id}: seq++ }, DEFAULTS, pick(input), { createdAt: new Date().toISOString() });
   rows.push(row);
   return row;
 }
@@ -114,7 +114,14 @@ function update(id, patch) {
   return row;
 }
 
-module.exports = { create, list, get, update };
+function remove(id) {
+  const i = rows.findIndex((r) => String(r.${id}) === String(id));
+  if (i === -1) return false;
+  rows.splice(i, 1);
+  return true;
+}
+
+module.exports = { create, list, get, update, remove };
 `;
 }
 
@@ -130,38 +137,6 @@ function schemaLiteral(domain: Domain): string {
       return `    ${f.name}: { ${parts.join(', ')} },`;
     });
   return `{\n${entries.join('\n')}\n  }`;
-}
-
-function handlerFor(kind: Kind, domain: Domain, op: DomainOperation, r: { method: string; path: string }, store: string): string {
-  const id = domain.idField ?? 'id';
-  const notFound = `      if (!row) return res.status(404).json({ error: '${domain.entity} not found' });`;
-
-  switch (kind) {
-    case 'create':
-      return `      const created = ${store}.create(req.body || {});
-      res.status(201).json(created);`;
-    case 'list':
-      return `      res.json({ data: ${store}.list() });`;
-    case 'read':
-      return `      const row = ${store}.get(req.params.${id});
-${notFound}
-      res.json(row);`;
-    case 'update':
-      return `      const row = ${store}.update(req.params.${id}, req.body || {});
-${notFound}
-      res.json(row);`;
-    case 'delete':
-      return `      const row = ${store}.get(req.params.${id});
-${notFound}
-      res.status(204).end();`;
-    default:
-      // A custom verb carries meaning only the author knows. Generate the endpoint, load the record,
-      // and stop — the rule itself is a named slot, never a guess.
-      return `      const row = ${store}.get(req.params.${id});
-${notFound}
-      // INJECT: apply the rule for "${op.name}"${op.guarantees ? ` — the guide declares: ${op.guarantees.replace(/\s+/g, ' ').slice(0, 120)}` : ''}
-      res.json(row);`;
-  }
 }
 
 /**
@@ -199,23 +174,26 @@ export function routesFromGuide(
   }
 
   for (const op of ops) {
-    const r = parseRoute(op.route)!;
-    const kind = kindOf(r.method, r.path);
-    const validate = opts.hasValidation && (kind === 'create' || kind === 'update')
+    const r = parseRoute(op.route)! as Route;
+    // The registry decides what this operation IS. guide-routes no longer knows about kinds at all —
+    // adding the next one must never mean editing this loop.
+    const { kind, meta } = resolveKind(domain, op, r);
+    const ctx = { domain, op, route: r, store, idField: domain.idField ?? 'id', meta };
+    const validate = opts.hasValidation && (kind.id === 'create' || kind.id === 'update')
       ? `validateRequest(${schemaLiteral(domain)}), `
       : '';
-    blocks.push(`// ${domain.entity}.${op.name} — declared in strata.guide.json${op.guarantees ? `\n// guarantees: ${op.guarantees.replace(/\s+/g, ' ')}` : ''}
+    blocks.push(`// ${domain.entity}.${op.name} — declared in strata.guide.json (kind: ${kind.id})${op.guarantees ? `\n// guarantees: ${op.guarantees.replace(/\s+/g, ' ')}` : ''}
 app.${r.method.toLowerCase()}(
   '${r.path}',
   ${validate}async (req, res, next) => {
     try {
-${handlerFor(kind, domain, op, r, needsStore ? store : store)}
+${kind.handler(ctx)}
     } catch (err) {
       next(err);
     }
   },
 );`);
-    built.push(`${domain.entity}.${op.name} (${r.method} ${r.path})`);
+    built.push(`${domain.entity}.${op.name} (${r.method} ${r.path}) [${kind.id}]`);
   }
 
   const files = needsStore ? [{ rel: `${opts.sourceRoot ? opts.sourceRoot + '/' : ''}${storeRel}`, source: storeSource(domain) }] : [];

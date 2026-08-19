@@ -20,7 +20,35 @@
  */
 import fs from 'fs';
 import path from 'path';
+import os from 'os';
 import { GUIDE_SCHEMA, GUIDE_FILENAME, StrataGuide, Domain, DomainField, Datastore, Relation } from './guide.js';
+
+/**
+ * THE v1.2 GATE — off by default.
+ *
+ * Everything in this file and its two siblings (guide-routes, guide-kinds) is the v1.2 work: seeding a
+ * project map, resolving the task's entity from it, generating endpoints from declared operations, and
+ * compiling declared guarantees into checks. It is built and tested, but it is not what v1.1 ships.
+ *
+ * The gate exists because "inert unless you author a guide" was not true. `writeSeedIfAbsent` CREATES
+ * `strata.guide.json` in the user's project on the first call — a real, visible file appearing in
+ * someone's repo. An undisclosed write has the shape of an attack whatever the intent, and this project
+ * has been flagged for exactly that twice. A release whose changelog does not mention a file is a
+ * release that must not write one.
+ *
+ * Turn it on with STRATA_GUIDE=1 (or `guide: true` in ~/.strata/config.json) once v1.2 documents it.
+ * Reading an EXISTING guide for persistence adapters is untouched by this — that behaviour predates
+ * v1.1 and is already documented.
+ */
+export function guideV2Enabled(): boolean {
+  if (process.env.STRATA_GUIDE === '1') return true;
+  if (process.env.STRATA_GUIDE === '0') return false;
+  try {
+    const p = path.join(os.homedir(), '.strata', 'config.json');
+    if (!fs.existsSync(p)) return false;
+    return JSON.parse(fs.readFileSync(p, 'utf-8')).guide === true;
+  } catch { return false; }
+}
 import { extractEntities, Entity, EntityField, routePath } from './imprint/entities.js';
 import { detectProjectShape } from './imprint/project-shape.js';
 

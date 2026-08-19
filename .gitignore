@@ -8,6 +8,7 @@
 !/.npmignore
 !/LICENSE
 !/README.md
+!/CHANGELOG.md
 !/package.json
 !/tsconfig.json
 !/tsconfig.mcp.json

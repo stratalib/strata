@@ -39,7 +39,7 @@ import { detectProjectShape, mountWiring, appVarName, ProjectShape } from './imp
 import { buildVerifierScript } from './verifier.js';
 import { loadGuide, StrataGuide } from './guide.js';
 import { generateAdapters } from './guide-generate.js';
-import { writeSeedIfAbsent, entityFromGuide, guideBlockFor } from './guide-seed.js';
+import { writeSeedIfAbsent, entityFromGuide, guideBlockFor, guideV2Enabled } from './guide-seed.js';
 import { checksFromGuide } from './guide-checks.js';
 import { routesFromGuide, GuideRouteResult } from './guide-routes.js';
 import { appendUsageLog, hashProject } from './logger.js';
@@ -2461,10 +2461,14 @@ function buildVerifier(
 
   // Declared operations become checks HERE, alongside the recalls' own — one pipeline, one coverage
   // report, so a guide promise and a recall behaviour are held to the same standard.
+  // v1.2, gated off for the v1.1 release.
   let guideForChecks: StrataGuide | null = null;
+  const guideOn = guideV2Enabled();
   // strataDir is always <projectRoot>/strata, so the guide sits one level up. Threading projectDir
   // through the signature would touch every caller for a value already implied.
-  try { guideForChecks = loadGuide(path.dirname(strataDir)); } catch { /* malformed — reported by emitGuideAdapters */ }
+  if (guideOn) {
+    try { guideForChecks = loadGuide(path.dirname(strataDir)); } catch { /* malformed — reported by emitGuideAdapters */ }
+  }
   const guideChecks = checksFromGuide(guideForChecks, taskText);
 
   // A recall being SELECTED does not mean all of its capabilities were EMITTED. cache.ratelimit.v1
@@ -2854,7 +2858,8 @@ function buildWiring(
    */
   let guideGen: GuideRouteResult = { code: '', requires: [], files: [], built: [], skipped: [] };
   try {
-    const g = loadGuide(projectDir);
+    // v1.2, gated off for the v1.1 release — see guideV2Enabled().
+    const g = guideV2Enabled() ? loadGuide(projectDir) : null;
     guideGen = routesFromGuide(g, entity?.name ?? null, {
       sourceRoot: shape.sourceRoot || '',
       hasValidation: contributors.some(r => r.id === 'validation.request.v1'),
@@ -4176,10 +4181,14 @@ server.registerTool(
        * disclosed in the delivery like every other write; the rule against silent writes is about
        * undisclosed ones, and an undisclosed write has the shape of an attack whatever the intent.
        */
-      const seeded = writeSeedIfAbsent(dir);
+      // v1.2, gated OFF for the v1.1 release. Seeding CREATES a file in the user's project, and a
+      // release whose changelog does not mention a file must not write one.
+      const seeded = guideV2Enabled() ? writeSeedIfAbsent(dir) : null;
       if (seeded) console.error(`[strata] seeded ${seeded.path} — ${seeded.result.domainNames.join(', ')}`);
       let projectGuide: StrataGuide | null = null;
-      try { projectGuide = loadGuide(dir); } catch { /* malformed — emitGuideAdapters reports it */ }
+      if (guideV2Enabled()) {
+        try { projectGuide = loadGuide(dir); } catch { /* malformed — emitGuideAdapters reports it */ }
+      }
 
       /**
        * Guide first, crawl second. The crawl's scoring contest abstains whenever two entities are

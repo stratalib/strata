@@ -1,6 +1,6 @@
 {
   "name": "stratalib",
-  "version": "0.1.2",
+  "version": "1.1.0",
   "description": "StrataLib — MCP server for pre-built code patterns (recalls)",
   "main": "dist/src/mcp-server.js",
   "bin": {
@@ -12,6 +12,7 @@
     "dist/package.json",
     "templates/",
     "README.md",
+    "CHANGELOG.md",
     "LICENSE"
   ],
   "scripts": {

@@ -9,7 +9,7 @@
   <rect x="168" y="100" width="148.7" height="16" rx="4" fill="#3E97BD"/>
   <text x="156" y="112" text-anchor="end" fill="#8892A0" font-size="11" font-family="ui-monospace,monospace">Strata</text>
   <text x="326.7" y="112" fill="#E6EDF3" font-size="11.5" font-weight="600" font-family="ui-monospace,monospace">320k</text>
-  <text x="736" y="96" text-anchor="end" fill="#3E97BD" font-size="19" font-weight="700" font-family="ui-monospace,monospace">&minus;66%</text>
+  <text x="736" y="96" text-anchor="end" fill="#3E97BD" font-size="19" font-weight="700" font-family="ui-monospace,monospace">−66%</text>
   <text x="156" y="142" text-anchor="end" fill="#E6EDF3" font-size="12" font-weight="600" font-family="ui-monospace,monospace">turns</text>
   <rect x="168" y="152" width="442.0" height="16" rx="4" fill="#C4763F"/>
   <text x="156" y="164" text-anchor="end" fill="#8892A0" font-size="11" font-family="ui-monospace,monospace">without</text>
@@ -17,7 +17,7 @@
   <rect x="168" y="176" width="211.6" height="16" rx="4" fill="#3E97BD"/>
   <text x="156" y="188" text-anchor="end" fill="#8892A0" font-size="11" font-family="ui-monospace,monospace">Strata</text>
   <text x="389.6" y="188" fill="#E6EDF3" font-size="11.5" font-weight="600" font-family="ui-monospace,monospace">15.0</text>
-  <text x="736" y="172" text-anchor="end" fill="#3E97BD" font-size="19" font-weight="700" font-family="ui-monospace,monospace">&minus;52%</text>
+  <text x="736" y="172" text-anchor="end" fill="#3E97BD" font-size="19" font-weight="700" font-family="ui-monospace,monospace">−52%</text>
   <text x="156" y="218" text-anchor="end" fill="#E6EDF3" font-size="12" font-weight="600" font-family="ui-monospace,monospace">wall-clock time</text>
   <rect x="168" y="228" width="442.0" height="16" rx="4" fill="#C4763F"/>
   <text x="156" y="240" text-anchor="end" fill="#8892A0" font-size="11" font-family="ui-monospace,monospace">without</text>
@@ -25,5 +25,5 @@
   <rect x="168" y="252" width="146.5" height="16" rx="4" fill="#3E97BD"/>
   <text x="156" y="264" text-anchor="end" fill="#8892A0" font-size="11" font-family="ui-monospace,monospace">Strata</text>
   <text x="324.5" y="264" fill="#E6EDF3" font-size="11.5" font-weight="600" font-family="ui-monospace,monospace">63s</text>
-  <text x="736" y="248" text-anchor="end" fill="#3E97BD" font-size="19" font-weight="700" font-family="ui-monospace,monospace">&minus;67%</text>
+  <text x="736" y="248" text-anchor="end" fill="#3E97BD" font-size="19" font-weight="700" font-family="ui-monospace,monospace">−67%</text>
 </svg>

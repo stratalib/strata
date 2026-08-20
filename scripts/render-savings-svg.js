@@ -73,7 +73,7 @@ function render(t) {
     return `<text x="${M.l - 12}" y="${y + 4}" text-anchor="end" fill="${t.text}" font-size="12" font-weight="600" font-family="ui-monospace,monospace">${metric.label}</text>
   ${bar(bv, y + 14, t.base, 'without')}
   ${bar(sv, y + 38, t.accent, 'Strata')}
-  <text x="${W - 24}" y="${y + 34}" text-anchor="end" fill="${t.accent}" font-size="19" font-weight="700" font-family="ui-monospace,monospace">&minus;${cut}%</text>`;
+  <text x="${W - 24}" y="${y + 34}" text-anchor="end" fill="${t.accent}" font-size="19" font-weight="700" font-family="ui-monospace,monospace">−${cut}%</text>`;
   }).join('\n  ');
 
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="On one backend task: ${Math.round((1 - s.tokens / b.tokens) * 100)} percent fewer tokens, ${Math.round((1 - s.turns / b.turns) * 100)} percent fewer turns, ${Math.round((1 - s.secs / b.secs) * 100)} percent less wall-clock time.">
@@ -87,6 +87,15 @@ function render(t) {
 
 const light = render({ bg: '#FFFFFF', grid: 'rgba(17,17,18,0.07)', text: '#17191B', dim: '#5C6469', accent: '#2A7FA8', base: '#B8622E' });
 const dark  = render({ bg: '#0B0F14', grid: 'rgba(255,255,255,0.06)', text: '#E6EDF3', dim: '#8892A0', accent: '#3E97BD', base: '#C4763F' });
+
+// SVG is parsed as XML, which defines only amp/lt/gt/quot/apos. An HTML entity like &minus; is a
+// parse error, and the browser's only symptom is a broken image — the file still serves 200 with the
+// right mime type. Use literal characters and assert it here rather than discover it on the page.
+for (const svg of [light, dark]) {
+  const bad = [...new Set([...svg.matchAll(/&([a-zA-Z][a-zA-Z0-9]*);/g)].map(m => m[1]))]
+    .filter(e => !['amp', 'lt', 'gt', 'quot', 'apos'].includes(e));
+  if (bad.length) throw new Error('entity not defined in XML: &' + bad.join('; &') + ';');
+}
 
 fs.writeFileSync(path.join(ROOT, 'docs', 'assets', 'savings-light.svg'), light);
 fs.writeFileSync(path.join(ROOT, 'docs', 'assets', 'savings-dark.svg'), dark);

@@ -1,0 +1,86 @@
+{
+  "idempotency-baseline-haiku-1": {
+    "passed": 1,
+    "total": 7,
+    "suiteHash": "c06cc9edbd6fbc2b",
+    "unmeasurable": null,
+    "failing": "I1-create-works,I2-replay-deduplicates,I3-same-key-different-body,I4-malformed-json,I5-validation-rejects-bad-body,I6-concurrent-duplicate"
+  },
+  "idempotency-baseline-haiku-2": {
+    "passed": 5,
+    "total": 7,
+    "suiteHash": "c06cc9edbd6fbc2b",
+    "unmeasurable": null,
+    "failing": "I3-same-key-different-body,I4-malformed-json"
+  },
+  "idempotency-baseline-haiku-3": {
+    "passed": 5,
+    "total": 7,
+    "suiteHash": "c06cc9edbd6fbc2b",
+    "unmeasurable": null,
+    "failing": "I3-same-key-different-body,I4-malformed-json"
+  },
+  "idempotency-strata-haiku-1": {
+    "passed": 6,
+    "total": 7,
+    "suiteHash": "c06cc9edbd6fbc2b",
+    "unmeasurable": null,
+    "failing": "I5-validation-rejects-bad-body"
+  },
+  "idempotency-strata-haiku-2": {
+    "passed": 6,
+    "total": 7,
+    "suiteHash": "c06cc9edbd6fbc2b",
+    "unmeasurable": null,
+    "failing": "I5-validation-rejects-bad-body"
+  },
+  "idempotency-strata-haiku-3": {
+    "passed": 6,
+    "total": 7,
+    "suiteHash": "c06cc9edbd6fbc2b",
+    "unmeasurable": null,
+    "failing": "I5-validation-rejects-bad-body"
+  },
+  "stripejune-baseline-haiku-1": {
+    "passed": 0,
+    "total": 8,
+    "suiteHash": "c06cc9edbd6fbc2b",
+    "unmeasurable": null,
+    "failing": "P1-webhook-accepts-valid-signature,P2-unsigned-rejected,P3-forged-signature-rejected,P4-raw-body-verification,P5-replay-window-enforced,P6-duplicate-event-once,P7-webhook-answers-promptly,P8-no-secret-or-stack-leak"
+  },
+  "stripejune-baseline-haiku-2": {
+    "passed": 0,
+    "total": 8,
+    "suiteHash": "c06cc9edbd6fbc2b",
+    "unmeasurable": null,
+    "failing": "P1-webhook-accepts-valid-signature,P2-unsigned-rejected,P3-forged-signature-rejected,P4-raw-body-verification,P5-replay-window-enforced,P6-duplicate-event-once,P7-webhook-answers-promptly,P8-no-secret-or-stack-leak"
+  },
+  "stripejune-baseline-haiku-3": {
+    "passed": 4,
+    "total": 8,
+    "suiteHash": "c06cc9edbd6fbc2b",
+    "unmeasurable": null,
+    "failing": "P1-webhook-accepts-valid-signature,P4-raw-body-verification,P6-duplicate-event-once,P7-webhook-answers-promptly"
+  },
+  "stripejune-strata-haiku-1": {
+    "passed": 0,
+    "total": 8,
+    "suiteHash": "c06cc9edbd6fbc2b",
+    "unmeasurable": null,
+    "failing": "P1-webhook-accepts-valid-signature,P2-unsigned-rejected,P3-forged-signature-rejected,P4-raw-body-verification,P5-replay-window-enforced,P6-duplicate-event-once,P7-webhook-answers-promptly,P8-no-secret-or-stack-leak"
+  },
+  "stripejune-strata-haiku-2": {
+    "passed": 8,
+    "total": 8,
+    "suiteHash": "c06cc9edbd6fbc2b",
+    "unmeasurable": null,
+    "failing": ""
+  },
+  "stripejune-strata-haiku-3": {
+    "passed": 8,
+    "total": 8,
+    "suiteHash": "c06cc9edbd6fbc2b",
+    "unmeasurable": null,
+    "failing": ""
+  }
+}

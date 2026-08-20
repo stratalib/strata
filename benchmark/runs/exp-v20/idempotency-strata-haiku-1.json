@@ -1,0 +1,42 @@
+{
+  "task": "idempotency",
+  "mode": "brownfield",
+  "arm": "strata",
+  "run": 1,
+  "model": "haiku",
+  "strataBuild": "13905dc79767",
+  "ok": true,
+  "turns": 19,
+  "inputTokens": 81,
+  "outputTokens": 2559,
+  "cacheReadTokens": 409942,
+  "costUsd": 0.13424119999999998,
+  "wallMs": 63618,
+  "dir": "C:\\Users\\eymen\\AppData\\Local\\Temp\\bench-OVc2wt",
+  "strataCalls": 1,
+  "armValid": true,
+  "synthetic": false,
+  "deliveredRecalls": [
+    "observability.logging.v1",
+    "api.idempotency.v1",
+    "validation.request.v1"
+  ],
+  "verifyResult": "16/16 checks passed",
+  "diagnosis": {
+    "toolSearchFired": true,
+    "strataUseFired": true,
+    "hubComposed": false,
+    "hubUnreachableFellBackLocal": false,
+    "hubDeclined": false,
+    "verifyRan": true,
+    "bodyParserBugLanguage": false
+  },
+  "finalSummary": "Excellent. Now let me document what was delivered and verify the idempotency mechanism works end-to-end:\n\n## Summary\n\nYou now have a fully functional idempotent order system. Here's what was implemented:\n\n### **Three core endpoints** (`src/strata-wiring.js:63-112`):\n\n1. **POST /orders** — Creates an order. The Idempotency-Key header prevents duplicate orders on retries.\n   - Validates that `userId` and `items` are present\n   - Computes `totalCents` server-side from live Product prices (never trusts client input)\n   - Returns the original order unchanged if the same Idempotency-Key appears twice\n\n2. **GET /orders** — Lists all orders, most recent first\n\n3. **POST /orders/:id/cancel** — Cancels an order idempotently\n   - Returns the order unchanged if already cancelled\n   - Rejects with 409 if the order is not in \"pending\" status\n\n### **Idempotency mechanism** (`strata-composed`):\n\nThe idempotency middleware intercepts every POST/PUT/PATCH request and:\n- Extracts the `Idempotency-Key` header\n- Creates a fingerprint of the request method + path + body\n- On first request: calls your handler and caches the response\n- On retry with same key: returns the cached response instead of re-executing\n\nThe store is in-memory with a 24-hour TTL (configurable via `IDEMPOTENCY_TTL_MS` env var). For a distributed system, you'd swap it with a Redis adapter — the interface stays the same.\n\n### **Request validation** (`validateRequest`):\n\nEvery request body is validated before it reaches your handler:\n- Required fields are checked\n- Type checking (string, number, array, date)\n- Enum validation (status must be one of: pending, paid, cancelled)\n- Returns a 422 error with details if validation fails — no stack trace leaks to the client\n\n### **Logging** (`requestLogger` and `errorLogger`):\n\nEvery request attempt is logged with:\n- Correlation ID (reused if `x-request-id` is present, generated otherwise)\n- Method, path, status, response time\n- Sensitive data (Authorization headers, passwords i",
+  "verifyPresent": true,
+  "work": {
+    "filesAdded": 9,
+    "entryBytes": 478,
+    "attempted": true
+  },
+  "fileCount": 16
+}

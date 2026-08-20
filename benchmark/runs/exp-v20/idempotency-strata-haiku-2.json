@@ -1,0 +1,42 @@
+{
+  "task": "idempotency",
+  "mode": "brownfield",
+  "arm": "strata",
+  "run": 2,
+  "model": "haiku",
+  "strataBuild": "13905dc79767",
+  "ok": true,
+  "turns": 28,
+  "inputTokens": 123,
+  "outputTokens": 5188,
+  "cacheReadTokens": 850466,
+  "costUsd": 0.17896060000000003,
+  "wallMs": 120833,
+  "dir": "C:\\Users\\eymen\\AppData\\Local\\Temp\\bench-ZD7mmw",
+  "strataCalls": 1,
+  "armValid": true,
+  "synthetic": false,
+  "deliveredRecalls": [
+    "observability.logging.v1",
+    "api.idempotency.v1",
+    "validation.request.v1"
+  ],
+  "verifyResult": "16/16 checks passed",
+  "diagnosis": {
+    "toolSearchFired": true,
+    "strataUseFired": true,
+    "hubComposed": false,
+    "hubUnreachableFellBackLocal": false,
+    "hubDeclined": false,
+    "verifyRan": true,
+    "bodyParserBugLanguage": false
+  },
+  "finalSummary": "Perfect. The implementation is complete and verified. Here's what has been implemented:\n\n## Summary\n\n**Idempotent order creation with request validation and logging** is now fully implemented and tested. Here's what was delivered:\n\n### Core Features\n\n1. **Idempotency Protection** — Client retries with the same `Idempotency-Key` header return the original response, never duplicate orders:\n   - Same key + same request = replayed response (2xx or 4xx cached)\n   - Same key + different request = rejected with 422 (prevents silent key reuse bugs)\n   - Same key + concurrent request = 409 (prevents parallel execution)\n   - Server errors (5xx) do NOT get cached — client can retry\n\n2. **Request Validation** — All POST /orders requests validated before hitting the handler:\n   - Required fields: `userId` (string), `items` (array)\n   - Optional fields: `totalCents` (number), `status` (enum: pending/paid/cancelled), `createdAt` (date)\n   - Invalid requests return 400 with detailed error list\n\n3. **Structured Logging** — Every request attempt is logged with:\n   - Correlation ID (x-request-id) for tracing across services\n   - Request/response metadata (method, URL, status, duration)\n   - Automatic credential redaction (passwords, tokens, API keys, auth headers)\n   - Separate levels for success (info), client errors (warn), server errors (error)\n\n### API Endpoints\n\n- **POST /orders** — Create an order (idempotency-key guard active)\n- **GET /orders** — List all orders\n- **POST /orders/:id/cancel** — Cancel an order (idempotent transition)\n\n### Design Decisions\n\n- **In-memory store** with bounded size and LRU eviction — point it at a database later by editing `src/data/orderStore.js`\n- **Idempotency TTL**: 24 hours (configurable via `IDEMPOTENCY_TTL_MS` env var)\n- **Key length limit**: 255 chars (guards against malicious bloat)\n- **Opt-in per-request**: idempotency applies when client sends `Idempotency-Key` header; requests without it pass through normally\n\nAll 16 verification checks",
+  "verifyPresent": true,
+  "work": {
+    "filesAdded": 10,
+    "entryBytes": 478,
+    "attempted": true
+  },
+  "fileCount": 17
+}

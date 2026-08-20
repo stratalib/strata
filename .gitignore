@@ -40,20 +40,30 @@ Thumbs.db
 !/scripts/mutation-sweep.js
 !/scripts/render-banner-svg.js
 !/scripts/render-benchmark-svg.js
+!/scripts/render-consistency-svg.js
+!/scripts/render-savings-svg.js
 !/scripts/sync-gitignore.js
 !/scripts/test-claude-preset.js
 !/scripts/test-selection.js
 
-# ── docs: the writeup and its generated charts ──
+# ── docs: the writeup, its charts, and the superseded battery ──
 /docs/*
 !/docs/BENCHMARK.md
+!/docs/archive/
 !/docs/assets/
 /docs/assets/*
 !/docs/assets/banner.svg
 !/docs/assets/benchmark-dark.svg
 !/docs/assets/benchmark-light.svg
+!/docs/assets/consistency-dark.svg
+!/docs/assets/consistency-light.svg
+!/docs/assets/savings-dark.svg
+!/docs/assets/savings-light.svg
 
 # ── benchmark: the current battery only ──
+# Run RECORDS ship — every number on the published board is recomputed from these 24 files, and a
+# board nobody can recompute is a board you have to take on trust. Output TREES do not ship: they
+# carry node_modules, and on Strata arms the delivered module source, which lives only on the hub.
 /benchmark/*
 !/benchmark/quality/
 !/benchmark/fixtures/
@@ -64,6 +74,19 @@ Thumbs.db
 
 /benchmark/runs/*
 !/benchmark/runs/exp-quality/
+
+# The v1.1 battery. Records only — every number on the published board is recomputed from these, and
+# a board nobody can recompute is one you have to take on trust. The output trees stay out: they are
+# node_modules plus, on Strata arms, delivered module source that lives only on the hub.
+!/benchmark/runs/exp-v12/
+!/benchmark/runs/exp-v20/
+!/benchmark/runs/exp-v22/
+/benchmark/runs/exp-v12/*
+/benchmark/runs/exp-v20/*
+/benchmark/runs/exp-v22/*
+!/benchmark/runs/exp-v12/*.json
+!/benchmark/runs/exp-v20/*.json
+!/benchmark/runs/exp-v22/*.json
 
 # Module source is delivered from the hub at call time and is never published.
 # These are the paths it lands in inside an output tree.

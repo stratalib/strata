@@ -19,7 +19,9 @@ command that boots the app and exercises every requirement against a live server
 
 [![version](https://img.shields.io/badge/v1.1-5EE7FF?style=flat-square)](CHANGELOG.md)
 [![consistency](https://img.shields.io/badge/run--to--run%20spread-0.0%20pts-7CF29A?style=flat-square)](docs/BENCHMARK.md)
-[![cost](https://img.shields.io/badge/catalog-0.40%C3%97%20cost-7CF29A?style=flat-square)](docs/BENCHMARK.md)
+[![tokens](https://img.shields.io/badge/tokens-%E2%88%9266%25-7CF29A?style=flat-square)](docs/BENCHMARK.md)
+[![turns](https://img.shields.io/badge/turns-%E2%88%9252%25-7CF29A?style=flat-square)](docs/BENCHMARK.md)
+[![latency](https://img.shields.io/badge/wall--clock-3%C3%97%20faster-7CF29A?style=flat-square)](docs/BENCHMARK.md)
 [![assertions](https://img.shields.io/badge/adversarial%20assertions-1%2C264-F5C96A?style=flat-square)](docs/BENCHMARK.md)
 [![gates](https://img.shields.io/badge/admission%20gates-6-E6EDF3?style=flat-square)](#admission-gates)
 
@@ -89,7 +91,106 @@ and a tool that always says yes is a tool you stop trusting.</sub>
 
 ---
 
-## Benchmark
+## The numbers
+
+<div align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/savings-dark.svg">
+    <img src="docs/assets/savings-light.svg" alt="Same task, same model: 66% fewer tokens, 52% fewer turns, 67% less wall-clock time." width="760">
+  </picture>
+</div>
+
+<div align="center">
+
+| | without Strata | **with Strata** | |
+|---|---|---|---|
+| **tokens** | 950,011 | **319,604** | **−66%** |
+| **turns** | 31.3 | **15.0** | **−52%** |
+| **wall-clock** | 190s | **63s** | **3× faster** |
+| **cost** | $0.190 | **$0.077** | **−59%** |
+| **checks passed** | 70.8% | **100%** | |
+
+</div>
+
+One backend task — a product API with pagination, per-IP rate limiting and request logging. Claude Haiku 4.5, three runs per arm, mean. **Every number is lower and the quality is higher.**
+
+Tokens are the whole session: input, output and the cached context re-read on every turn. Across all 18 runs in this battery, **98–99% of a session's tokens are that re-read context** — output is under 2%. So output length is not the lever; turns are, and fewer turns is the same thing as fewer tokens is the same thing as less money.
+
+---
+
+## What the failed checks actually were
+
+A score is easy to wave away. These are the failures themselves, re-graded from the archived trees. Every one is code that runs, answers 200-or-201, and looks finished.
+
+### A malformed request returns your stack trace
+
+One request with a truncated body. **Both apps answered 400 — only one of them is safe.**
+
+<table>
+<tr><th align="left" width="50%">without Strata</th><th align="left" width="50%">with Strata</th></tr>
+<tr valign="top"><td>
+
+```html
+<!DOCTYPE html>
+<html lang="en"><head><title>Error</title></head>
+<body>
+<pre>SyntaxError: Unexpected end of JSON input
+    at JSON.parse (&lt;anonymous&gt;)
+    at parse (C:\Users\...\node_modules\body-parser
+              \lib\types\json.js:96:19)
+    at C:\Users\...\body-parser\lib\read.js:128:18
+    at AsyncResource.runInAsyncScope (node:async_...
+```
+
+HTML from a JSON API, the parser's internals, and **absolute paths from your server's filesystem** — handed to whoever sent the bad byte.
+
+</td><td>
+
+```json
+{
+  "error": "malformed JSON in request body",
+  "details": [
+    { "field": "body",
+      "message": "could not be parsed as JSON" }
+  ]
+}
+```
+
+The same 400, in the same envelope as every other error, telling the caller what to fix and nothing else.
+
+</td></tr>
+</table>
+
+**Failed in 6 of 6 unaided runs, across both tasks. Passed in 6 of 6 with Strata.** The grader records it as `LEAKS STACK TRACE`; nothing in the session's own output mentions it.
+
+### A retried order with a different body was accepted anyway
+
+```
+POST /orders   Idempotency-Key: k-1   {"items":[ A ]}   →   201 Created
+POST /orders   Idempotency-Key: k-1   {"items":[ B ]}   →   200 OK   ← order A returned
+```
+
+That is the subtle half of idempotency, and the half a naive implementation misses entirely. The client asked for a **different** order and was told its request succeeded. Nothing errors, nothing logs. Order B simply never exists, and the caller holds a 200 saying it does. The correct answer is 409 or 422.
+
+**Failed in 3 of 3 unaided runs. Passed in 3 of 3 with Strata.**
+
+### The API ignored the page size it was asked for
+
+```
+GET /products?limit=5   →   200 OK, 10 items
+```
+
+Pagination that returns whatever it likes. Nothing errors, nothing logs, and the bug reaches whoever consumes that endpoint. One unaided run in three.
+
+### The database schema was edited, unasked
+
+The task was *"if a client retries the same order request it should not create two orders."* It never mentions the data model. One unaided run in three rewrote **`prisma/schema.prisma`**; no Strata run touched it.
+
+The wider problem is that you cannot predict which files come back changed. Across three runs of the same prompt, the unaided arm touched **six different files — and only three of them in every run**. Strata touched the same ten files in all three runs: an identical footprint, run to run.
+
+---
+
+## Run it three times. Get the same answer three times.
 
 <div align="center">
   <picture>
@@ -98,85 +199,33 @@ and a tool that always says yes is a tool you stop trusting.</sub>
   </picture>
 </div>
 
-Run one task three times with one model. The interesting question is not *"was it good"* — it is **"was it the same"**.
-
 | task | without Strata | **with Strata** |
 |---|---|---|
-| catalog | 63%, 75%, 75% | **100%, 100%, 100%** |
-| idempotency | **14%**, 71%, 71% | **100%, 100%, 100%** |
-| stripejune | 0%, 0%, 50% | 0%, 100%, 100% |
+| product API | 63%, 75%, 75% | **100%, 100%, 100%** |
+| idempotent orders | **14%**, 71%, 71% | **100%, 100%, 100%** |
+| payments + queue | 0%, 0%, 50% | 0%, 100%, 100% |
 
-On the two tasks the library covers well, **every Strata run returns the identical score** — a run-to-run spread of 0.0 points against baseline's 26.9 on idempotency. Strata does not beat the ceiling; a good baseline run reaches 86% at best. It reaches it *every time*.
+**Zero variance on the tasks the library covers.** Three runs of the same prompt return the same score, three times out of three — against a spread of 26.9 points without it.
 
-That 14% is not a grading artefact — it repeats on re-grade. The session invented an order API whose create endpoint rejected every request shape the grader tried, and since everything else depends on creating an order, five checks collapsed at once. **A cliff, not a slightly worse result**, and nothing in the session's own output says it happened.
-
-Baseline also edited `prisma/schema.prisma` — the database schema — in two of three runs, on a task that never mentions the data model, and touched six different files across three runs with only two written every time. You cannot predict which files come back changed. Strata touched **0.3** project files per run and wrote 46 lines to baseline's 201.
-
-**Where it does not hold:** stripejune is published with its failures intact. Both arms produce a build that does not run — baseline never wrote an entry point in one run, Strata shipped `bullmq@5.81.3` pinned beside `redis@4.7.1` in another, which cannot install. Both packages are model-chosen; Strata covers the webhook and nothing else there. That is the rule the whole board obeys: **the advantage tracks how much of the task the library actually covers.**
-
-### Cost, on a matched instrument
-
-| task | | turns | cost | quality |
-|---|---|---|---|---|
-| catalog | baseline | 31.3 | $0.190 | 70.8% |
-| | **Strata** | **15.0** | **$0.077** | **100%** |
-| idempotency | baseline | 27.7 | $0.175 | 52.4% |
-| | **Strata** | **24.0** | **$0.158** | **100%** |
-| stripejune | baseline | 48.7 | $0.406 | 16.7% |
-| | **Strata** | **43.7** | **$0.385** | **66.7%** |
-
-`n=3`, Claude Haiku 4.5, one model per cell. Cost is the least stable number here — it moves with the model, the prompt and the machine. The consistency figures need no such caveat.
+That **14%** is not a grading artefact; it repeats on re-grade. That session invented an order API whose create endpoint rejected every request shape it was sent, and because everything else depends on creating an order, five checks collapsed at once. **A cliff, not a slightly worse result** — and nothing in the session's own output says it happened.
 
 ---
 
-### The earlier 60-run battery
+## Where it does not help
 
-Everything below is a five-arm battery on a **different prompt instrument**. Its numbers are never averaged with the v1.1 cells above.
+**Payments is on the board with its failures intact.** Both arms shipped a build that does not run: one unaided run never wrote an entry point, and one Strata run pinned `bullmq@5.81.3` beside an incompatible `redis@4.7.1`, which cannot install. Both packages are the model's choice — Strata covers the webhook and nothing else on that task, and the cost ratio lands at 0.95×, a wash.
 
-<div align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/benchmark-dark.svg">
-    <img src="docs/assets/benchmark-light.svg" alt="Quality against cost across 60 benchmark runs" width="760">
-  </picture>
-</div>
+That is the rule the whole board obeys: **the advantage tracks how much of the task the library covers.** Where coverage is high the numbers above hold. Where it is one capability out of four, Strata is roughly free and roughly neutral.
 
-60 full agent sessions: four backend tasks, five arms, three runs each. Checks were frozen and published before the first run, every check carries a negative control proving it can fail, and every output tree is archived. Delivered module source is not published — modules live in the hub and reach a project at call time.
+**Strata also declines outright** when a task is below the point where composing beats writing — about a third of the time.
 
-### Did it work the first time?
+### Method
 
-| Arm | Worked first try | Wall time | Cost / run | Cost of one working feature |
-|---|---|---|---|---|
-| haiku | **0 / 11** — 0% | 5.1 min | $0.22 | **never produced one** |
-| **haiku + Strata** | **6 / 12** — 50% | **3.6 min** | $0.27 | **$0.53** |
-| sonnet | 2 / 11 — 18% | 4.4 min | $1.07 | $5.88 |
-| **sonnet + Strata** | **10 / 12** — 83% | 6.1 min | $1.62 | **$1.94** |
-| opus | 3 / 12 — 25% | 5.2 min | $1.33 | $5.33 |
+Checks were written from the task prompt alone and frozen before the first run. Every check has a negative control proving it can fail. Grading is a separate suite — never `strata/verify.js`, which Strata generates and which would be marking its own homework. Every output tree is archived.
 
-"Worked first try" = every pre-registered check for that task passed, with no second attempt. Plain haiku is the cheapest per run and produced nothing that fully worked in eleven attempts.
+`n=3`, Claude Haiku 4.5, one model per cell. Nothing here speaks to Sonnet or Opus. Cost and token figures move with the model and the prompt; the consistency figures do not.
 
-### Share of checks passed
-
-| Arm | Catalog | Idempotency | Payments | Retry | Average |
-|---|---|---|---|---|---|
-| haiku | 70.8% | 66.7% | 29.2% | 85.7% | **63.1%** |
-| **haiku + Strata** | 87.5% | 85.7% | 100% | 95.2% | **92.1%** |
-| sonnet | 62.5% | 85.7% | 95.8% | 64.3% | **77.1%** |
-| **sonnet + Strata** | 100% | 100% | 95.8% | 95.2% | **97.8%** |
-| opus | 75.0% | 90.5% | 75.0% | 95.2% | **83.9%** |
-
-**Two checks were failed by every baseline run at every tier and passed by every Strata run** — a rate limiter whose window never refills (baseline 0/9, Strata 6/6) and a malformed request that returns a stack trace to the caller (0/9, 6/6). haiku 0/3, sonnet 0/3, opus 0/3 on both. A larger model fixed neither.
-
-### What it costs you
-
-**This battery measured a cost premium** — +26% on haiku, +51% on sonnet — caused by reading rather than writing: most of an agent bill is re-reading accumulated context, and a session here read ~12–14k tokens of delivered implementation where a baseline read ~1k.
-
-**v1.1 removed it.** The implementation is now installed as a dependency instead of copied in as source, the unit-test layer is no longer shipped, and the delivery leads with the result of a verification run the engine already performed. On the same catalog task the premium became **0.40× baseline cost**. See the v1.1 figures above; the sentence about a premium describes this older battery only.
-
-**Roughly three quarters of the advantage is in defects you would not have noticed** — edge cases, timing, and correctness bugs that surface later as incidents. On defects you *would* notice, a plain model is already right 86.4% of the time. That is why `strata/verify.js` exists: it turns correctness into a list of named checks you can read.
-
-Full methodology, per-run scores, the visible/invisible split and every instrument defect found along the way: [`docs/BENCHMARK.md`](docs/BENCHMARK.md).
-
----
+Full method, per-run scores and every instrument defect found along the way: [`docs/BENCHMARK.md`](docs/BENCHMARK.md).
 
 ## Quick start
 
@@ -260,7 +309,7 @@ The adversarial gate is the one that matters. Every hand-written module in this 
 | `src/` | MCP server: project reading, selection, composition, verifier generation |
 | `bin/` | CLI entry point |
 | `templates/` | Express skeleton used during composition |
-| `benchmark/` | The 60-run quality battery, pre-registered suites, negative controls, archived output trees |
+| `benchmark/` | Pre-registered check suites, negative controls, run records and archived output trees |
 | `scripts/` | Admission gates, library indexing, selection tests |
 
 Modules are served from the hub; the task text is the only thing sent. Your source, schema and files stay on your machine.
@@ -268,7 +317,8 @@ Modules are served from the hub; the task text is the only thing sent. Your sour
 
 | Document | Subject |
 |---|---|
-| [`docs/BENCHMARK.md`](docs/BENCHMARK.md) | The 60-run benchmark: method, board, and every instrument defect found |
+| [`docs/BENCHMARK.md`](docs/BENCHMARK.md) | The full benchmark: method, per-run scores, and every instrument defect found |
+| [`CHANGELOG.md`](CHANGELOG.md) | What shipped in each release |
 
 ---
 

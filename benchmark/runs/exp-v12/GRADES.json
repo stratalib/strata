@@ -1,0 +1,38 @@
+{
+  "catalog-baseline-haiku-1": {
+    "passed": 5,
+    "total": 8,
+    "suiteHash": "c06cc9edbd6fbc2b",
+    "unmeasurable": null
+  },
+  "catalog-baseline-haiku-2": {
+    "passed": 6,
+    "total": 8,
+    "suiteHash": "c06cc9edbd6fbc2b",
+    "unmeasurable": null
+  },
+  "catalog-baseline-haiku-3": {
+    "passed": 6,
+    "total": 8,
+    "suiteHash": "c06cc9edbd6fbc2b",
+    "unmeasurable": null
+  },
+  "catalog-strata-haiku-1": {
+    "passed": 8,
+    "total": 8,
+    "suiteHash": "c06cc9edbd6fbc2b",
+    "unmeasurable": null
+  },
+  "catalog-strata-haiku-2": {
+    "passed": 8,
+    "total": 8,
+    "suiteHash": "c06cc9edbd6fbc2b",
+    "unmeasurable": null
+  },
+  "catalog-strata-haiku-3": {
+    "passed": 8,
+    "total": 8,
+    "suiteHash": "c06cc9edbd6fbc2b",
+    "unmeasurable": null
+  }
+}

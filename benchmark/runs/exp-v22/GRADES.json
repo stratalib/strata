@@ -1,0 +1,44 @@
+{
+  "idempotency-strata-haiku-1": {
+    "passed": 7,
+    "total": 7,
+    "suiteHash": "c06cc9edbd6fbc2b",
+    "unmeasurable": null,
+    "failing": ""
+  },
+  "idempotency-strata-haiku-2": {
+    "passed": 7,
+    "total": 7,
+    "suiteHash": "c06cc9edbd6fbc2b",
+    "unmeasurable": null,
+    "failing": ""
+  },
+  "idempotency-strata-haiku-3": {
+    "passed": 7,
+    "total": 7,
+    "suiteHash": "c06cc9edbd6fbc2b",
+    "unmeasurable": null,
+    "failing": ""
+  },
+  "idempotency-baseline-haiku-1": {
+    "passed": 1,
+    "total": 7,
+    "suiteHash": "c06cc9edbd6fbc2b",
+    "unmeasurable": null,
+    "failing": "I1-create-works,I2-replay-deduplicates,I3-same-key-different-body,I4-malformed-json,I5-validation-rejects-bad-body,I6-concurrent-duplicate"
+  },
+  "idempotency-baseline-haiku-2": {
+    "passed": 5,
+    "total": 7,
+    "suiteHash": "c06cc9edbd6fbc2b",
+    "unmeasurable": null,
+    "failing": "I3-same-key-different-body,I4-malformed-json"
+  },
+  "idempotency-baseline-haiku-3": {
+    "passed": 5,
+    "total": 7,
+    "suiteHash": "c06cc9edbd6fbc2b",
+    "unmeasurable": null,
+    "failing": "I3-same-key-different-body,I4-malformed-json"
+  }
+}

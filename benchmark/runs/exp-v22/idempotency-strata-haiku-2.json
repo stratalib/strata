@@ -1,0 +1,42 @@
+{
+  "task": "idempotency",
+  "mode": "brownfield",
+  "arm": "strata",
+  "run": 2,
+  "model": "haiku",
+  "strataBuild": "6acc59b77201",
+  "ok": true,
+  "turns": 34,
+  "inputTokens": 153,
+  "outputTokens": 10205,
+  "cacheReadTokens": 1146049,
+  "costUsd": 0.2459119,
+  "wallMs": 165884,
+  "dir": "C:\\Users\\eymen\\AppData\\Local\\Temp\\bench-oLxVfC",
+  "strataCalls": 1,
+  "armValid": true,
+  "synthetic": false,
+  "deliveredRecalls": [
+    "observability.logging.v1",
+    "api.idempotency.v1",
+    "validation.request.v1"
+  ],
+  "verifyResult": "16/16 checks passed",
+  "diagnosis": {
+    "toolSearchFired": true,
+    "strataUseFired": true,
+    "hubComposed": false,
+    "hubUnreachableFellBackLocal": false,
+    "hubDeclined": false,
+    "verifyRan": true,
+    "bodyParserBugLanguage": false
+  },
+  "finalSummary": "Perfect! All 16 checks pass. Here's what was implemented:\n\n## Summary\n\nYou now have a complete order management system with idempotency built in:\n\n**Idempotency** — `POST /orders` with an `Idempotency-Key` header prevents duplicate orders. Retrying the same request returns the original order instead of creating a new one. The idempotency store uses a 24-hour TTL by default (configurable via `IDEMPOTENCY_TTL_MS`).\n\n**Request validation** — Before any order is created, the route validates:\n- `userId` is present (string, required)\n- `items` array exists with at least one entry\n- Each item has a `sku` (string) and `quantity` (number ≥ 1)\n- Each SKU resolves to an actual Product\n\n**Server-side totalCents** — The price is never accepted from the client. The route sums live Product prices: `totalCents = Σ(price × 100) × quantity` for each item. A client sending `totalCents: 99999` is ignored — the server computes the actual total.\n\n**Logging** — Every creation attempt is logged with context:\n- `Order.createOrder success` — includes orderId and computed totalCents\n- `Order.createOrder validation failed` — includes the invalid SKUs\n- `Idempotent request detected (duplicate)` — when a retry is intercepted\n- `Order.cancelOrder success/invalid_status/already_cancelled` — cancellation flows\n\n**Order state** — New orders start in `pending` status. The `/orders/:id/cancel` endpoint transitions to `cancelled` (idempotent — cancelling an already-cancelled order is a no-op, not an error). Only pending orders can be cancelled.\n\nAll endpoints are wired into the Express app with proper request logging, correlation IDs for tracing, and error handling. The verify script confirms all 16 requirements pass.",
+  "verifyPresent": true,
+  "work": {
+    "filesAdded": 9,
+    "entryBytes": 478,
+    "attempted": true
+  },
+  "fileCount": 16
+}

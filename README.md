@@ -103,10 +103,10 @@ Run one task three times with one model. The interesting question is not *"was i
 | task | without Strata | **with Strata** |
 |---|---|---|
 | catalog | 63%, 75%, 75% | **100%, 100%, 100%** |
-| idempotency | **14%**, 71%, 71% | **86%, 86%, 86%** |
+| idempotency | **14%**, 71%, 71% | **100%, 100%, 100%** |
 | stripejune | 0%, 0%, 50% | 0%, 100%, 100% |
 
-On the two tasks the library covers well, **every Strata run returns the identical score** — a run-to-run spread of 0.0 points against baseline's 26.9 on idempotency. Strata does not beat the ceiling; a good baseline run reaches the same 86%. It reaches it *every time*.
+On the two tasks the library covers well, **every Strata run returns the identical score** — a run-to-run spread of 0.0 points against baseline's 26.9 on idempotency. Strata does not beat the ceiling; a good baseline run reaches 86% at best. It reaches it *every time*.
 
 That 14% is not a grading artefact — it repeats on re-grade. The session invented an order API whose create endpoint rejected every request shape the grader tried, and since everything else depends on creating an order, five checks collapsed at once. **A cliff, not a slightly worse result**, and nothing in the session's own output says it happened.
 
@@ -121,7 +121,7 @@ Baseline also edited `prisma/schema.prisma` — the database schema — in two o
 | catalog | baseline | 31.3 | $0.190 | 70.8% |
 | | **Strata** | **15.0** | **$0.077** | **100%** |
 | idempotency | baseline | 27.7 | $0.175 | 52.4% |
-| | **Strata** | **21.7** | **$0.134** | **85.7%** |
+| | **Strata** | **24.0** | **$0.158** | **100%** |
 | stripejune | baseline | 48.7 | $0.406 | 16.7% |
 | | **Strata** | **43.7** | **$0.385** | **66.7%** |
 

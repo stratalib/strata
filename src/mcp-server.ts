@@ -39,7 +39,7 @@ import { detectProjectShape, mountWiring, appVarName, ProjectShape } from './imp
 import { buildVerifierScript } from './verifier.js';
 import { loadGuide, StrataGuide } from './guide.js';
 import { generateAdapters } from './guide-generate.js';
-import { writeSeedIfAbsent, entityFromGuide, guideBlockFor, guideV2Enabled } from './guide-seed.js';
+import { writeSeedIfAbsent, entityFromGuide, guideBlockFor, guideEnabled } from './guide-seed.js';
 import { checksFromGuide } from './guide-checks.js';
 import { routesFromGuide, GuideRouteResult } from './guide-routes.js';
 import { appendUsageLog, hashProject } from './logger.js';
@@ -2463,7 +2463,7 @@ function buildVerifier(
   // report, so a guide promise and a recall behaviour are held to the same standard.
   // v1.2, gated off for the v1.1 release.
   let guideForChecks: StrataGuide | null = null;
-  const guideOn = guideV2Enabled();
+  const guideOn = guideEnabled();
   // strataDir is always <projectRoot>/strata, so the guide sits one level up. Threading projectDir
   // through the signature would touch every caller for a value already implied.
   if (guideOn) {
@@ -2858,8 +2858,8 @@ function buildWiring(
    */
   let guideGen: GuideRouteResult = { code: '', requires: [], files: [], built: [], skipped: [] };
   try {
-    // v1.2, gated off for the v1.1 release — see guideV2Enabled().
-    const g = guideV2Enabled() ? loadGuide(projectDir) : null;
+    // v1.2, gated off for the v1.1 release — see guideEnabled().
+    const g = guideEnabled() ? loadGuide(projectDir) : null;
     guideGen = routesFromGuide(g, entity?.name ?? null, {
       sourceRoot: shape.sourceRoot || '',
       hasValidation: contributors.some(r => r.id === 'validation.request.v1'),
@@ -4183,10 +4183,10 @@ server.registerTool(
        */
       // v1.2, gated OFF for the v1.1 release. Seeding CREATES a file in the user's project, and a
       // release whose changelog does not mention a file must not write one.
-      const seeded = guideV2Enabled() ? writeSeedIfAbsent(dir) : null;
+      const seeded = guideEnabled() ? writeSeedIfAbsent(dir) : null;
       if (seeded) console.error(`[strata] seeded ${seeded.path} — ${seeded.result.domainNames.join(', ')}`);
       let projectGuide: StrataGuide | null = null;
-      if (guideV2Enabled()) {
+      if (guideEnabled()) {
         try { projectGuide = loadGuide(dir); } catch { /* malformed — emitGuideAdapters reports it */ }
       }
 

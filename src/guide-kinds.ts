@@ -59,19 +59,41 @@ export interface OperationKind {
 const camel = (s: string) => s.charAt(0).toLowerCase() + s.slice(1);
 const notFound = (entity: string) => `      if (!row) return res.status(404).json({ error: '${entity} not found' });`;
 
+/** One value satisfying a declared field. */
+function sampleValue(f: { type: string; enumValues?: string[]; min?: number; items?: Record<string, { type: string; required?: boolean; min?: number; enumValues?: string[] }> }): unknown {
+  if (f.enumValues?.length) return f.enumValues[0];
+  switch (f.type) {
+    case 'number':  return f.min != null ? f.min : 1;
+    case 'boolean': return true;
+    case 'date':    return new Date().toISOString();
+    case 'array': {
+      /**
+       * Build the element from its DECLARED shape, never a guess.
+       *
+       * This was hardcoded to `[{ sku: 'strata-probe' }]`, which worked exactly as long as no domain
+       * declared what an element must contain. The moment `items` gained a required `qty` with a
+       * minimum, Strata's own probe body became invalid input — so the generated verifier failed on a
+       * correct delivery, and the session spent thirty turns debugging code that was fine. A probe
+       * that does not satisfy the schema the same generator emitted is not a test, it is a bug with a
+       * green light next to it.
+       */
+      if (!f.items) return [];
+      const el: Record<string, unknown> = {};
+      for (const [k, spec] of Object.entries(f.items)) {
+        if (spec.required || spec.min != null) el[k] = sampleValue(spec);
+      }
+      return [el];
+    }
+    default: return 'strata-probe';
+  }
+}
+
 /** A minimal body satisfying the domain's required, non-generated fields. */
 export function sampleBody(domain: Domain): string {
   const out: Record<string, unknown> = {};
   for (const f of domain.fields ?? []) {
     if (f.isId || f.generated || !f.required) continue;
-    if (f.enumValues?.length) { out[f.name] = f.enumValues[0]; continue; }
-    switch (f.type) {
-      case 'number':  out[f.name] = 1; break;
-      case 'boolean': out[f.name] = true; break;
-      case 'date':    out[f.name] = new Date().toISOString(); break;
-      case 'array':   out[f.name] = [{ sku: 'strata-probe' }]; break;
-      default:        out[f.name] = 'strata-probe'; break;
-    }
+    out[f.name] = sampleValue(f as Parameters<typeof sampleValue>[0]);
   }
   return JSON.stringify(out);
 }

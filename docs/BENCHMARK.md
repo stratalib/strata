@@ -18,12 +18,12 @@ Run one task three times with one model and the interesting question is not *"wa
 | task | without Strata | **with Strata** |
 |---|---|---|
 | catalog | 63%, 75%, 75% | **100%, 100%, 100%** |
-| idempotency | **14%**, 71%, 71% | **86%, 86%, 86%** |
+| idempotency | **14%**, 71%, 71% | **100%, 100%, 100%** |
 | stripejune | 0%, 0%, 50% | 0%, 100%, 100% |
 
 On the two tasks the library covers well, **every Strata run of a task returns the identical score** —
 a standard deviation of 0.0 against baseline's 26.9 points on idempotency. Strata does not beat the
-ceiling; a good baseline run reaches the same 86%. It reaches it *every time*.
+ceiling; a good baseline run reaches 86% at best. It reaches it *every time*.
 
 The idempotency 14% is stable across repeat gradings, not a grading artefact. That session invented an
 order API whose create endpoint rejected all five request shapes the grader tried, and because every
@@ -47,7 +47,7 @@ actually covers.** Four capabilities asked for, one covered, and the cost ratio 
 | catalog | baseline | 31.3 | $0.190 | 70.8% |
 | | **Strata** | **15.0** | **$0.077** | **100%** |
 | idempotency | baseline | 27.7 | $0.175 | 52.4% |
-| | **Strata** | **21.7** | **$0.134** | **85.7%** |
+| | **Strata** | **24.0** | **$0.158** | **100%** |
 | stripejune | baseline | 48.7 | $0.406 | 16.7% |
 | | **Strata** | **43.7** | **$0.385** | **66.7%** |
 

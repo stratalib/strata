@@ -134,6 +134,21 @@ function schemaLiteral(domain: Domain): string {
       const parts = [`type: '${t}'`];
       if (f.required) parts.push('required: true');
       if (f.enumValues?.length) parts.push(`enum: ${JSON.stringify(f.enumValues)}`);
+      // A declared element shape becomes a nested schema, so a list of records is validated per item
+      // rather than merely being present. Without this a negative quantity inside a line item reaches
+      // the handler — measured, and the one check where generated validation was weaker than what an
+      // unaided model writes by hand.
+      if (f.type === 'array' && f.items) {
+        const inner = Object.entries(f.items).map(([k, v]) => {
+          const p = [`type: '${v.type === 'enum' ? 'string' : v.type}'`];
+          if (v.required) p.push('required: true');
+          if (v.min != null) p.push(`min: ${v.min}`);
+          if (v.max != null) p.push(`max: ${v.max}`);
+          if (v.enumValues?.length) p.push(`enum: ${JSON.stringify(v.enumValues)}`);
+          return `        ${k}: { ${p.join(', ')} },`;
+        }).join('\n');
+        parts.push(`items: {\n${inner}\n      }`);
+      }
       return `    ${f.name}: { ${parts.join(', ')} },`;
     });
   return `{\n${entries.join('\n')}\n  }`;

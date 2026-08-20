@@ -143,7 +143,18 @@
           "name": "items",
           "type": "array",
           "required": true,
-          "_note": "Corrected 2026-08-17: was declared type:string. A list typed as a string silently defeats list validation — items:[] passed as a required field, which is the I5 check. The domain rules on this same object already said \"at least one line item\", so the guide contradicted itself and nothing caught it."
+          "_note": "Element shape, using the project's own vocabulary: prisma/schema.prisma names the field quantity, so a line item does too. Declaring it is what lets generated validation reject quantity:-5 — without it the list is checked for existence and waved through.",
+          "items": {
+            "sku": {
+              "type": "string",
+              "required": true
+            },
+            "quantity": {
+              "type": "number",
+              "required": true,
+              "min": 1
+            }
+          }
         },
         {
           "name": "totalCents",

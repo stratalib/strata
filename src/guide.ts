@@ -83,6 +83,18 @@ export interface DomainField {
    * pending/paid/cancelled, active/paused/cancelled) and is proven by the generated check either way.
    */
   default?: unknown;
+  /**
+   * For `type: "array"` — the shape of ONE element, so a list of records can be validated.
+   *
+   * Without it a list is checked for existence and then waved through: `items: [{ sku, qty: -5 }]`
+   * reaches the handler because the array is present and non-empty. Declaring the element shape is
+   * what lets generated validation reject it, and it is the difference between a list being
+   * *supplied* and a list being *valid*.
+   *
+   * Generic on purpose — order lines, invoice rows, cart entries, shipment parcels and batch payloads
+   * are all the same shape of problem.
+   */
+  items?: Record<string, { type: string; required?: boolean; min?: number; max?: number; enumValues?: string[] }>;
   unique?: boolean;
   min?: number;
   minLength?: number;

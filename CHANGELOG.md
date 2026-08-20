@@ -45,6 +45,59 @@ where every check belonged to a different module and nothing tested the delivere
   of the implementation is removed once it is installed as a dependency.
 - Every file Strata writes or edits is named in the response. No exceptions.
 
+### The project map — `strata.guide.json`
+
+Strata now writes a map of your project the first time it runs, and reads it on every call after.
+
+```json
+{
+  "domains": [{
+    "name": "order", "entity": "Order", "exists": false, "route": "/orders",
+    "fields": [{ "name": "items", "type": "array", "required": true,
+                 "items": { "sku": { "type": "string", "required": true },
+                            "quantity": { "type": "number", "required": true, "min": 1 } } }],
+    "operations": [{ "name": "cancelOrder", "route": "POST /orders/:id/cancel",
+                     "requires": ["order.status === 'pending'"],
+                     "guarantees": "cancelling an already-cancelled order is a no-op, not an error" }]
+  }]
+}
+```
+
+**Strata creates this file.** It is listed in the delivery that creates it, it contains only facts read
+off your disk — your stack, your layout, your datastore, your entities and their fields — and it never
+invents an operation or a guarantee. `STRATA_GUIDE=0` turns the whole thing off if you would rather it
+did not write a map into your repo.
+
+What it buys, once a domain is described:
+
+- **Entity resolution stops guessing.** Previously Strata scored every entity in your project against
+  the words in your task and *refused* when two were close — correct, but re-decided on every run and
+  never recorded. A map is the recorded answer.
+- **Strata can build things that do not exist yet.** A domain marked `"exists": false` is one Strata may
+  create: it generates the endpoints, a store, and the validation, and existing modules compose onto
+  them. Before this, a module like idempotency had nothing to guard on a project with no orders
+  endpoint, and you wrote that endpoint yourself.
+- **Declared guarantees become checks.** A `guarantees` line that Strata can compile turns into a
+  verifier check that proves it. One it cannot compile is named as unproven rather than passed over in
+  silence.
+- **State transitions are generated.** `cancel`, `publish`, `archive`, `promote`, `deactivate` and the
+  like resolve against whatever field carries state — an enum, a boolean flag, or a nullable timestamp.
+  An operation whose meaning is not derivable gets a real endpoint and a named slot, never a guess.
+
+### Nested list validation
+
+Generated validation used to check that a list was present and non-empty, then wave its contents
+through — so `items: [{ sku: "S1", quantity: -5 }]` was accepted. It now validates each element against
+its declared shape and names what failed:
+
+```
+items must have at least one item
+items [1].quantity must be at least 1
+```
+
+This was the one check where Strata was measurably **weaker** than an unaided model, which writes that
+bound by hand. It is now the check it passes every time.
+
 ### `strata preset`
 
 Adds Strata's usage notes to `~/.claude/CLAUDE.md` (or `./CLAUDE.md` with `--project`).
@@ -113,12 +166,15 @@ create two orders"*:
 
 | | baseline | **Strata** |
 |---|---|---|
-| quality, run by run | **14%**, 71%, 71% | **86%, 86%, 86%** |
+| quality, run by run | **14%**, 71%, 71% | **100%, 100%, 100%** |
 | standard deviation | **26.9 points** | **0.0 points** |
-| turns | 27.7 | **21.7** (0.78×) |
-| cost | $0.175 | **$0.134** (0.77×) |
+| turns | 27.7 | **24.0** (0.87×) |
+| cost | $0.175 | **$0.158** (0.90×) |
 | lines of code written | 201 | 46 |
 | project files touched | 4.0 | 0.3 |
+
+Every check, every run, with the order domain described in the map. Nine separate gradings of those
+three runs returned the same result each time.
 
 The 14% run is not a fluke and not a grading artefact — it scores the same on repeat passes. The
 session invented an order API whose create endpoint *"rejected all 5 shapes"* the grader tried, and
